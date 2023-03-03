@@ -1,0 +1,562 @@
+./archive/map_3d.py:import h5py
+./archive/map_3d.py:import argparse
+./archive/map_3d.py:from scipy import constants
+./archive/map_3d.py:import numpy as np
+./archive/map_3d.py:import matplotlib.pyplot as plt
+./archive/map_3d.py:import glob
+./archive/map_3d.py:import matplotlib.colors as color
+./archive/rad_ave.py:import crystfel_geometry
+./archive/rad_ave.py:import time
+./archive/rad_ave.py:import h5py
+./archive/rad_ave.py:import numpy
+./archive/rad_ave.py:import argparse
+./archive/rad_ave.py:from typing import Any, BinaryIO, List
+./archive/rad_ave.py:import matplotlib.pyplot as plt
+./archive/rad_ave.py:from PIL import Image
+./archive/rad_ave.py:import center_finding
+./archive/rad_ave.py:from utils import sum_nth, radial_average, sum_nth_mask
+./archive/rad_ave.py:import utils
+./archive/rad_ave.py:from multiprocessing import Pool
+./archive/rad_ave.py:from powder import azimuthal_average
+./archive/rad_ave.py:from skued import gaussian
+./archive/rad_ave.py:from skued import baseline_dwt,baseline_dt
+./archive/rad_ave.py:import peakutils
+./archive/dif_pump.py:import h5py
+./archive/dif_pump.py:import numpy
+./archive/dif_pump.py:import argparse
+./archive/dif_pump.py:from utils import sum_nth_mask
+./archive/radial_dif.py:import h5py
+./archive/radial_dif.py:import numpy
+./archive/radial_dif.py:import argparse
+./archive/radial_dif.py:from utils import sum_nth_mask,radial_average
+./archive/radial_dif.py:from powder import azimuthal_average
+./archive/simple_widget.py:import sys
+./archive/simple_widget.py:from PyQt5.QtWidgets import * 
+./archive/simple_widget.py:import time
+./archive/simple_widget.py:import autoproc
+./archive/select_peak.py:import time
+./archive/select_peak.py:import h5py
+./archive/select_peak.py:import numpy
+./archive/select_peak.py:import argparse
+./archive/select_peak.py:from typing import Any, BinaryIO, List
+./archive/select_peak.py:import matplotlib.pyplot as plt
+./archive/select_peak.py:from PIL import Image
+./archive/select_peak.py:import center_finding
+./archive/select_peak.py:from utils import sum_nth, radial_average, sum_nth_mask
+./archive/select_peak.py:import utils
+./archive/select_peak.py:from multiprocessing import Pool
+./archive/select_peak.py:from powder import azimuthal_average
+./archive/make_peak_file.py:import numpy as np
+./gui/qt/regae_autoproc.py:import sys
+./gui/qt/regae_autoproc.py:from PyQt5.QtWidgets import * 
+./gui/qt/regae_autoproc.py:import PyQt5.QtCore as QtCore
+./gui/qt/regae_autoproc.py:from PyQt5.QtCore import QTimer
+./gui/qt/regae_autoproc.py:from PyQt5.QtGui import QIcon
+./gui/qt/regae_autoproc.py:import matplotlib
+./gui/qt/regae_autoproc.py:import matplotlib.pylab as pl
+./gui/qt/regae_autoproc.py:from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+./gui/qt/regae_autoproc.py:from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+./gui/qt/regae_autoproc.py:from matplotlib.figure import Figure
+./gui/qt/regae_autoproc.py:from scipy import constants
+./gui/qt/regae_autoproc.py:import time
+./gui/qt/regae_autoproc.py:import autoproc
+./gui/qt/regae_autoproc.py:import h5py
+./gui/qt/regae_autoproc.py:import numpy as np
+./gui/qt/regae_autoproc.py:import matplotlib.pyplot as plt
+./gui/qt/regae_autoproc.py:import argparse
+./gui/qt/regae_autoproc.py:import convert_images
+./gui/qt/regae_autoproc.py:import math
+./gui/qt/regae_autoproc.py:from select_peaks_gui import SelectPeaksWindow
+./gui/qt/regae_autoproc.py:from results_gui import ResultsWindow
+./gui/qt/select_peaks_gui.py:import sys
+./gui/qt/select_peaks_gui.py:from PyQt5.QtWidgets import * 
+./gui/qt/select_peaks_gui.py:import PyQt5.QtCore as QtCore
+./gui/qt/select_peaks_gui.py:from PyQt5.QtCore import QTimer
+./gui/qt/select_peaks_gui.py:from PyQt5.QtGui import QIcon
+./gui/qt/select_peaks_gui.py:import matplotlib
+./gui/qt/select_peaks_gui.py:import matplotlib.pylab as pl
+./gui/qt/select_peaks_gui.py:from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+./gui/qt/select_peaks_gui.py:from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+./gui/qt/select_peaks_gui.py:from matplotlib.figure import Figure
+./gui/qt/select_peaks_gui.py:from scipy import constants
+./gui/qt/select_peaks_gui.py:import time
+./gui/qt/select_peaks_gui.py:import autoproc
+./gui/qt/select_peaks_gui.py:import os
+./gui/qt/select_peaks_gui.py:import pandas as pd
+./gui/qt/select_peaks_gui.py:import h5py
+./gui/qt/select_peaks_gui.py:import numpy as np
+./gui/qt/select_peaks_gui.py:import matplotlib.pyplot as plt
+./gui/qt/select_peaks_gui.py:import argparse
+./gui/qt/select_peaks_gui.py:import math
+./gui/qt/select_peaks_gui.py:import glob
+./gui/qt/select_peaks_gui.py:from results_gui import ResultsWindow
+./gui/qt/select_peaks_gui.py:        self.sub_layout_2.addWidget(self.importFileButton)
+./gui/qt/select_peaks_gui.py:        self.importFileButton.clicked.connect(self._import_file_button_clicked)
+./gui/qt/select_peaks_gui.py:        self.importFileButton = QPushButton("Import peaks")
+./gui/qt/select_peaks_gui.py:        self.importFileButton.setCheckable(True)
+./gui/qt/select_peaks_gui.py:        self.importFileButton.setChecked(False)
+./gui/qt/select_peaks_gui.py:    def _import_file_button_clicked(self) -> None:
+./gui/qt/select_peaks_gui.py:        # Manages clicks on the 'import' button.
+./gui/qt/select_peaks_gui.py:        self.importFileButton.setCheckable(True)
+./gui/qt/select_peaks_gui.py:        self.importFileButton.setChecked(False)
+./gui/qt/select_peaks_gui.py:        print(f'Peak ranges successfully imported from {self.peak_file}!')
+./gui/qt/select_peaks_gui.py:        # Manages clicks on the 'import' button.
+./gui/qt/autoproc.py:from time import sleep
+./gui/qt/autoproc.py:import sys
+./gui/qt/autoproc.py:import numpy
+./gui/qt/autoproc.py:import h5py
+./gui/qt/autoproc.py:import argparse
+./gui/qt/autoproc.py:import subprocess
+./gui/qt/autoproc.py:import sumup_nocenter
+./gui/qt/autoproc.py:import scaling
+./gui/qt/autoproc.py:import scaling_sum
+./gui/qt/autoproc.py:import scaling_begin
+./gui/qt/autoproc.py:import no_scaling
+./gui/qt/autoproc.py:import merge_scan
+./gui/qt/autoproc.py:import select_peak
+./gui/qt/autoproc.py:import fit_peaks
+./gui/qt/autoproc.py:import merge_average
+./gui/qt/autoproc.py:import scan_radial_to_file
+./gui/qt/autoproc.py:import multiprocessing
+./gui/qt/autoproc.py:from functools import partial
+./gui/qt/autoproc.py:import glob
+./gui/qt/autoproc.py:from datetime import datetime
+./gui/qt/select_peaks_gui_2.py:import sys
+./gui/qt/select_peaks_gui_2.py:from PyQt5.QtWidgets import * 
+./gui/qt/select_peaks_gui_2.py:import PyQt5.QtCore as QtCore
+./gui/qt/select_peaks_gui_2.py:from PyQt5.QtCore import QTimer
+./gui/qt/select_peaks_gui_2.py:from PyQt5.QtGui import QIcon
+./gui/qt/select_peaks_gui_2.py:import matplotlib
+./gui/qt/select_peaks_gui_2.py:import matplotlib.pylab as pl
+./gui/qt/select_peaks_gui_2.py:import pyqtgraph as pg
+./gui/qt/select_peaks_gui_2.py:from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+./gui/qt/select_peaks_gui_2.py:from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+./gui/qt/select_peaks_gui_2.py:from matplotlib.figure import Figure
+./gui/qt/select_peaks_gui_2.py:from scipy import constants
+./gui/qt/select_peaks_gui_2.py:import time
+./gui/qt/select_peaks_gui_2.py:import autoproc
+./gui/qt/select_peaks_gui_2.py:import os
+./gui/qt/select_peaks_gui_2.py:import h5py
+./gui/qt/select_peaks_gui_2.py:import numpy as np
+./gui/qt/select_peaks_gui_2.py:import matplotlib.pyplot as plt
+./gui/qt/select_peaks_gui_2.py:import argparse
+./gui/qt/select_peaks_gui_2.py:import math
+./gui/qt/select_peaks_gui_2.py:import glob
+./gui/qt/select_peaks_gui_2.py:from results_gui import ResultsWindow
+./gui/qt/scan_radial_to_file.py:import h5py
+./gui/qt/scan_radial_to_file.py:import matplotlib.pylab as pl
+./gui/qt/scan_radial_to_file.py:import numpy as np
+./gui/qt/scan_radial_to_file.py:import matplotlib.pyplot as plt
+./gui/qt/scan_radial_to_file.py:import argparse
+./gui/qt/results_gui.py:import sys
+./gui/qt/results_gui.py:from PyQt5.QtWidgets import * 
+./gui/qt/results_gui.py:import PyQt5.QtCore as QtCore
+./gui/qt/results_gui.py:from PyQt5.QtCore import QTimer
+./gui/qt/results_gui.py:from PyQt5.QtGui import QIcon
+./gui/qt/results_gui.py:import matplotlib
+./gui/qt/results_gui.py:import matplotlib.pylab as pl
+./gui/qt/results_gui.py:from matplotlib.backends.backend_qt5agg import FigureCanvasQTAgg as FigureCanvas
+./gui/qt/results_gui.py:from matplotlib.backends.backend_qt5agg import NavigationToolbar2QT as NavigationToolbar
+./gui/qt/results_gui.py:from matplotlib.figure import Figure
+./gui/qt/results_gui.py:from scipy import constants
+./gui/qt/results_gui.py:import time
+./gui/qt/results_gui.py:import autoproc
+./gui/qt/results_gui.py:import math
+./gui/qt/results_gui.py:import h5py
+./gui/qt/results_gui.py:import numpy as np
+./gui/qt/results_gui.py:import matplotlib.pyplot as plt
+./gui/qt/results_gui.py:import argparse
+./gui/centering/sumup_nocenter_ren.py:import time
+./gui/centering/sumup_nocenter_ren.py:import h5py
+./gui/centering/sumup_nocenter_ren.py:import numpy
+./gui/centering/sumup_nocenter_ren.py:import argparse
+./gui/centering/sumup_nocenter_ren.py:from typing import Any, BinaryIO, List
+./gui/centering/sumup_nocenter_ren.py:import matplotlib.pyplot as plt
+./gui/centering/sumup_nocenter_ren.py:from PIL import Image
+./gui/centering/sumup_nocenter_ren.py:import center_finding
+./gui/centering/sumup_nocenter_ren.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/centering/sumup_nocenter_ren.py:import utils
+./gui/centering/sumup_nocenter_ren.py:from multiprocessing import Pool
+./gui/centering/sumup_nocenter_ren.py:from powder import azimuthal_average
+./gui/centering/sumup_nocenter_ren.py:    #import dark and gain files
+./gui/centering/sumup_nodark.py:import time
+./gui/centering/sumup_nodark.py:import h5py
+./gui/centering/sumup_nodark.py:import numpy
+./gui/centering/sumup_nodark.py:import argparse
+./gui/centering/sumup_nodark.py:from typing import Any, BinaryIO, List
+./gui/centering/sumup_nodark.py:import matplotlib.pyplot as plt
+./gui/centering/sumup_nodark.py:from PIL import Image
+./gui/centering/sumup_nodark.py:import center_finding
+./gui/centering/sumup_nodark.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/centering/sumup_nodark.py:import utils
+./gui/centering/sumup_nodark.py:from multiprocessing import Pool
+./gui/centering/sumup_nodark.py:from powder import azimuthal_average
+./gui/centering/sumup_nodark.py:    #import dark and gain files
+./gui/centering/center_finding.py:import matplotlib.pyplot as plt
+./gui/centering/center_finding.py:import matplotlib.colors as color
+./gui/centering/center_finding.py:import numpy as np
+./gui/centering/center_finding.py:from diffractem import center_of_mass
+./gui/centering/center_finding.py:import utils
+./gui/centering/center_finding.py:import h5py
+./gui/centering/center_finding.py:from scipy import signal
+./gui/centering/sumup_nocenter.py:import time
+./gui/centering/sumup_nocenter.py:import h5py
+./gui/centering/sumup_nocenter.py:import numpy
+./gui/centering/sumup_nocenter.py:import argparse
+./gui/centering/sumup_nocenter.py:from typing import Any, BinaryIO, List
+./gui/centering/sumup_nocenter.py:import matplotlib.pyplot as plt
+./gui/centering/sumup_nocenter.py:from PIL import Image
+./gui/centering/sumup_nocenter.py:import center_finding
+./gui/centering/sumup_nocenter.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/centering/sumup_nocenter.py:import utils
+./gui/centering/sumup_nocenter.py:from multiprocessing import Pool
+./gui/centering/sumup_nocenter.py:from powder import azimuthal_average
+./gui/centering/sumup_nocenter.py:from skued import gaussian
+./gui/centering/sumup_nocenter.py:from skued import baseline_dwt,baseline_dt
+./gui/centering/sumup_nocenter.py:import peakutils
+./gui/centering/sumup_nocenter.py:    #import dark and gain files
+./gui/centering/sumup_center.py:import crystfel_geometry
+./gui/centering/sumup_center.py:import time
+./gui/centering/sumup_center.py:import h5py
+./gui/centering/sumup_center.py:import numpy
+./gui/centering/sumup_center.py:import argparse
+./gui/centering/sumup_center.py:from typing import Any, BinaryIO, List
+./gui/centering/sumup_center.py:import matplotlib.pyplot as plt
+./gui/centering/sumup_center.py:from PIL import Image
+./gui/centering/sumup_center.py:import center_finding
+./gui/centering/sumup_center.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/centering/sumup_center.py:import utils
+./gui/centering/sumup_center.py:from multiprocessing import Pool
+./gui/centering/sumup_center.py:from powder import azimuthal_average
+./gui/centering/sumup_center.py:from skued import gaussian
+./gui/centering/sumup_center.py:from skued import baseline_dwt,baseline_dt
+./gui/centering/sumup_center.py:import peakutils
+./gui/centering/sumup_center.py:    #import dark and gain files
+./gui/merge/merge_summed.py:import h5py
+./gui/merge/merge_summed.py:import numpy
+./gui/merge/merge_summed.py:import argparse
+./gui/merge/merge_summed.py:from utils import sum_nth_mask
+./gui/merge/merge_scan.py:import h5py
+./gui/merge/merge_scan.py:import numpy
+./gui/merge/merge_scan.py:import argparse
+./gui/merge/merge_scan.py:import os
+./gui/merge/merge_scan.py:import glob
+./gui/merge/merge_all_convert.py:import h5py
+./gui/merge/merge_all_convert.py:import numpy
+./gui/merge/merge_all_convert.py:import argparse
+./gui/merge/merge_all_convert.py:from utils import sum_nth_mask
+./gui/merge/merge_all_convert.py:import glob
+./gui/merge/merge_average.py:import h5py
+./gui/merge/merge_average.py:import numpy as np
+./gui/merge/merge_average.py:import argparse
+./gui/merge/merge_average.py:import matplotlib.pyplot as plt
+./gui/merge/merge_average.py:from utils import sum_nth_mask
+./gui/merge/merge_average.py:import matplotlib.colors as color
+./gui/merge/merge_average_2.py:import h5py
+./gui/merge/merge_average_2.py:import numpy as np
+./gui/merge/merge_average_2.py:import argparse
+./gui/merge/merge_average_2.py:from utils import sum_nth_mask
+./gui/scaling/no_scaling.py:import time
+./gui/scaling/no_scaling.py:import h5py
+./gui/scaling/no_scaling.py:import numpy
+./gui/scaling/no_scaling.py:import subprocess as sub
+./gui/scaling/no_scaling.py:import argparse
+./gui/scaling/no_scaling.py:from typing import Any, BinaryIO, List
+./gui/scaling/no_scaling.py:import matplotlib.pyplot as plt
+./gui/scaling/no_scaling.py:from PIL import Image
+./gui/scaling/no_scaling.py:import center_finding
+./gui/scaling/no_scaling.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/scaling/no_scaling.py:import utils
+./gui/scaling/no_scaling.py:from multiprocessing import Pool
+./gui/scaling/no_scaling.py:from powder import azimuthal_average
+./gui/scaling/scaling.py:import time
+./gui/scaling/scaling.py:import datetime
+./gui/scaling/scaling.py:import h5py
+./gui/scaling/scaling.py:import numpy as np
+./gui/scaling/scaling.py:import argparse
+./gui/scaling/scaling.py:from typing import Any, BinaryIO, List
+./gui/scaling/scaling.py:import matplotlib.pyplot as plt
+./gui/scaling/scaling.py:from PIL import Image
+./gui/scaling/scaling.py:import center_finding
+./gui/scaling/scaling.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/scaling/scaling.py:import utils
+./gui/scaling/scaling.py:from multiprocessing import Pool
+./gui/scaling/scaling.py:from powder import azimuthal_average
+./gui/scaling/scaling.py:import csv
+./gui/scaling/scaling_begin.py:import time
+./gui/scaling/scaling_begin.py:import h5py
+./gui/scaling/scaling_begin.py:import numpy
+./gui/scaling/scaling_begin.py:import argparse
+./gui/scaling/scaling_begin.py:from typing import Any, BinaryIO, List
+./gui/scaling/scaling_begin.py:import matplotlib.pyplot as plt
+./gui/scaling/scaling_begin.py:from PIL import Image
+./gui/scaling/scaling_begin.py:import center_finding
+./gui/scaling/scaling_begin.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/scaling/scaling_begin.py:import utils
+./gui/scaling/scaling_begin.py:from multiprocessing import Pool
+./gui/scaling/scaling_begin.py:from powder import azimuthal_average
+./gui/scaling/scaling_sum.py:import time
+./gui/scaling/scaling_sum.py:import h5py
+./gui/scaling/scaling_sum.py:import numpy
+./gui/scaling/scaling_sum.py:import crystfel_geometry
+./gui/scaling/scaling_sum.py:import argparse
+./gui/scaling/scaling_sum.py:from typing import Any, BinaryIO, List
+./gui/scaling/scaling_sum.py:import matplotlib.pyplot as plt
+./gui/scaling/scaling_sum.py:from PIL import Image
+./gui/scaling/scaling_sum.py:import center_finding
+./gui/scaling/scaling_sum.py:from utils import sum_nth, radial_average, sum_nth_mask
+./gui/scaling/scaling_sum.py:import utils
+./gui/scaling/scaling_sum.py:from multiprocessing import Pool
+./gui/scaling/scaling_sum.py:from powder import azimuthal_average
+./gui/scaling/scaling_sum.py:from skued import gaussian
+./gui/scaling/scaling_sum.py:from skued import baseline_dwt,baseline_dt
+./gui/plots/plot_circle.py:import h5py
+./gui/plots/plot_circle.py:import numpy as np
+./gui/plots/plot_circle.py:import matplotlib.pyplot as plt
+./gui/plots/plot_circle.py:from utils import resolution_rings
+./gui/plots/plot_circle.py:import argparse
+./gui/fit/check_r.py:import time
+./gui/fit/check_r.py:import h5py
+./gui/fit/check_r.py:import numpy
+./gui/fit/check_r.py:import matplotlib.pyplot as plt
+./gui/fit/check_r.py:import argparse
+./gui/fit/check_r.py:import glob
+./gui/fit/fit_fudge_2.py:import numpy as np
+./gui/fit/fit_fudge_2.py:import matplotlib.pyplot as plt
+./gui/fit/fit_fudge_2.py:import math
+./gui/fit/fit_fudge_2.py:import argparse
+./gui/fit/fit_fudge_2.py:import glob
+./gui/fit/fit_fudge_2.py:import h5py
+./gui/fit/fit_fudge.py:import numpy as np
+./gui/fit/fit_fudge.py:import matplotlib.pyplot as plt
+./gui/fit/fit_fudge.py:import math
+./gui/fit/fit_fudge.py:import argparse
+./gui/fit/fit_fudge.py:import h5py
+./gui/fit/fit_central_beam.py:import time
+./gui/fit/fit_central_beam.py:import h5py
+./gui/fit/fit_central_beam.py:import numpy as np
+./gui/fit/fit_central_beam.py:import matplotlib.pyplot as plt
+./gui/fit/fit_central_beam.py:import argparse
+./gui/fit/fit_central_beam.py:from scipy.optimize import curve_fit
+./gui/fit/fit_central_beam.py:from numpy import exp
+./gui/fit/fit_peaks.py:import subprocess as sub
+./gui/fit/fit_peaks.py:import time
+./gui/fit/fit_peaks.py:import h5py
+./gui/fit/fit_peaks.py:import numpy
+./gui/fit/fit_peaks.py:import matplotlib.pyplot as plt
+./gui/fit/fit_peaks.py:import argparse
+./gui/fit/fit_peaks.py:from scipy.optimize import curve_fit
+./gui/fit/fit_peaks.py:from numpy import exp
+./gui/fit/fit_peaks_2.py:import subprocess as sub
+./gui/fit/fit_peaks_2.py:import time
+./gui/fit/fit_peaks_2.py:import h5py
+./gui/fit/fit_peaks_2.py:import numpy
+./gui/fit/fit_peaks_2.py:import matplotlib.pyplot as plt
+./gui/fit/fit_peaks_2.py:import argparse
+./gui/fit/fit_peaks_2.py:from scipy.optimize import curve_fit
+./gui/fit/fit_peaks_2.py:from numpy import exp
+./distortions/ellipse.py:import numpy as np
+./distortions/ellipse.py:import matplotlib.pyplot as plt
+./distortions/ellipse_opt.py:import matplotlib.colors as color
+./distortions/ellipse_opt.py:import h5py
+./distortions/ellipse_opt.py:import numpy as np
+./distortions/ellipse_opt.py:import matplotlib.pyplot as plt
+./distortions/ellipse_opt.py:import utils
+./distortions/ellipse_opt.py:import powder
+./distortions/ellipse_opt.py:from ellipse import fit_ellipse, cart_to_pol,get_ellipse_pts
+./distortions/ellipse_opt.py:from concurrent.futures import ProcessPoolExecutor
+./distortions/ellipse_dist.py:import matplotlib.colors as color
+./distortions/ellipse_dist.py:import h5py
+./distortions/ellipse_dist.py:import numpy as np
+./distortions/ellipse_dist.py:import matplotlib.pyplot as plt
+./distortions/ellipse_dist.py:import utils
+./distortions/ellipse_dist.py:import powder
+./distortions/ellipse_dist.py:import argparse
+./distortions/ellipse_dist.py:from ellipse import fit_ellipse, cart_to_pol,get_ellipse_pts
+./distortions/ellipse_cut.py:import matplotlib.colors as color
+./distortions/ellipse_cut.py:import h5py
+./distortions/ellipse_cut.py:import numpy as np
+./distortions/ellipse_cut.py:import matplotlib.pyplot as plt
+./distortions/ellipse_cut.py:import utils
+./distortions/ellipse_cut.py:import powder
+./distortions/ellipse_cut.py:import argparse
+./distortions/ellipse_cut.py:from ellipse import fit_ellipse, cart_to_pol,get_ellipse_pts
+./utils/test_event_axes.py:import matplotlib.pyplot as plt
+./utils/label_data.py:from scipy.ndimage.measurements import label
+./utils/label_data.py:from skimage import filters
+./utils/label_data.py:import numpy
+./utils/label_data.py:import argparse
+./utils/label_data.py:import h5py
+./utils/label_data.py:import cv2
+./utils/label_data.py:import matplotlib.pyplot as plt
+./utils/label_data.py:import skimage.io
+./utils/label_data.py:import skimage.color
+./utils/label_data.py:import skimage.filters
+./utils/label_data.py:import skimage.measure
+./utils/label_data.py:from PIL import Image
+./utils/radial_plot_theta.py:import h5py
+./utils/radial_plot_theta.py:import argparse
+./utils/radial_plot_theta.py:from scipy import constants
+./utils/radial_plot_theta.py:import numpy as np
+./utils/radial_plot_theta.py:import matplotlib.pyplot as plt
+./utils/radial_plot_theta.py:import math
+./utils/radial_plot_theta.py:from scipy.optimize import curve_fit
+./utils/utils.py:import numpy as np
+./utils/utils.py:import matplotlib.pyplot as plt
+./utils/utils.py:import matplotlib.colors as color
+./utils/utils.py:from scipy import sparse
+./utils/utils.py:import scipy.signal as signal
+./utils/utils.py:from matplotlib.widgets import Slider
+./utils/utils.py:from scipy.sparse.linalg import spsolve
+./utils/utils.py:from powder import azimuthal_average
+./utils/max_res.py:import numpy
+./utils/max_res.py:from scipy import constants
+./utils/max_res.py:import argparse
+./utils/max_res_px.py:import numpy
+./utils/max_res_px.py:from scipy import constants
+./utils/max_res_px.py:import argparse
+./utils/calc_dist.py:import h5py
+./utils/calc_dist.py:import argparse
+./utils/calc_dist.py:from scipy import constants
+./utils/calc_dist.py:import numpy as np
+./utils/calc_dist.py:import matplotlib.pyplot as plt
+./utils/calc_dist.py:import math
+./utils/calc_dist.py:from scipy.optimize import curve_fit
+./powder/powder.py:from functools import partial
+./powder/powder.py:import numpy as np
+./powder/sumup_powder.py:import h5py
+./powder/sumup_powder.py:import numpy
+./powder/sumup_powder.py:import argparse
+./powder/sim_pattern.py:import numpy as np
+./powder/sim_pattern.py:import matplotlib.pyplot as plt
+./powder/sim_pattern.py:import math
+./powder/sim_pattern.py:from scipy import constants
+./powder/sim_pattern.py:import argparse
+./powder/sim_pattern.py:import yaml
+./jungfrau/histogram/hist_pixel.py:import numpy
+./jungfrau/histogram/hist_pixel.py:import argparse
+./jungfrau/histogram/hist_pixel.py:import h5py
+./jungfrau/histogram/hist_pixel.py:import cv2
+./jungfrau/histogram/hist_pixel.py:import matplotlib.pyplot as plt
+./jungfrau/rocking_curve/rocking_step.py:import h5py
+./jungfrau/rocking_curve/rocking_step.py:import argparse
+./jungfrau/rocking_curve/rocking_step.py:from scipy import constants
+./jungfrau/rocking_curve/rocking_step.py:import numpy
+./jungfrau/rocking_curve/rocking_step.py:import matplotlib.pyplot as plt
+./jungfrau/rocking_curve/rocking_step.py:import glob
+./jungfrau/rocking_curve/rocking_step.py:import matplotlib.colors as color
+./jungfrau/rocking_curve/rocking_step_1.py:import h5py
+./jungfrau/rocking_curve/rocking_step_1.py:import argparse
+./jungfrau/rocking_curve/rocking_step_1.py:from scipy import constants
+./jungfrau/rocking_curve/rocking_step_1.py:import numpy
+./jungfrau/rocking_curve/rocking_step_1.py:import matplotlib.pyplot as plt
+./jungfrau/rocking_curve/rocking_step_1.py:import glob
+./jungfrau/rocking_curve/rocking_step_1.py:import matplotlib.colors as color
+./jungfrau/rocking_curve/rocking_curve.py:import h5py
+./jungfrau/rocking_curve/rocking_curve.py:import argparse
+./jungfrau/rocking_curve/rocking_curve.py:from scipy import constants
+./jungfrau/rocking_curve/rocking_curve.py:import numpy
+./jungfrau/rocking_curve/rocking_curve.py:import matplotlib.pyplot as plt
+./jungfrau/rocking_curve/rocking_curve.py:import glob
+./jungfrau/rocking_curve/rocking_curve.py:import matplotlib.colors as color
+./jungfrau/conversion/convert_all.py:import h5py
+./jungfrau/conversion/convert_all.py:import argparse
+./jungfrau/conversion/convert_all.py:from scipy import constants
+./jungfrau/conversion/convert_all.py:import numpy
+./jungfrau/conversion/convert_all.py:import matplotlib.pyplot as plt
+./jungfrau/conversion/convert_all.py:import glob
+./jungfrau/conversion/convert_all.py:import matplotlib.colors as color
+./jungfrau/conversion/convert_images.py:from time import sleep
+./jungfrau/conversion/convert_images.py:import sys
+./jungfrau/conversion/convert_images.py:import numpy
+./jungfrau/conversion/convert_images.py:import argparse
+./jungfrau/conversion/convert_images.py:import subprocess
+./jungfrau/conversion/convert_images.py:import sumup_nocenter
+./jungfrau/conversion/convert_images.py:import scaling
+./jungfrau/conversion/convert_images.py:import scaling_sum
+./jungfrau/conversion/convert_images.py:import scaling_begin
+./jungfrau/conversion/convert_images.py:import no_scaling
+./jungfrau/conversion/convert_images.py:import merge_scan
+./jungfrau/conversion/convert_images.py:import select_peak
+./jungfrau/conversion/convert_images.py:import fit_peaks
+./jungfrau/conversion/convert_images.py:import merge_average
+./jungfrau/conversion/convert_images.py:import scan_radial_to_file
+./jungfrau/conversion/convert_images.py:import rad_ave
+./jungfrau/conversion/convert_images.py:import multiprocessing
+./jungfrau/conversion/convert_images.py:from functools import partial
+./jungfrau/conversion/convert_images.py:from datetime import datetime
+./jungfrau/data_visualization/plot_scan_ring_dev.py:import h5py
+./jungfrau/data_visualization/plot_scan_ring_dev.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_ring_dev.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_two_states.py:import h5py
+./jungfrau/data_visualization/plot_two_states.py:import numpy as np
+./jungfrau/data_visualization/plot_two_states.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_two_states.py:from utils import resolution_rings
+./jungfrau/data_visualization/plot_two_states.py:import argparse
+./jungfrau/data_visualization/plot_two_states.py:import matplotlib.colors as color
+./jungfrau/data_visualization/plot_two_states.py:from matplotlib.widgets import Slider
+./jungfrau/data_visualization/plot_scan_err.py:import h5py
+./jungfrau/data_visualization/plot_scan_err.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_err.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_scan_err.py:import argparse
+./jungfrau/data_visualization/plot_scan.py:import h5py
+./jungfrau/data_visualization/plot_scan.py:import numpy as np
+./jungfrau/data_visualization/plot_scan.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_scan.py:import argparse
+./jungfrau/data_visualization/plot_scan_mov.py:import h5py
+./jungfrau/data_visualization/plot_scan_mov.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_mov.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_scan_mov.py:import argparse
+./jungfrau/data_visualization/plot_scan_mov.py:from scipy.optimize import curve_fit
+./jungfrau/data_visualization/plot_scan_radial.py:import h5py
+./jungfrau/data_visualization/plot_scan_radial.py:import matplotlib.pylab as pl
+./jungfrau/data_visualization/plot_scan_radial.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_radial.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_scan_radial.py:import argparse
+./jungfrau/data_visualization/plot_scan_methods.py:import h5py
+./jungfrau/data_visualization/plot_scan_methods.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_methods.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_time_scan.py:import h5py
+./jungfrau/data_visualization/plot_time_scan.py:import matplotlib.pylab as pl
+./jungfrau/data_visualization/plot_time_scan.py:import numpy as np
+./jungfrau/data_visualization/plot_time_scan.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_time_scan.py:import argparse
+./jungfrau/data_visualization/plot_circle.py:import h5py
+./jungfrau/data_visualization/plot_circle.py:import numpy as np
+./jungfrau/data_visualization/plot_circle.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_circle.py:from utils import resolution_rings
+./jungfrau/data_visualization/plot_circle.py:import argparse
+./jungfrau/data_visualization/plot_scan_err_ref.py:import h5py
+./jungfrau/data_visualization/plot_scan_err_ref.py:import numpy as np
+./jungfrau/data_visualization/plot_scan_err_ref.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_scan_err_ref.py:import argparse
+./jungfrau/data_visualization/plot_two_sum.py:import h5py
+./jungfrau/data_visualization/plot_two_sum.py:import numpy as np
+./jungfrau/data_visualization/plot_two_sum.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_two_sum.py:from utils import resolution_rings
+./jungfrau/data_visualization/plot_two_sum.py:import argparse
+./jungfrau/data_visualization/plot_two_sum.py:import matplotlib.colors as color
+./jungfrau/data_visualization/plot_two_sum.py:from matplotlib.widgets import Slider
+./jungfrau/data_visualization/hdf_see_rings.py:import crystfel_geometry
+./jungfrau/data_visualization/hdf_see_rings.py:import time
+./jungfrau/data_visualization/hdf_see_rings.py:import h5py
+./jungfrau/data_visualization/hdf_see_rings.py:import numpy
+./jungfrau/data_visualization/hdf_see_rings.py:from scipy import constants
+./jungfrau/data_visualization/hdf_see_rings.py:import matplotlib.colors as color
+./jungfrau/data_visualization/hdf_see_rings.py:import argparse
+./jungfrau/data_visualization/hdf_see_rings.py:from typing import Any, BinaryIO, List
+./jungfrau/data_visualization/hdf_see_rings.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/hdf_see_rings.py:from PIL import Image
+./jungfrau/data_visualization/hdf_see_rings.py:import center_finding
+./jungfrau/data_visualization/hdf_see_rings.py:from utils import sum_nth, radial_average, sum_nth_mask
+./jungfrau/data_visualization/hdf_see_rings.py:import utils
+./jungfrau/data_visualization/hdf_see_rings.py:import math
+./jungfrau/data_visualization/hdf_see_rings.py:from multiprocessing import Pool
+./jungfrau/data_visualization/hdf_see_rings.py:from powder import azimuthal_average
+./jungfrau/data_visualization/hdf_see_rings.py:from skued import gaussian
+./jungfrau/data_visualization/hdf_see_rings.py:from skued import baseline_dwt,baseline_dt
+./jungfrau/data_visualization/hdf_see_rings.py:import peakutils
+./jungfrau/data_visualization/plot_ellipse.py:import h5py
+./jungfrau/data_visualization/plot_ellipse.py:import numpy as np
+./jungfrau/data_visualization/plot_ellipse.py:import matplotlib.pyplot as plt
+./jungfrau/data_visualization/plot_ellipse.py:import argparse
