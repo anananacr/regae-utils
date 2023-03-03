@@ -1,0 +1,69 @@
+#!/bin/sh
+
+# Split a large centering job into many small tasks and submit using SLURM
+
+# ./turbo-center my-file.h5 centered-file.h5 label
+
+# Copyright � 2016-2017 Deutsches Elektronen-Synchrotron DESY,
+#                       a research centre of the Helmholtz Association.
+#
+# Authors:
+#      
+
+#MAIL=ana.rodrigues@desy.de
+
+
+INPUT=$1
+DATE=20220922
+LABEL=$2
+PEDAL_DATE=20220922_1
+ROOT=/asap3/fs-bmx/gpfs/regae/2022/data/11015669
+
+STEP=25
+ALG=2
+
+for i in $(seq 0 1 0); do
+    for j in $(seq 0 ${STEP} 0); do
+        JNAME='regae-center-'
+        NAME='regae-center'
+        SLURMFILE="${NAME}_${i}_${j}_${LABEL}.sh"
+
+        echo "#!/bin/sh" > $SLURMFILE
+        echo >> $SLURMFILE
+
+        echo "#SBATCH --partition=cfel,maxwell,all" >> $SLURMFILE  # Set your partition here
+        echo "#SBATCH --time=12:00:00" >> $SLURMFILE
+        echo "#SBATCH --nodes=1" >> $SLURMFILE
+        echo >> $SLURMFILE
+
+        echo "#SBATCH --chdir   $PWD" >> $SLURMFILE
+        echo "#SBATCH --job-name  $JNAME" >> $SLURMFILE
+        echo "#SBATCH --output    $NAME-%N-%j.out" >> $SLURMFILE
+        echo "#SBATCH --error     $NAME-%N-%j.err" >> $SLURMFILE
+        echo "#SBATCH --nice=0" >> $SLURMFILE
+        #echo "#SBATCH --mail-type ALL" >> $SLURMFILE
+        #echo "#SBATCH --mail-user $MAIL" >> $SLURMFILE
+        echo >> $SLURMFILE
+
+	command="python3 sumup_center.py -p1 ${ROOT}/scratch_cc/rodria/calib/pedal_d0_${PEDAL_DATE}.h5 -p2 ${ROOT}/scratch_cc/rodria/calib/pedal_d1_${PEDAL_DATE}.h5 -g1 ${ROOT}/scratch_cc/rodria/calib/gainMaps_M283.bin -g2 ${ROOT}/scratch_cc/rodria/calib/gainMaps_M281.bin "
+        command="$command -i ${ROOT}/raw/${INPUT}_master_${i}.h5"
+        command="$command -m ${ROOT}/scratch_cc/rodria/calib/mask_mica_4.h5"
+        command="$command -g ${ROOT}/scratch_cc/rodria/calib/JF_regae_v1_mica_4.geom"
+        command="$command -f ${ALG}"
+        command="$command -n ${STEP}"
+        command="$command -b $j"
+        command="$command -o ${ROOT}/scratch_cc/rodria/processed/centered/${DATE}/${DATE}_${LABEL}_${i}_${j}"
+
+        echo $command >> $SLURMFILE
+
+        echo "chmod a+rw $PWD" >> $SLURMFILE
+
+        sbatch $SLURMFILE
+    done
+done
+
+
+
+mv $SLURMFILE ./shell
+
+#        python3 sumup_center.py -p1 ${ROOT}/scratch_cc/rodria/calib/pedal_d0_${PEDAL_DATE}.h5 -p2 ${ROOT}/scratch_cc/rodria/calib/pedal_d1_${PEDAL_DATE}.h5 -g1 ${ROOT}/scratch_cc/rodria/calib/gainMaps_M283.bin -g2 ${ROOT}/scratch_cc/rodria/calib/gainMaps_M281.bin -i ${ROOT}/raw/${INPUT}_master_${i}.h5 -m ${ROOT}/scratch_cc/rodria/calib/mask_mica_4.h5 -f 0 -n ${STEP} -b $j -g ${ROOT}/scratch_cc/rodria/calib/JF_regae_v1_mica_4.geom -o ${ROOT}/scratch_cc/rodria/processed/centered/${DATE}/${DATE}_${LABEL}_${i}_${j}; done; done;

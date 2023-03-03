@@ -1,0 +1,1 @@
+for i in $(seq 38 1 38); do for j in $(seq 0 10 0); do python3 sumup_nodark.py -p1 ../calib/pedal_d0_20220421.h5 -p2 ../calib/pedal_d1_20220421.h5 -g1 ../calib/gainMaps_M283.bin -g2 ../calib/gainMaps_M281.bin -i /gpfs/local/20220215/raw/20220215_Ni_$i*_master_0.h5 -m ../calib/mask_v0.h5 -f 0 -n 100 -b $j -o ../proc/centered/20220215_Ni_${i}_${j}_ell; done; done;
