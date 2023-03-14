@@ -1,64 +1,56 @@
-import time
+import sys
+
+sys.path.append("../../utils/")
 import h5py
-import numpy
+import numpy as np
 import argparse
-from typing import Any, BinaryIO, List
-import matplotlib.pyplot as plt
-from PIL import Image
-import center_finding
-from utils import sum_nth, radial_average, sum_nth_mask
 import utils
-from multiprocessing import Pool
-from powder import azimuthal_average
+
 
 def main(raw_args=None):
 
     # argument parser
     parser = argparse.ArgumentParser(
-        description="Decode and sum up Jungfrau images.")
-    parser.add_argument("-i", "--input", type=str, action="store",
-        help="path to the H5 data master file")
-    parser.add_argument("-o", "--output", type=str, action="store",
-        help="path to the output image")
+        description="Scales image according to the low-resolution scattering signal."
+    )
+    parser.add_argument(
+        "-i",
+        "--input",
+        type=str,
+        action="store",
+        help="path to the H5 data master file",
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, action="store", help="path to the output H5 file"
+    )
 
     args = parser.parse_args(raw_args)
 
-
     with h5py.File(args.input, "r") as f:
-         norm_factor=numpy.mean(numpy.array(f['rad_average_mask'])[:14])
-         #print(norm_factor)
-         data=numpy.array(f['sum_frames_mask'])
-         norm_data=data/(norm_factor)
-         norm_rad=1000*numpy.array(f['rad_average_mask'])/(norm_factor)
-    
-         rad_signal_cut=[]
-         beam_cut=0
-         rad_signal_cut.append(numpy.array(f['rad_x'])[beam_cut:])
-         rad_signal_cut.append(norm_rad[beam_cut:])
+        norm_factor = np.mean(np.array(f["radial"])[:14])
+        # print(norm_factor)
+        radial = np.array(f["radial"])
+        norm_rad = radial / (norm_factor)
 
-    baseline=utils.baseline_als(rad_signal_cut[1],1e4, 0.1)
-    rad_sub=rad_signal_cut[1]-baseline
-    rad_sub[numpy.where(rad_sub<0)]=0
+        rad_signal_cut = []
+        beam_cut = 0
+        rad_signal_cut.append(np.array(f["radial_x"])[beam_cut:])
+        rad_signal_cut.append(norm_rad[beam_cut:])
 
-    peaks, half=utils.calc_fwhm(rad_sub,6,threshold=0,distance=15, height=0, width=8)
-    peak_px=peaks+rad_signal_cut[0][0]
-    fwhm_over_rad=[]
-    intensity=[]
-    for i in range(len(peaks)):
-        fwhm_over_rad.append(half[0][i]/peak_px[i])
-        intensity.append(rad_sub[peaks[i]])
+    baseline = utils.baseline_als(rad_signal_cut[1], 1e4, 0.1)
+    rad_sub = rad_signal_cut[1] - baseline
+    rad_sub[np.where(rad_sub < 0)] = 0
 
-    f= h5py.File(args.output+'.h5', "w")
-    f.create_dataset('rad_sub',data=rad_sub)
-    f.create_dataset('sum_frames_mask',data=data)
-    f.create_dataset('norm_sum_frames',data=norm_data)
-    f.create_dataset('rad_average_mask',data=rad_signal_cut[1])
-    f.create_dataset('rad_x',data=rad_signal_cut[0])
-    f.create_dataset('intensity',data=intensity)
-    f.create_dataset('fwhm_radius',data=fwhm_over_rad)
-    f.create_dataset('fwhm',data=half[0])
-    f.create_dataset('peak_position',data=peak_px)
+    g = h5py.File(args.input, "r")
+    f = h5py.File(args.output + ".h5", "w")
+    f.create_dataset("radial", data=rad_signal_cut[1])
+    f.create_dataset("radial_x", data=rad_signal_cut[0])
+    f.create_dataset("rad_sub", data=rad_sub)
+    f.create_dataset("peak_position", data=np.array(g["peak_position"]))
+    f.create_dataset("peak_range", data=np.array(g["peak_range"]))
     f.close()
+    g.close()
 
-if __name__ == '__main__':
+
+if __name__ == "__main__":
     main()

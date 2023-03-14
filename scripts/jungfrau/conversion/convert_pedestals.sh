@@ -10,7 +10,7 @@
 # Mail: ana.rodrigues@desy.de
 
 
-INP=221115_mica_6/221115_mica_6_start_pedal
+INP=221115_sample_6/221115_sample_6_start_pedal
 N=20221115_3
 beamtime=11016614
 

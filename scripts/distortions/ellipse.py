@@ -15,7 +15,7 @@ def fit_ellipse(x, y):
 
     """
 
-    D1 = np.vstack([x**2, x*y, y**2]).T
+    D1 = np.vstack([x**2, x * y, y**2]).T
     D2 = np.vstack([x, y, np.ones(len(x))]).T
     S1 = D1.T @ D1
     S2 = D1.T @ D2
@@ -25,7 +25,7 @@ def fit_ellipse(x, y):
     C = np.array(((0, 0, 2), (0, -1, 0), (2, 0, 0)), dtype=float)
     M = np.linalg.inv(C) @ M
     eigval, eigvec = np.linalg.eig(M)
-    con = 4 * eigvec[0]* eigvec[2] - eigvec[1]**2
+    con = 4 * eigvec[0] * eigvec[2] - eigvec[1] ** 2
     ak = eigvec[:, np.nonzero(con > 0)[0]]
     return np.concatenate((ak, T @ ak)).ravel()
 
@@ -52,16 +52,17 @@ def cart_to_pol(coeffs):
     f = coeffs[4] / 2
     g = coeffs[5]
 
-    den = b**2 - a*c
+    den = b**2 - a * c
     if den > 0:
-        raise ValueError('coeffs do not represent an ellipse: b^2 - 4ac must'
-                         ' be negative!')
+        raise ValueError(
+            "coeffs do not represent an ellipse: b^2 - 4ac must" " be negative!"
+        )
 
     # The location of the ellipse centre.
-    x0, y0 = (c*d - b*f) / den, (a*f - b*d) / den
+    x0, y0 = (c * d - b * f) / den, (a * f - b * d) / den
 
-    num = 2 * (a*f**2 + c*d**2 + g*b**2 - 2*b*d*f - a*c*g)
-    fac = np.sqrt((a - c)**2 + 4*b**2)
+    num = 2 * (a * f**2 + c * d**2 + g * b**2 - 2 * b * d * f - a * c * g)
+    fac = np.sqrt((a - c) ** 2 + 4 * b**2)
     # The semi-major and semi-minor axis lengths (these are not sorted).
     ap = np.sqrt(num / den / (fac - a - c))
     bp = np.sqrt(num / den / (-fac - a - c))
@@ -74,27 +75,27 @@ def cart_to_pol(coeffs):
         ap, bp = bp, ap
 
     # The eccentricity.
-    r = (bp/ap)**2
+    r = (bp / ap) ** 2
     if r > 1:
-        r = 1/r
+        r = 1 / r
     e = np.sqrt(1 - r)
 
     # The angle of anticlockwise rotation of the major-axis from x-axis.
     if b == 0:
-        phi = 0 if a < c else np.pi/2
+        phi = 0 if a < c else np.pi / 2
     else:
-        phi = np.arctan((2.*b) / (a - c)) / 2
+        phi = np.arctan((2.0 * b) / (a - c)) / 2
         if a > c:
-            phi += np.pi/2
+            phi += np.pi / 2
     if not width_gt_height:
         # Ensure that phi is the angle to rotate to the semi-major axis.
-        phi += np.pi/2
+        phi += np.pi / 2
     phi = phi % np.pi
 
     return x0, y0, ap, bp, e, phi
 
 
-def get_ellipse_pts(params, npts=10000, tmin=0, tmax=2*np.pi):
+def get_ellipse_pts(params, npts=10000, tmin=0, tmax=2 * np.pi):
     """
     Return npts points on the ellipse described by the params = x0, y0, ap,
     bp, e, phi for values of the parametric variable t between tmin and tmax.
@@ -109,29 +110,28 @@ def get_ellipse_pts(params, npts=10000, tmin=0, tmax=2*np.pi):
     return x, y
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     # Test the algorithm with an example elliptical arc.
     npts = 250
-    tmin, tmax = np.pi/6, 4 * np.pi/3
+    tmin, tmax = np.pi / 6, 4 * np.pi / 3
     x0, y0 = 4, -3.5
     ap, bp = 7, 3
     phi = np.pi / 4
     # Get some points on the ellipse (no need to specify the eccentricity).
     x, y = get_ellipse_pts((x0, y0, ap, bp, None, phi), npts, tmin, tmax)
     noise = 0.1
-    x += noise * np.random.normal(size=npts) 
+    x += noise * np.random.normal(size=npts)
     y += noise * np.random.normal(size=npts)
 
     coeffs = fit_ellipse(x, y)
-    print('Exact parameters:')
-    print('x0, y0, ap, bp, phi =', x0, y0, ap, bp, phi)
-    print('Fitted parameters:')
-    print('a, b, c, d, e, f =', coeffs)
+    print("Exact parameters:")
+    print("x0, y0, ap, bp, phi =", x0, y0, ap, bp, phi)
+    print("Fitted parameters:")
+    print("a, b, c, d, e, f =", coeffs)
     x0, y0, ap, bp, e, phi = cart_to_pol(coeffs)
-    print('x0, y0, ap, bp, e, phi = ', x0, y0, ap, bp, e, phi)
+    print("x0, y0, ap, bp, e, phi = ", x0, y0, ap, bp, e, phi)
 
-    plt.plot(x, y, 'x')     # given points
+    plt.plot(x, y, "x")  # given points
     x, y = get_ellipse_pts((x0, y0, ap, bp, e, phi))
     plt.plot(x, y)
     plt.show()
-
