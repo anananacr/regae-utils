@@ -14,6 +14,7 @@ requirements.txt
 - Source code structure:
 
 ```bash
+
 scripts
 ├── distortions
 │   ├── ellipse_cut.py
@@ -85,15 +86,10 @@ scripts
     ├── max_res_px.py
     ├── max_res.py
     ├── shell
-    │   ├── loop_autoproc.sh
-    │   ├── loop_fast_center_1.sh
-    │   ├── loop_fast_center_hasdjung.sh
-    │   ├── loop_fast_center.sh
-    │   ├── loop_scaling.sh
+    │   ├── loop_center.sh
     │   └── save_average.sh
     └── utils.py
+
+17 directories, 56 files
+
 ```
-
-
-
-

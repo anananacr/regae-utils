@@ -1,4 +1,14 @@
 #!/bin/sh
+#
+# Save average results in  backup folder
+# Remember to set correctly paths wheredata is stored.
+#
+# ./save_average.sh 
+
+# Written by Ana Carolina Rodrigues.
+#
+# Mail: ana.rodrigues@desy.de
+
 label=20220722_Au_free
 date=20220722
 
