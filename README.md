@@ -2,16 +2,18 @@
 
 Python library for data analysis from REGAE - Deutsches Elektronen-Synchrotron (DESY).
 
-- Authors:
+## Authors:
+
 Ana Carolina Rodrigues
+
 Mail: ana.rodrigues@desy.de
 
-- Dependencies:
+## Dependencies:
 
-Python 3.6.8
-requirements.txt
+* Python 3.6.8
+* requirements.txt
 
-- Source code structure:
+## Source code structure:
 
 ```bash
 
