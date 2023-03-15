@@ -14,7 +14,7 @@ requirements.txt
 - Source code structure:
 
 ```bash
-.
+scripts
 ├── distortions
 │   ├── ellipse_cut.py
 │   └── ellipse.py
@@ -33,12 +33,6 @@ requirements.txt
 │   ├── processing
 │   │   ├── autoproc.py
 │   │   ├── convert.py
-│   │   ├── __pycache__
-│   │   │   ├── autoproc.cpython-36.pyc
-│   │   │   ├── convert.cpython-36.pyc
-│   │   │   ├── rad_ave.cpython-36.pyc
-│   │   │   ├── scan_radial_to_file.cpython-36.pyc
-│   │   │   └── select_peak.cpython-36.pyc
 │   │   ├── rad_ave.py
 │   │   ├── scan_radial_to_file.py
 │   │   └── select_peak.py
@@ -98,8 +92,6 @@ requirements.txt
     │   ├── loop_scaling.sh
     │   └── save_average.sh
     └── utils.py
-
-18 directories, 65 files
 ```
 
 
