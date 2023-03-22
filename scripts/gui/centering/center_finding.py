@@ -149,20 +149,25 @@ def flip_and_calc_com(img):
     return center
 
 
-def bring_center_to_point(data, center, point=None, radius=None):
+def bring_center_to_point(data, center, point=None):
     """
     Function shifts data center [xc,yc] to a point [xf,yf], so after transformation [xc,yc] -> [xf,yf]
 
     Parameters
     ----------
-    img: np.ndarray
-        Image to calculate the center of diffraction
-    acc: np.ndarray
-        Sum of images as reference for the center shift calculation
+    data: np.ndarray
+        Image that will be shifted.
+    center: List[int]
+        Center of the image that will be shifted to point.
+    point: List[int]
+        Final coordinates of the center after transformation.
+
     Returns
     ----------
-    center: List[int]
-        center  in pixels [xc,yc]
+    new_image: np.ndarray
+        Image shifted
+    shift: List[int]
+        Number of pixels shifted in x and y.
     """
 
     h = data.shape[0]
