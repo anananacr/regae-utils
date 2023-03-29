@@ -15,7 +15,7 @@ Mail: ana.rodrigues@desy.de
 
 ## Presentations
 * [2023 DESY Photon Science Users' Meeting](https://docs.google.com/presentation/d/1S-YqJeze92365XabdoEd3j7OTx5JPxzq/edit?usp=share_link&ouid=114932358786595754679&rtpof=true&sd=true)
-* [31st Annual Meeting of the German Crystallographic Society (DGK)](https://drive.google.com/drive/folders/1qqAbRcQXxHO82e1N3zvMBHOGM8d4QA2T?usp=share_link)
+* [31st Annual Meeting of the German Crystallographic Society (DGK)](https://drive.google.com/file/d/1E2R4qOpr187P8h0Y6hYb5KgN8hUr4lbU/view?usp=share_link)
 
 ## Source code structure:
 
