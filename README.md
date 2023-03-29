@@ -13,6 +13,11 @@ Mail: ana.rodrigues@desy.de
 * Python 3.6.8
 * requirements.txt
 
+## Presentations
+* [2023 DESY Photon Science Users' Meeting](https://docs.google.com/presentation/d/1S-YqJeze92365XabdoEd3j7OTx5JPxzq/edit?usp=share_link&ouid=114932358786595754679&rtpof=true&sd=true)
+* [31st Annual Meeting of the German Crystallographic Society (DGK)](https://drive.google.com/drive/folders/1qqAbRcQXxHO82e1N3zvMBHOGM8d4QA2T?usp=share_link)
+* [3D ED gif](https://drive.google.com/file/d/1Bri1qhWYa_-a9Zu7vbP1NJ1QWmng6Nsi/view?usp=share_link)
+
 ## Source code structure:
 
 ```bash
