@@ -90,6 +90,13 @@ def main(raw_args=None):
         action="store",
         help="path to the gain info file for module 1",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        action="store",
+        help="path to the output file",
+    )
     args = parser.parse_args(raw_args)
 
     global dark, gain
@@ -137,7 +144,7 @@ def main(raw_args=None):
         for idy, j in enumerate(raw):
             skip = filter_data(j)
             if skip == 0:
-                corr_frame[idy] = apply_calibration(j)
+                corr_frame[idy] = apply_calibration(j,dark,gain)
                 acc_frame += corr_frame[idy]
         d[idx] = acc_frame / n_frames_measured
     print(d.shape)
@@ -166,7 +173,7 @@ def main(raw_args=None):
     plt.plot(x, total_intensity)
     ax.set_ylabel("Intensity a.u.")
     ax.set_xlabel("​2θ (deg)")
-    plt.savefig("./step_scan_rocking_curve.png")
+    plt.savefig(f"{args.otuput}")
     plt.show()
 
 

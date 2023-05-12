@@ -7,7 +7,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import glob
 import matplotlib.colors as color
-from convert_all import filter_data, apply_calibration
+from convert_images import filter_data, apply_calibration
 
 dark = None
 gain = None
@@ -90,8 +90,15 @@ def main(raw_args=None):
         action="store",
         help="path to the gain info file for module 1",
     )
+    parser.add_argument(
+        "-o",
+        "--output",
+        type=str,
+        action="store",
+        help="path to the output file",
+    )
     args = parser.parse_args(raw_args)
-
+ 
     global dark, gain
 
     num_panels: int = 2
@@ -135,7 +142,7 @@ def main(raw_args=None):
 
     d = np.zeros((n_frames, y, x), dtype=np.float64)
     for idx, i in enumerate(filt_data):
-        d[idx] = apply_calibration(i)
+        d[idx] = apply_calibration(i,dark,gain)
 
     peak_image = np.zeros(
         (n_frames, peak_pos_y[1] - peak_pos_y[0], peak_pos_x[1] - peak_pos_x[0]),
@@ -158,7 +165,7 @@ def main(raw_args=None):
     plt.plot(x, total_intensity)
     ax.set_ylabel("Intensity a.u.")
     ax.set_xlabel("2​θ (deg)")
-    plt.savefig("./fly_scan_rocking_curve.png")
+    plt.savefig(f"{args.output}")
     plt.show()
 
 

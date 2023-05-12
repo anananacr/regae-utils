@@ -26,7 +26,7 @@ def create_frames(file_path:str, output:str):
             cmap="gray",
             origin="upper",
             interpolation=None,
-            norm=color.Normalize(0, 500),
+            norm=color.Normalize(0, 1500),
         )
 
         for i in rings:
@@ -39,11 +39,11 @@ def create_frames(file_path:str, output:str):
         plt.close()
 
 def save_gif(file_path:str):
-    frames=np.arange(1500,9200, 50)
+    frames=np.arange(1500,9500, 50)
     images=[]
     for frame in frames:
         images.append(imageio.imread(f'{file_path}/img_{frame}.png'))
-    imageio.mimsave(f'{file_path}/mica_4.gif',
+    imageio.mimsave(f'{file_path}/mica_5.gif',
                     images,
                     fps=4
                     )
