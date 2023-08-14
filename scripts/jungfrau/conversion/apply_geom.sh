@@ -1,20 +1,14 @@
 #!/bin/sh
 
 #SBATCH --partition=cfel
-#SBATCH --time=2-00:00:00
+#SBATCH --time=0-04:00:00
 #SBATCH --requeue
 #SBATCH --nodes=1
-#SBATCH --mem=10G
+#SBATCH --mem=6G
 
 #SBATCH --job-name  convert_jf
 #SBATCH --output    /asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/error/mica_5-%N-%j.out
 #SBATCH --error    /asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/error/mica_5-%N-%j.err
-
-
-# Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
-# Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
-
-# ./convert_step.sh my-file.h5 label
 
 # Written by Ana Carolina Rodrigues.
 #
@@ -30,7 +24,4 @@ DATE=20221115
 PEDAL=20221115_mica_5
 ROOT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted
 
-for i in $(seq 7607 1 9699); do
-    NEXT=$((i+1))
-    python3 convert_images.py -p1 ${ROOT}/pedal/pedal_d0_${PEDAL}.h5 -p2 ${ROOT}/pedal/pedal_d1_${PEDAL}.h5 -g1 ${ROOT}/pedal/gainMaps_M283.bin -g2 ${ROOT}/pedal/gainMaps_M281.bin -i ${ROOT}/../../../raw/${INPUT} -s ${i} -e ${NEXT} -o ${ROOT}/mica_5/mica_5_${i};
-done;
+python3 apply_geom.py -i ${ROOT}/mica_5/mica_5 -s 0 -e 9699 -g ${ROOT}/pedal/JF_regae.geom -o ${ROOT}/mica_5_pad/mica_5

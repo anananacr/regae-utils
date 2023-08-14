@@ -4,7 +4,7 @@
 #SBATCH --time=2-00:00:00
 #SBATCH --requeue
 #SBATCH --nodes=1
-#SBATCH --mem=10G
+#SBATCH --mem=4G
 
 #SBATCH --job-name  convert_jf
 #SBATCH --output    /asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/error/mica_5-%N-%j.out
@@ -30,7 +30,7 @@ DATE=20221115
 PEDAL=20221115_mica_5
 ROOT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted
 
-for i in $(seq 7607 1 9699); do
+for i in $(seq 0 1 1481); do
     NEXT=$((i+1))
-    python3 convert_images.py -p1 ${ROOT}/pedal/pedal_d0_${PEDAL}.h5 -p2 ${ROOT}/pedal/pedal_d1_${PEDAL}.h5 -g1 ${ROOT}/pedal/gainMaps_M283.bin -g2 ${ROOT}/pedal/gainMaps_M281.bin -i ${ROOT}/../../../raw/${INPUT} -s ${i} -e ${NEXT} -o ${ROOT}/mica_5/mica_5_${i};
+    python3 apply_geom.py -i ${ROOT}/mica_5/mica_5 -g ${ROOT}/pedal/JF_regae_221115_Au.geom -s ${i} -e ${NEXT} -o ${ROOT}/mica_5_pad/mica_5_${i};
 done;
