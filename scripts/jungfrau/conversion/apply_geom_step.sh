@@ -30,7 +30,7 @@ DATE=20221115
 PEDAL=20221115_mica_5
 ROOT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted
 
-for i in $(seq 0 1 1481); do
+for i in $(seq 0 1 9699); do
     NEXT=$((i+1))
-    python3 apply_geom.py -i ${ROOT}/mica_5/mica_5 -g ${ROOT}/pedal/JF_regae_221115_Au.geom -s ${i} -e ${NEXT} -o ${ROOT}/mica_5_pad/mica_5_${i};
+    python3 apply_geom.py -i ${ROOT}/mica_5/mica_5 -g ${ROOT}/pedal/JF_regae.geom -s ${i} -e ${NEXT} -o ${ROOT}/mica_5_pad/mica_5_${i};
 done;
