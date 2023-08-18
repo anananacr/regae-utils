@@ -29,8 +29,13 @@ def center_of_mass(data: np.ndarray, mask: np.ndarray = None) -> Tuple[int]:
         mask = np.ones_like(data)
     data = data * mask
     indices = np.where(data > 0)
-    xc = np.sum(data[indices] * indices[1]) / np.sum(data[indices])
-    yc = np.sum(data[indices] * indices[0]) / np.sum(data[indices])
+    if np.any(data):
+        xc = np.sum(data[indices] * indices[1]) / np.sum(data[indices])
+        yc = np.sum(data[indices] * indices[0]) / np.sum(data[indices])
+    else:
+        xc = 0
+        yc = 0
+
     return xc, yc
 
 
