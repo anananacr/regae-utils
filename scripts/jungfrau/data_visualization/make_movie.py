@@ -7,11 +7,11 @@ import imageio
 
 def create_frames(file_path:str, output:str):
     ## Rings radius in pixels
-    rings = [2, 50]
+    rings = [2, ]
     ## Center of the image [xc,yc]
-    center = [532, 510]
+    center = [537, 537]
 
-    frames=np.arange(1500,9500, 50)
+    frames=np.arange(1000,7000, 1)
     print(frames)
 
     for frame in frames:
@@ -20,32 +20,53 @@ def create_frames(file_path:str, output:str):
         data_name = "data"
         data = np.array(hf[data_name][frame])
         hf.close()
-        fig, ax = plt.subplots(1, 1, figsize=(15, 10))
+        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
         pos = ax.imshow(
             data,
-            cmap="gray",
+            cmap="cividis",
             origin="upper",
             interpolation=None,
-            norm=color.Normalize(0, 1500),
+            norm=color.Normalize(0, 100),
         )
 
         for i in rings:
-            circle = plt.Circle(center, i, fill=False, color="red", ls=":")
+            circle = plt.Circle(center, i, fill=True, color="red", ls=":")
             ax.add_patch(circle)
 
         fig.colorbar(pos,shrink=1)
-        plt.title(f'{round(frame*0.01,2)}°')
+        plt.title(f't={round(frame*0.08,0)}s')
         plt.savefig(f'{output}img_{frame}.png', transparent=False, facecolor= 'white')
         plt.close()
 
 def save_gif(file_path:str):
-    frames=np.arange(1500,9500, 50)
+    frames=np.arange(2000,2600, 1)
+    sub_frames=np.arange(10)
     images=[]
     for frame in frames:
-        images.append(imageio.imread(f'{file_path}/img_{frame}.png'))
-    imageio.mimsave(f'{file_path}/mica_5.gif',
+        for count in sub_frames:
+            try:
+                images.append(imageio.imread(f'{file_path}/mica_{frame}_{count}.png'))
+            except:
+                print(frame, count)
+            
+            
+    imageio.mimsave(f'{file_path}/../mica_5_400_520.gif',
                     images,
-                    fps=4
+                    duration=0.08
+                    )
+
+def save_gif_fly(file_path:str):
+    frames=np.arange(1000,7000, 1)
+    images=[]
+    for frame in frames:
+        try:
+            images.append(imageio.imread(f'{file_path}/mica_{frame}.png'))
+        except:
+            print(frame, count)
+            
+    imageio.mimsave(f'{file_path}/../mica_4_1000_7000.gif',
+                    images,
+                    duration=0.08
                     )
 
 def main():
@@ -64,7 +85,7 @@ def main():
     file_path = args.input
     output_folder=args.output
     create_frames(file_path, output_folder)
-    save_gif(output_folder)
+    save_gif_fly(output_folder)
    
     
 
