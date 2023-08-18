@@ -155,12 +155,13 @@ def main(raw_args=None):
     d = np.zeros((n_frames, 1024, 1024), dtype=np.int32)
 
     for idx, i in enumerate(index):
-        # print(i)
+        print(i)
         acc_frame = np.zeros((1024, 1024), dtype=np.int32)
 
         f = h5py.File(f"{args.input}_master_{i}.h5", "r")
 
         size = len(f["entry/data/data"])
+
         try:
             raw = np.array(f["entry/data/data"][:size])
         except OSError:
@@ -171,19 +172,22 @@ def main(raw_args=None):
             n_frames_measured = raw.shape[0]
         else:
             n_frames_measured = args.frames
+
         corr_frame = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
 
         f.close()
         for idy, j in enumerate(raw[:n_frames_measured]):
             skip = filter_data(j)
             if skip == 0:
-                corr_frame[idy] = apply_calibration(j)
+                corr_frame[idy] = apply_calibration(j, dark, gain)
                 acc_frame += corr_frame[idy]
 
         d[idx] = acc_frame
+    
     # print(d.shape)
     g = h5py.File(args.output + ".h5", "w")
-    g.create_dataset("data", data=d)
+    g.create_dataset("data", data=corr_frame)
+    #g.create_dataset("acc_data", data=d)
     g.close()
 
 

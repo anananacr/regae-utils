@@ -10,19 +10,14 @@
 # Mail: ana.rodrigues@desy.de
 
 
-INP=221115_sample_6/221115_sample_6_start_pedal
-N=20221115_3
+INP=221115_mica_6/221115_mica_6_start_pedal
+N=20221115_mica_6
 beamtime=11016614
+OUTPUT=/asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/scratch_cc/rodria/converted/pedal
 
-cp -r ~/scripts/calib/ /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/processed/
+ls /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/raw/$INP*_*d0_f*.h5>pedal_d0.lst
+~/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d0.lst ${OUTPUT}/pedal_d0_$N.h5
 
-ls /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/raw/$INP*_*d0_f*.h5>~/scripts/inp/pedal_d0.lst
-~/software/om/bin_src/om_jungfrau_dark.py ~/scripts/inp/pedal_d0.lst ~/scripts/calib/pedal_d0_$N.h5
+ls /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/raw/$INP*_*d1_f*.h5>pedal_d1.lst
+~/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d1.lst ${OUTPUT}/pedal_d1_$N.h5
 
-ls /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/raw/$INP*_*d1_f*.h5>~/scripts/inp/pedal_d1.lst
-~/software/om/bin_src/om_jungfrau_dark.py ~/scripts/inp/pedal_d1.lst ~/scripts/calib/pedal_d1_$N.h5
-
-cp -r ~/scripts/calib/pedal_d1_$N.h5 /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/processed/calib/
-
-cp -r ~/scripts/calib/pedal_d0_$N.h5 /asap3/fs-bmx/gpfs/regae/2022/data/$beamtime/processed/calib/
-exit
