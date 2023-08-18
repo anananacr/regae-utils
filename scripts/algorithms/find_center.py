@@ -23,7 +23,7 @@ import math
 import matplotlib.pyplot as plt
 from scipy import signal
 import h5py
-
+import subprocess as sub
 
 def shift_and_calculate_fwhm(shift: tuple) -> Dict[str, int]:
     ## Radial average from the center of mass
@@ -68,7 +68,7 @@ def shift_and_calculate_fwhm(shift: tuple) -> Dict[str, int]:
     plt.plot(x_fit,y_fit, 'r:', label=f'gaussian fit \n a:{round(popt[0],2)} \n x0:{round(popt[1],2)} \n sigma:{round(popt[2],2)} \n R² {round(r_squared, 4)}\n FWHM/R : {round(fwhm_over_radius,3)}')
     plt.title('Azimuthal integration')
     plt.legend()
-    plt.savefig(f'/home/rodria/Desktop/20230814/gaussian_fit/mica_{frame_number}_{shift[0]}_{shift[1]}.png')
+    plt.savefig(f'{args.output}/gaussian_fit/mica_{frame_number}_{shift[0]}_{shift[1]}.png')
     plt.show()
     plt.close()
     """
@@ -84,7 +84,7 @@ def shift_and_calculate_fwhm(shift: tuple) -> Dict[str, int]:
     }
 
 
-def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]:
+def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Dict[str, float]:
 
     shift_x = -shift[0]
     shift_y = -shift[1]
@@ -96,6 +96,9 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
     shifted_mask = shift_image_by_n_pixels(
         shift_image_by_n_pixels(mask, shift_y, 0), shift_x, 1
     )
+
+    ### Mica 5 step
+    """
     pf8_info = PF8Info(
         max_num_peaks=10000,
         pf8_detector_info=dict(
@@ -105,14 +108,36 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
             nasics_y=1,
         ),
         adc_threshold=100,
-        minimum_snr=3.4,
-        min_pixel_count=5,
-        max_pixel_count=100,
+        minimum_snr=4.5,
+        min_pixel_count=4,
+        max_pixel_count=200,
         local_bg_radius=10,
-        min_res=90,
-        max_res=200,
+        min_res=0,
+        max_res=300,
         _bad_pixel_map=shifted_mask,
     )
+    """
+    ### Mica 4 and 6 fly scan
+    
+    pf8_info = PF8Info(
+        max_num_peaks=10000,
+        pf8_detector_info=dict(
+            asic_nx=shifted_mask.shape[1],
+            asic_ny=shifted_mask.shape[0],
+            nasics_x=1,
+            nasics_y=1,
+        ),
+        adc_threshold=300,
+        minimum_snr=3.4,
+        min_pixel_count=5,
+        max_pixel_count=200,
+        local_bg_radius=10,
+        min_res=0,
+        max_res=1200,
+        _bad_pixel_map=shifted_mask,
+    )
+    
+    
 
     pf8 = PF8(pf8_info)
     peak_list = pf8.get_peaks_pf8(data=shifted_data)
@@ -168,7 +193,7 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
     # img_1[y_orig, x_orig]=1
     img_1 = mask_peaks(img_1, (y_orig, x_orig), 1)
 
-    global mask_1
+    #global mask_1
     mask_1 = img_1.copy()
     mask_1[np.where(img_1 == 0)] = np.nan
 
@@ -188,7 +213,7 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
     # img_2[y_flip, x_flip]=1
     img_2 = mask_peaks(img_2, (y_flip, x_flip), 1)
 
-    global mask_2
+    #global mask_2
     mask_2 = img_2.copy()
     mask_2[np.where(img_2 == 0)] = np.nan
 
@@ -218,8 +243,8 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
     )
 
     xx, yy = np.meshgrid(
-        np.arange(-img_1.shape[1] / 2, img_1.shape[1] / 2, 1, dtype=int),
-        np.arange(-img_1.shape[0] / 2, img_1.shape[0] / 2, 1, dtype=int),
+        np.arange(-img_1.shape[1] / 2, img_1.shape[1] / 2, 1, dtype=np.int16),
+        np.arange(-img_1.shape[0] / 2, img_1.shape[0] / 2, 1, dtype=np.int16),
     )
     xx = xx[row - 30 : row + 30, col - 30 : col + 30]
     yy = yy[row - 30 : row + 30, col - 30 : col + 30]
@@ -283,32 +308,32 @@ def shift_and_calculate_cross_correlation(shift: Tuple[int]) -> Dict[str, float]
 
     ## Display plots
     
-    fig, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2, 2,figsize=(10, 10))
-    pos1=ax1.imshow(shifted_data*shifted_mask, vmax=200,cmap='cividis')
-    ax1.scatter(indices[1], indices[0], facecolor="none", edgecolor="red")
-    pos2=ax2.imshow(flipped_data*shifted_mask[::-1,::-1], vmax=200, cmap='cividis')
-    ax2.scatter(indices_flipped[1], indices_flipped[0], facecolor="none", edgecolor="lime")
-    ax3.imshow(orig_cut*img_1, cmap='cividis', vmax=200)
-    ax4.imshow(flip_cut*img_2, cmap='cividis', vmax=200)
+    fig, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2, 2,figsize=(20, 20))
+    ax1.set_title('Original data')
+    pos1=ax1.imshow(shifted_data*shifted_mask, vmax=100,cmap='viridis')
+    ax1.scatter(indices[1], indices[0], s=60, facecolor="none", edgecolor="red")
+    ax2.set_title('Flipped data')
+    pos2=ax2.imshow(flipped_data*shifted_mask[::-1,::-1], vmax=100, cmap='viridis')
+    ax2.scatter(indices_flipped[1], indices_flipped[0], s=60, facecolor="none", edgecolor="red")
+    ax3.imshow(orig_cut*img_1, cmap='viridis', vmax=100)
+    ax3.set_title('Bragg peaks original')
+    ax4.imshow(flip_cut*img_2, cmap='viridis', vmax=100)
+    ax4.set_title('Bragg peaks flipped')
     fig.colorbar(pos1, ax=ax1,shrink=0.6)
     fig.colorbar(pos2, ax=ax2,shrink=0.6)
-    plt.savefig(f'/home/rodria/Desktop/20230814_regae_mica_6/cc_flip/mica_{frame_number}_{count}.png')
+    plt.savefig(f'{args.output}/plots/cc_flip/mica_{frame_number}_{count}.png')
     #plt.show()
     plt.close()
     
     return {
-        "max_index": maximum_index,
-        "non_zero_index": non_zero_index,
-        "index": index,
+        "max_index": np.array(maximum_index, dtype=np.int16),
+        "index": np.array(index, dtype=np.int16),
         "xc": xc,
         "yc": yc,
-        "cc_matrix": cc_matrix,
-        "reduced_cc_matrix": reduced_cc_matrix,
-        "sub_reduced_cc_matrix": sub_reduced_cc_matrix,
+        "sub_reduced_cc_matrix": np.array(sub_reduced_cc_matrix, dtype=np.int32),
         "xx": xx,
         "yy": yy,
-        "max_candidates_com": max_candidates,
-        "non_zero_candidates_com": non_zero_candidates,
+        "max_candidates": max_candidates
     }
 
 
@@ -345,9 +370,12 @@ def correlate_2d(im1: np.ndarray, im2: np.ndarray) -> np.ndarray:
     )
     
     coordinates = np.column_stack((np.ravel(xx), np.ravel(yy)))
+
+    coordinates_anchor_data = [(shift, im1, im2) for shift in coordinates]
+    
     pool = multiprocessing.Pool()
     with pool:
-        cc_summary = pool.map(calculate_product, coordinates)
+        cc_summary=pool.map(calculate_product, coordinates_anchor_data)
 
     corr_reduced = np.array(cc_summary).reshape((xx.shape))
     center_row=im1.shape[0]
@@ -356,7 +384,8 @@ def correlate_2d(im1: np.ndarray, im2: np.ndarray) -> np.ndarray:
     return corr
 
 
-def calculate_product(shift: Tuple[int]) -> float:
+def calculate_product(key_args: tuple) -> float:
+    shift, im1, im2 = key_args
     """
     Calculate elements of the cross correlation matrix.
     The im2 will be slided over im1 by a shift of n pixels in both axis.
@@ -372,8 +401,7 @@ def calculate_product(shift: Tuple[int]) -> float:
     cc: float
         Element of the cross correlation matrix regarding the given shift.
     """
-    im1 = mask_1
-    im2 = mask_2
+    
     shift_x = shift[0]
     shift_y = shift[1]
 
@@ -412,9 +440,27 @@ def main():
     )
 
     parser.add_argument(
-        "-o", "--output", type=str, action="store", help="path to output data files"
+        "-s",
+        "--start",
+        type=int,
+        action="store",
+        default=0,
+        help="turbo batch jobs start of files index",
     )
 
+    parser.add_argument(
+        "-e",
+        "--end",
+        type=int,
+        action="store",
+        default=None,
+        help="turbo batch jobs end of files index",
+    )
+
+    parser.add_argument(
+        "-o", "--output", type=str, action="store", help="path to output data files"
+    )
+    global args
     args = parser.parse_args()
 
     files = open(args.input, "r")
@@ -425,22 +471,26 @@ def main():
     mask_paths = mask_files.readlines()
     mask_files.close()
 
-    intensity_log=open('/home/rodria/Desktop/20230814_regae_mica_6/intensity.log','w+')
+    intensity_log=open(f'{args.output}/intensity_{args.start}.csv','w+')
     intensity_log.write('file_id\tframe\ttotal\n')
     intensity_log.close()
 
-    pos_log=open('/home/rodria/Desktop/20230814_regae_mica_6/beam_position.log','w+')
+    pos_log=open(f'{args.output}/beam_position_{args.start}.csv','w+')
     pos_log.write('file_id\tframe\tx\ty\n')
     pos_log.close()
     file_format = get_format(args.input)
+
     if args.center:
         table_real_center, loaded_table = get_center_theory(paths, args.center)
-    # (table_real_center)
+
+    if not args.end:
+        args.end=len(paths[:])
+
     if file_format == "lst":
         ref_image = []
-        for i in range(0, len(paths[:])):
+        for i in range(args.start, args.end):
             file_name = paths[i][:-1]
-            global data
+            #global data
             global mask
             global frame_number
             frame_number=i
@@ -461,6 +511,8 @@ def main():
             elif get_format(file_name) == "h":
                 g = h5py.File(f"{file_name}", "r")
                 data_stack = g["data"]
+                n_frames = data_stack.shape[0]
+                g.close()
                 
                 mask_file_name = mask_paths[0][:-1]
                 f = h5py.File(f"{mask_file_name}", "r")
@@ -469,9 +521,16 @@ def main():
                 f.close()
                 real_center = [537, 541]
 
-                for k in range(data_stack.shape[0]):
+                for k in range(n_frames):
                 #for k in range(72,73):
+                    g = h5py.File(f"{file_name}", "r")
+                    data_stack = g["data"]
                     data=np.array(data_stack[k])
+                    g.close()
+
+                    if not np.any(data):
+                        continue
+
                     mask[np.where(data < 0)] = 0
                     count=k
                     
@@ -479,7 +538,7 @@ def main():
                     masked_data=data*mask
                     xc, yc = center_of_mass(masked_data)
                     total_intensity=int(np.sum(masked_data))
-                    intensity_log=open('/home/rodria/Desktop/20230814_regae_mica_6/intensity.log','a+')
+                    intensity_log=open(f'{args.output}/intensity_{args.start}.csv','a+')
                     intensity_log.write(f'{i}\t{k}\t{total_intensity}\n')
                     intensity_log.close()
                     ## Center of mass again with the flipped image to account for eventual background asymmetry
@@ -518,21 +577,21 @@ def main():
                     print("First approximation", xc, yc)
 
                     ## Display first approximation plots
-
+                    """
                     xr = real_center[0]
                     yr = real_center[1]
                     pos = plt.imshow(masked_data, vmax=200, cmap="jet")
-                    plt.scatter(xr, yr, color="lime", label="xds")
-                    plt.scatter(xc, yc, color="r", label="center of mass")
+                    plt.scatter(xr, yr, color="r", label=f"ref: ({xr}, {yr})")
+                    plt.scatter(xc, yc, color="g", label=f"center of mass: ({xc}, {yc})")
                     plt.title("First approximation: center of mass")
                     plt.colorbar(pos, shrink=0.6)
                     plt.legend()
                     plt.savefig(
-                        f"/home/rodria/Desktop/20230814_regae_mica_6/com/mica_{i}_{k}.png"
+                        f"{args.output}/plots/com/mica_{i}_{k}.png"
                     )
                     #plt.show()
                     plt.close()
-                    """
+                    
 
                     ## Grid search of sharpness of the azimutal average
                     xx, yy = np.meshgrid(
@@ -559,23 +618,26 @@ def main():
                     yr=real_center[1]
                     fig, (ax1, ax2) = plt.subplots(1, 2,figsize=(10, 5))
                     pos1=ax1.imshow(unbragged_data, vmax=7, cmap='jet')
-                    ax1.scatter(xr,yr, color='lime', label='xds')
+                    ax1.scatter(xr,yr, color='lime', label='ref: (537,541)')
                     ax1.scatter(first_xc,first_yc, color='r', label='calculated center')
                     ax1.set_title('First approximation: center of mass')
                     fig.colorbar(pos1, ax=ax1,shrink=0.6)
                     ax1.legend()
 
                     pos2=ax2.imshow(unbragged_data, vmax=7, cmap='jet')
-                    ax2.scatter(xr,yr, color='lime', label='xds')
+                    ax2.scatter(xr,yr, color='lime', label='ref: (537,541)')
                     ax2.scatter(xc,yc, color='blueviolet', label='calculated center')
                     ax2.set_title('Second approximation: FWHM/R minimization')
                     fig.colorbar(pos2, ax=ax2,shrink=0.6)
                     ax2.legend()
-                    plt.savefig(f'/home/rodria/Desktop/20230814/second/mica_{i}_{k}.png')
+                    plt.savefig(f'{args.output}/second/mica_{i}_{k}.png')
                     plt.close()
                     #plt.show()
                     """
                     ## Check pairs of Friedel
+
+                    ### Mica 5 step scan
+                    """
                     pf8_info = PF8Info(
                     max_num_peaks=10000,
                     pf8_detector_info=dict(
@@ -585,15 +647,36 @@ def main():
                         nasics_y=1,
                     ),
                     adc_threshold=100,
-                    minimum_snr=3.4,
-                    min_pixel_count=5,
-                    max_pixel_count=100,
+                    minimum_snr=4.5,
+                    min_pixel_count=4,
+                    max_pixel_count=200,
                     local_bg_radius=10,
-                    min_res=90,
-                    max_res=200,
+                    min_res=0,
+                    max_res=300,
                     _bad_pixel_map=mask,
                     )
-
+                    """
+                    ### Mica 4 and 6 fly scan
+                    
+                    pf8_info = PF8Info(
+                    max_num_peaks=10000,
+                    pf8_detector_info=dict(
+                        asic_nx=mask.shape[1],
+                        asic_ny=mask.shape[0],
+                        nasics_x=1,
+                        nasics_y=1,
+                    ),
+                    adc_threshold=300,
+                    minimum_snr=3.4,
+                    min_pixel_count=5,
+                    max_pixel_count=200,
+                    local_bg_radius=10,
+                    min_res=0,
+                    max_res=1200,
+                    _bad_pixel_map=mask,
+                    )
+                    
+                    
                     pf8 = PF8(pf8_info)
                     peak_list = pf8.get_peaks_pf8(data=data)
 
@@ -607,41 +690,42 @@ def main():
                     ]
                                         
                     if peak_list['num_peaks']>4:
-                        results = shift_and_calculate_cross_correlation(shift)
+                        results = shift_and_calculate_cross_correlation(data, shift)
                         print("Third approximation", results["xc"], results["yc"])
                     else:
                         results=[]
 
-                    pos_log=open('/home/rodria/Desktop/20230814_regae_mica_6/beam_position.log','a+')
+                    pos_log=open(f'{args.output}/beam_position_{args.start}.csv','a+')
                     if results:
                         if results['index'][1]!=0 and results['index'][0]!=0:
-                            pos_log.write(f'{i}\t{k}\t{results["index"][1]}\t{results["index"][0]}\n')
+                            pos_log.write(f'{i}\t{k}\t{results["xc"]}\t{results["yc"]}\n')
                         else:
                             pos_log.write(f'{i}\t{k}\tnan\tnan\n')
                     else:
                         pos_log.write(f'{i}\t{k}\tnan\tnan\n')
                     pos_log.close()
 
-                    if results:   
-                        f = h5py.File(f"{args.output}_{i}_{k}.h5", "w")
+                    if results and results['index'][1]!=0 and results['index'][0]!=0:   
+                        f = h5py.File(f"{args.output}/mica_{i}_{k}.h5", "w")
                         for key in results:
                             f.create_dataset(key, data=results[key])
                         f.close()
+                        sub.call(f"mv {args.output}/mica_{i}_{k}.h5 {args.output}/cc_data", shell=True)
                         ## Display plots
                     
                         xr=real_center[0]
                         yr=real_center[1]
-                        fig, ax1 = plt.subplots(1, 1,figsize=(5, 5))
+                        fig, ax1 = plt.subplots(1, 1,figsize=(10, 10))
 
 
-                        pos1=ax1.imshow(data*mask, vmax=200, cmap='jet')
-                        ax1.scatter(xr,yr, color='lime', label='xds')
-                        ax1.scatter(results["xc"], results["yc"], color='darkorange', label='calculated center')
+                        pos1=ax1.imshow(data*mask, vmax=200, cmap='cividis')
+                        ax1.scatter(xr,yr, color='r', s=60, label='ref: (537,541)')
+                        ax1.scatter(results["xc"], results["yc"], s=60, color='lime', label=f'calculated center: ({results["xc"]}, {results["yc"]})')
                         ax1.set_title('Third approximation: Autocorrelation \nof Bragg peaks position')
                         fig.colorbar(pos1, ax=ax1,shrink=0.6)
                         ax1.legend()
 
-                        plt.savefig(f'/home/rodria/Desktop/20230814_regae_mica_6/third/mica_{i}_{k}.png')
+                        plt.savefig(f'{args.output}/plots/third/mica_{i}_{k}.png')
                         plt.close()
                         #plt.show()
                     
@@ -653,19 +737,21 @@ def main():
                         #index=[30,30]
                         
                         index=[]
-                        index.append(np.where(results['yy']==yr)[0][0])
-                        index.append(np.where(results['xx']==xr)[1][0])
+                        try:
+                            index.append(np.where(results['yy']==yr)[0][0])
+                            index.append(np.where(results['xx']==xr)[1][0])
+                        except:
+                            index=[0,0]
                         fig, ax1 = plt.subplots(1, 1,figsize=(5, 5))
                         pos1=ax1.imshow(results['sub_reduced_cc_matrix'], cmap='jet')
-                        ax1.scatter(index[0],index[1], color='r', label='xds: (537,541)')
-                        ax1.scatter(results['index'][1],results['index'][0], color='g', label='calculated center')
+                        ax1.scatter(index[0],index[1], color='r', label='ref: (537,541)')
+                        ax1.scatter(results['index'][1],results['index'][0], color='g', label=f'calculated center: ({results["xc"]}, {results["yc"]})')
                         ax1.set_title('Autocorrelation matrix')
                         fig.colorbar(pos1, ax=ax1,shrink=0.6)
                         ax1.legend()
-                        plt.savefig(f'/home/rodria/Desktop/20230814_regae_mica_6/cc_map/mica_{i}_{k}.png')
+                        plt.savefig(f'{args.output}/plots/cc_map/mica_{i}_{k}.png')
                         #plt.show()
-                        plt.close()                    
-                g.close()        
+                        plt.close()                     
             
 if __name__ == "__main__":
     main()
