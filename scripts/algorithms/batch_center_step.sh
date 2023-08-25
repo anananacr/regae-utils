@@ -9,14 +9,14 @@
 
 MAIL=ana.rodrigues@desy.de
 
-INPUT=/gpfs/cfel/user/rodria/processed/regae/2022/lists/mica_5.lst
-MASK=/gpfs/cfel/user/rodria/processed/regae/2022/lists/mask_mica.lst
+INPUT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/lists/mica_6.lst
+MASK=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/lists/mask_mica.lst
 
 START=$1
 STEP=$2
 END=$3
-OUTPUT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/processed/mica_5
-LABEL=mica_5
+OUTPUT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted/processed/mica_6
+LABEL=mica_4
 
 mkdir $OUTPUT;
 mkdir $OUTPUT/plots;
