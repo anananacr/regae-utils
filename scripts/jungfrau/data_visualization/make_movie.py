@@ -9,50 +9,53 @@ def create_frames(file_path:str, output:str):
     ## Rings radius in pixels
     rings = [10]
     ## Center of the image [xc,yc]
-    center = [537, 537]
+    center = [554, 543]
 
-    frames=np.arange(1000,7000, 1)
+    frames=np.arange(598,1200, 1)
+    sub_frames=np.arange(10)
     print(frames)
 
     for frame in frames:
-        hf = h5py.File(file_path, "r")
-        ##HDF5_path
-        data_name = "data"
-        data = np.array(hf[data_name][frame])
-        hf.close()
-        fig, ax = plt.subplots(1, 1, figsize=(10, 10))
-        pos = ax.imshow(
-            data,
-            cmap="cividis",
-            origin="upper",
-            interpolation=None,
-            norm=color.Normalize(0, 100),
-        )
+        for count in sub_frames:
+            hf = h5py.File(f'{file_path}_{frame}.h5', "r")
+            ##HDF5_path
+            data_name = "data"
+            data = np.array(hf[data_name][count])
+            hf.close()
+            fig, ax = plt.subplots(1, 1, figsize=(10, 10))
+            pos = ax.imshow(
+                data,
+                cmap="cividis",
+                origin="upper",
+                interpolation=None,
+                norm=color.Normalize(0, 200),
+            )
 
-        for i in rings:
-            circle = plt.Circle(center, i, fill=True, color="red", ls=":")
-            ax.add_patch(circle)
+            for i in rings:
+                circle = plt.Circle(center, i, fill=True, color="red", ls=":")
+                ax.add_patch(circle)
 
-        fig.colorbar(pos,shrink=1)
-        plt.title(f't = {round(frame*0.02)} s')
-        plt.savefig(f'{output}/img_{frame}.png', transparent=False, facecolor= 'white')
-        plt.close()
+            fig.colorbar(pos,shrink=1)
+            plt.title(f't = {round(((10*frame)+count)*0.08)} s')
+            plt.savefig(f'{output}/img_{frame}_{count}.png', transparent=False, facecolor= 'white')
+            plt.close()
 
 def save_gif(file_path:str):
-    frames=np.arange(100,701, 1)
+    frames=np.arange(0,1201, 1)
     sub_frames=np.arange(10)
     images=[]
+
     for frame in frames:
         for count in sub_frames:
             try:
-                images.append(imageio.imread(f'{file_path}/mica_{frame}_{count}.png'))
+                images.append(imageio.imread(f'{file_path}/img_{frame}_{count}.png'))
             except:
                 print(frame, count)
             
             
-    imageio.mimsave(f'{file_path}/../mica_6_1000_7000_third.gif',
+    imageio.mimsave(f'{file_path}/../mos_c3_center_fast.gif',
                     images,
-                    duration=0.02
+                    duration=20
                     )
 
 def save_gif_fly(file_path:str):
