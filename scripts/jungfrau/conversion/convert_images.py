@@ -186,8 +186,8 @@ def main(raw_args=None):
     
     # print(d.shape)
     g = h5py.File(args.output + ".h5", "w")
-    g.create_dataset("data", data=corr_frame)
-    #g.create_dataset("acc_data", data=d)
+    #g.create_dataset("data", data=corr_frame)
+    g.create_dataset("data", data=d)
     g.close()
 
 
