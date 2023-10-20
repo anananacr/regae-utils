@@ -5,7 +5,10 @@ import matplotlib.pyplot as plt
 import math
 import json
 import pandas as pd
-
+import sys
+sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
+#from maskMakerGUI import pMakePolarisationArray as make_polarization_array_fast
+import geometry_funcs as gf
 
 def center_of_mass(data: np.ndarray, mask: np.ndarray = None) -> Tuple[int]:
     """
@@ -85,6 +88,83 @@ def azimuthal_average(
 
     return radius, px_bin / r_bin
 
+def open_distance_map_global_min(
+    lines: list, output_folder: str, label: str, pixel_step: int) -> tuple:
+    """
+    Open distance minimization plot, fit projections in both axis to get the point of minimum distance.
+
+    Parameters
+    ----------
+    lines: list
+        Output of grid search for FWHM optmization, each line should contain a dictionary contaning entries for xc, yc and fwhm_over_radius.
+    """
+
+    n = int(math.sqrt(len(lines)))
+    pixel_step/=2
+    merged_dict = {}
+    for dictionary in lines[:]:
+
+        for key, value in dictionary.items():
+            if key in merged_dict:
+                merged_dict[key].append(value)
+            else:
+                merged_dict[key] = [value]
+
+    # Create a figure with three subplots
+    fig, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize=(20, 5))
+
+    # Extract x, y, and z from merged_dict
+
+    x = np.array(merged_dict["xc"]).reshape((n, n))[0]
+    y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
+    z = np.array(merged_dict["d"], dtype=np.float64).reshape((n, n))
+    
+    pos1 = ax1.imshow(z, cmap="rainbow")
+    step = 20
+    n = z.shape[0]
+    ax1.set_xticks(np.arange(0, n, step, dtype=float))
+    ax1.set_yticks(np.arange(0, n, step, dtype=float))
+    step = round(step * (abs(x[0] - x[1])),1)
+    ax1.set_xticklabels(np.arange(round(x[0],1), round(x[-1]+step,1), step, dtype=int), rotation=45)
+    ax1.set_yticklabels(np.arange(round(y[0],1), round(y[-1]+step,1), step, dtype=int))
+
+    ax1.set_ylabel("yc [px]")
+    ax1.set_xlabel("xc [px]")
+    ax1.set_title("Distance [px]")
+
+    proj_x = np.sum(z, axis=0)
+    #print('proj',len(proj_x))
+    x = np.arange(x[0], x[-1]+pixel_step, pixel_step)
+    #print('x',len(x))
+    index_x = np.unravel_index(np.argmin(proj_x, axis=None), proj_x.shape)
+    # print(index_x)
+    xc = round(x[index_x],1)
+    ax2.scatter(x, proj_x+pixel_step, color="b")
+    ax2.scatter(xc, proj_x[index_x], color="r", label=f"xc: {xc}")
+    ax2.set_ylabel("Average distance [px]")
+    ax2.set_xlabel("xc [px]")
+    ax2.set_title("Distance projection in x")
+    ax2.legend()
+
+    proj_y = np.sum(z, axis=1)
+    x = np.arange(y[0], y[-1]+pixel_step, pixel_step)
+    index_y = np.unravel_index(np.argmin(proj_y, axis=None), proj_y.shape)
+    yc = round(x[index_y],1)
+    ax3.scatter(x,proj_y, color="b")
+    ax3.scatter(yc, proj_y[index_y], color="r", label=f"yc: {yc}")
+    ax3.set_ylabel("Average Distance [px]")
+    ax3.set_xlabel("yc [px]")
+    ax3.set_title("Distance projection in y")
+    ax3.legend()
+
+    fig.colorbar(pos1, ax=ax1, shrink=0.6)
+
+    # Display the figure
+
+    # plt.show()
+    plt.savefig(f"{output_folder}/plots/distance_map/{label}.png")
+    plt.close()
+    return xc, yc
 
 def mask_peaks(mask: np.ndarray, indices: tuple, bragg: int) -> np.ndarray:
     """
@@ -168,6 +248,25 @@ def gaussian(x: np.ndarray, a: float, x0: float, sigma: float) -> np.ndarray:
         value of the function evaluated
     """
     return a * exp(-((x - x0) ** 2) / (2 * sigma**2))
+
+
+def double_gaussian(x: np.ndarray, a0: float, x0: float, sigma0: float,  a1: float, x1: float, sigma1: float) -> np.ndarray:
+    """
+    Gaussian function.
+
+    Parameters
+    ----------
+    x: np.ndarray
+        x array of the spectrum.
+    a, x0, sigma: float
+        gaussian parameters
+
+    Returns
+    ----------
+    y: np.ndarray
+        value of the function evaluated
+    """
+    return a0 * exp(-((x - x0) ** 2) / (2 * sigma0**2)) + a1 * exp(-((x - x1) ** 2) / (2 * sigma1**2))
 
 
 def quadratic(x, a, b, c):
@@ -546,3 +645,91 @@ def get_center_theory(
         center_theory.append(center)
     center_theory = np.array(center_theory)
     return center_theory, loaded_table_center
+
+
+def update_corner_in_geom(geom: str, new_xc: float, new_yc: float):
+    """
+    Write new direct beam position in detector coordinates in the geometry file.
+
+    Parameters
+    ----------
+    geom: str
+        CrystFEL eometry file name to be updated .geom format.
+    new_xc: float
+        Direct beam position in detector coordinates in the x axis.
+    new_yc: float
+        Direct beam position in detector coordinates in the y axis.
+
+    Returns
+    ----------
+    corrected_data: np.ndarray
+        Corrected data frame for polarization effect.
+    pol: np.ndarray
+        Polarization array for polarization correction.
+    """
+    # convert y x values to i j values
+    y = int(-new_yc + 1)
+    x = int(-new_xc + 1)
+    # print(x,y)
+    f = open(geom, "r")
+    lines = f.readlines()
+    f.close()
+
+    new_lines = []
+
+    for i in lines:
+        key_args = i.split(" = ")[0]
+
+        if key_args[-8:] == "corner_x":
+            new_lines.append(f"{key_args} = {x}\n")
+        elif key_args[-8:] == "corner_y":
+            new_lines.append(f"{key_args} = {y}\n")
+        else:
+            new_lines.append(i)
+
+    f = open(geom, "w")
+    for i in new_lines:
+        f.write(i)
+    f.close()
+
+
+def correct_polarization(
+    x: np.ndarray, y: np.ndarray, dist: float, data: np.ndarray, mask: np.ndarray
+) -> np.ndarray:
+    """
+    Correct data for polarisation effect, C built function from https://github.com/galchenm/vdsCsPadMaskMaker/blob/main/SubLocalBG.c#L249
+    Acknowledgements: Oleksandr Yefanov, Marina Galchenkova
+    Parameters
+    ----------
+    x: np.ndarray
+        x distance coordinates from the direct beam position.
+    y: np.ndarray
+        y distance coordinates from the direct beam position.
+    dist: float
+        z distance coordinates of the detector position.
+    data: np.ndarray
+        Raw data frame in which polarization correction will be applied.
+    mask: np.ndarray
+        Corresponding mask of data, containing zeros for unvalid pixels and one for valid pixels. Mask shape should be same size of data.
+
+    Returns
+    ----------
+    corrected_data: np.ndarray
+        Corrected data frame for polarization effect.
+    pol: np.ndarray
+        Polarization array for polarization correction.
+    """
+
+    mask = mask.astype(bool)
+    mask = ~mask.flatten()
+    Int = np.reshape(data.copy(), len(mask))
+    pol = mask.copy().astype(np.float32)
+    pol = make_polarization_array_fast(
+        pol, len(mask), x.flatten(), y.flatten(), dist / Res, 0.5
+    )
+    mask = ~mask
+    pol[np.where(mask == 0)] = 1
+    Int = Int / pol
+    return Int.reshape(data.shape), pol.reshape(data.shape)
+
+
