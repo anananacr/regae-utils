@@ -1,10 +1,11 @@
-#!/usr/bin/env python3.7
+#!/usr/bin/env python3.6
 
 import h5py
 import argparse
 import numpy as np
 import om.utils.crystfel_geometry as crystfel_geometry
 import cbf
+from PIL import Image
 
 def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -60,12 +61,17 @@ def main(raw_args=None):
     for i in range(size):       
         try:
             raw = np.array(f["data"][i])
+            raw[np.where(raw<=0)]=-1
         except OSError:
             print("skipped", i)
             continue
         corr_frame = np.zeros((visual_img_shape[0],visual_img_shape[1]), dtype=np.int32)
         corr_frame = apply_geom(raw, args.geom)
-        cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
+        corr_frame[np.where(corr_frame<=0)]=-1
+
+        #cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
+        Image.fromarray(corr_frame).save(f'{args.output}/{label}_{i:06}.tif')
+
 
     f.close()
 
