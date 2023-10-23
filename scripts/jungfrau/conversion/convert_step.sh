@@ -14,7 +14,7 @@
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
 # Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
 
-# ./convert_step.sh 
+# ./convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
 
 # Written by Ana Carolina Rodrigues.
 #
@@ -24,10 +24,24 @@ source /etc/profile.d/modules.sh
 module load maxwell python/3.7
 source /home/rodria/scripts/regae/env-regae/bin/activate
 
-INPUT=231019_mos_c3_ms_001/ed_rot_step_001/231020_mos_c3_ms_001_001
-PEDAL=231019_mos_c3_ms_001_average
-START=0
-END=1200
+#INPUT=231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003
+#PEDAL=231020_mos_c3_ms_003_average
+
+INP=$1
+MODE=$2
+START=$3
+END=$4
+
+N=$(basename $INP)
+
+if [ "$MODE" == "step" ];
+then
+  MODE_NUMBER=1
+else
+  MODE_NUMBER=0
+fi
+
+echo $MODE_NUMBER
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted
 
-python3 convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${PEDAL}.h5 -p2 ${ROOT}/../darks/pedal_d1_${PEDAL}.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INPUT} -s ${START} -e ${END} -o ${ROOT}/${INPUT}_master;
+python3 convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${N}_${MODE}_start.h5 -p2 ${ROOT}/../darks/pedal_d1_${N}_${MODE}_start.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INP} -m ${MODE_NUMBER} -s ${START} -e ${END} -o ${ROOT}/${INP}_master;

@@ -10,6 +10,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Any, BinaryIO, List
 import glob
+import os
 import matplotlib.colors as color
 
 dark = None
@@ -93,6 +94,14 @@ def main(raw_args=None):
         type=int,
         action="store",
         help="If more than one frame was measured per step. Number of frames to be accumulated per step for rotational step manner. None for fly scan.",
+    )
+    parser.add_argument(
+        "-m",
+        "--mode",
+        default=None,
+        type=int,
+        action="store",
+        help="Fly scan or step scan. Step scan 1 fly scan 0",
     )
     parser.add_argument(
         "-p1",
@@ -188,8 +197,10 @@ def main(raw_args=None):
     
     if not os.path.exists(args.output + ".h5"):
         g = h5py.File(args.output + ".h5", "w")
-        g.create_dataset("data", data=corr_frame, compression="gzip")
-        #g.create_dataset("data", data=d, compression="gzip")
+        if args.mode==0:
+            g.create_dataset("data", data=corr_frame, compression="gzip")
+        if args.mode==1:
+            g.create_dataset("data", data=d, compression="gzip")
         g.close()
 
 
