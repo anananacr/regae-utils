@@ -44,4 +44,4 @@ fi
 echo $MODE_NUMBER
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted
 
-python3 convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${N}_${MODE}_start.h5 -p2 ${ROOT}/../darks/pedal_d1_${N}_${MODE}_start.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INP} -m ${MODE_NUMBER} -s ${START} -e ${END} -o ${ROOT}/${INP}_master;
+python3 convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${N}_${MODE}_average.h5 -p2 ${ROOT}/../darks/pedal_d1_${N}_${MODE}_average.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INP} -m ${MODE_NUMBER} -s ${START} -e ${END} -o ${ROOT}/${INP}_master;
