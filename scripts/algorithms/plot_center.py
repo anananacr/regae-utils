@@ -10,7 +10,7 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [555,543]
+DetectorCenter = [589,534]
 
 def main():
     parser = argparse.ArgumentParser(description="Plot calculated center distribution.")
@@ -39,10 +39,10 @@ def main():
     print(label)
     center_x = []
     center_y = []
-    x_min=550
-    x_max=561
-    y_min=538
-    y_max=549
+    x_min=582
+    x_max=596
+    y_min=528
+    y_max=540
     
     if file_format == "lst":
         for i in paths:
@@ -72,6 +72,8 @@ def main():
     
     fig = plt.figure(figsize=(20, 5))
     ax = fig.add_subplot(131, title='Detector center distribution (pixel)')
+    ax.set_xlabel("Detector center in x (pixel)")
+    ax.set_ylabel("Detector center in y (pixel)")
     X, Y = np.meshgrid(xedges, yedges)
     pos = ax.pcolormesh(X, Y, H)
     fig.colorbar(pos)
@@ -133,7 +135,7 @@ def main():
     ax.set_ylabel("Counts")
     ax.set_xlabel("Detector center in y (pixel)")
     ax.legend()
-    plt.savefig(f"{args.output}/plots/{label}_mid.png")
+    plt.savefig(f"{args.output}/plots/{label}.png")
     plt.show()
 
     

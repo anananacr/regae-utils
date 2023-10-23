@@ -176,19 +176,21 @@ def main(raw_args=None):
         corr_frame = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
 
         f.close()
+        count=0
         for idy, j in enumerate(raw[:n_frames_measured]):
             skip = filter_data(j)
             if skip == 0:
                 corr_frame[idy] = apply_calibration(j, dark, gain)
                 acc_frame += corr_frame[idy]
+                count+=1
 
-        d[idx] = acc_frame
+        d[idx] = acc_frame/count
     
-    # print(d.shape)
-    g = h5py.File(args.output + ".h5", "w")
-    #g.create_dataset("data", data=corr_frame)
-    g.create_dataset("data", data=d)
-    g.close()
+    if not os.path.exists(args.output + ".h5"):
+        g = h5py.File(args.output + ".h5", "w")
+        g.create_dataset("data", data=corr_frame, compression="gzip")
+        #g.create_dataset("data", data=d, compression="gzip")
+        g.close()
 
 
 if __name__ == "__main__":

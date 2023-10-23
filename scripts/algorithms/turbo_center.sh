@@ -34,6 +34,7 @@ for i in $(seq $START 1 $END); do
     echo "source /home/rodria/scripts/regae/env-regae/bin/activate" >> $SLURMFILE
     echo >> $SLURMFILE
     command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/split_${INPUT}.lst${i} -m  ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT} -g ${ROOT}/geom/${INPUT}/JF_regae.geom;"
+
     echo $command >> $SLURMFILE
     echo "chmod a+rw $PWD" >> $SLURMFILE
     sbatch $SLURMFILE 

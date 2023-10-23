@@ -10,8 +10,8 @@
 # Mail: ana.rodrigues@desy.de
 
 
-INP=231020_mica_c4_m1_001/ed_rot_step_001/231020_mica_c4_m1_001_001_start_pedal
-N=231020_mica_c4_m1_001_start
+INP=231020_mica_c4_m1_001/ed_rot_step_001/231020_mica_c4_m1_001_001_stop_pedal
+N=231020_mica_c4_m1_001_stop
 beamtime=11018148
 OUTPUT=/asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/processed/darks
 

@@ -7,8 +7,8 @@
 #SBATCH --mem=4G
 
 #SBATCH --job-name  convert_jf
-#SBATCH --output    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mos_1-%N-%j.out
-#SBATCH --error    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mos_1-%N-%j.err
+#SBATCH --output    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mica-%N-%j.out
+#SBATCH --error    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mica-%N-%j.err
 
 
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
@@ -24,9 +24,10 @@ source /etc/profile.d/modules.sh
 module load maxwell python/3.7
 source /home/rodria/scripts/regae/env-regae/bin/activate
 
-ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted
-
-for i in $(seq 0 1 1200); do
+ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/231020_mica_c4_m1_001/ed_rot_step_001 
+#ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/231020_mica_c4_m1_001/ed_rot_step_001
+SCRATCH=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted
+for i in $(seq 0 1 1001); do
     NEXT=$((i+1))
-    python3 apply_geom.py -i ${ROOT}/mos_c3_ms_001/mos_c3_ms_001 -g ${ROOT}/pedal/JF_regae.geom -s ${i} -e ${NEXT} -o ${ROOT}/mos_c3_ms_001_pad/mos_c3_ms_001_${i};
+    python3 apply_geom.py -i ${ROOT}/231020_mica_c4_m1_001_001 -g ${SCRATCH}/pedal/JF_regae.geom -s ${i} -e ${NEXT} -o ${SCRATCH}/231020_mica_c4_m1_001_pad_average/231020_mica_c4_m1_001_pad_average_${i};
 done;

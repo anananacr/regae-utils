@@ -34,8 +34,8 @@ global pf8_info
 
 pf8_info = PF8Info(
     max_num_peaks=10000,
-    adc_threshold=200,
-    minimum_snr=3,
+    adc_threshold=100,
+    minimum_snr=4,
     min_pixel_count=5,
     max_pixel_count=1000,
     local_bg_radius=10,
@@ -229,7 +229,7 @@ def main():
     global DetectorCenter
 
     DetectorCenter=[_img_center_x, _img_center_y]
-    DetectorCenter=[550, 536]
+    DetectorCenter=[589, 534]
     print(DetectorCenter)
     output_folder = args.output
 
@@ -403,7 +403,7 @@ def main():
                     print('center',refined_center)
                     
                     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-                    pos = ax.imshow(corrected_data*mask, vmax=200, cmap="cividis")
+                    pos = ax.imshow(corrected_data*mask, vmax=20000, cmap="cividis")
                     ax.scatter(DetectorCenter[0], DetectorCenter[1], color="lime", marker="+", s=150 ,label=f"Initial center:({DetectorCenter[0]},{DetectorCenter[1]})")
                     ax.scatter(
                         refined_center[0],
@@ -432,7 +432,7 @@ def main():
 
                     ## Check pairs allignement
                     fig, ax = plt.subplots(1,1, figsize=(8, 8))
-                    pos=ax.imshow(corrected_data*mask, vmax=200, cmap='cividis')
+                    pos=ax.imshow(corrected_data*mask, vmax=20000, cmap='cividis')
                     ax.scatter(original_peaks_x, original_peaks_y, facecolor="none", s=80, marker='s',edgecolor="red", label='original peaks')
                     ax.scatter(inverted_non_shifted_peaks_x, inverted_non_shifted_peaks_y, s=80, facecolor="none", marker='D', edgecolor="blue", label='inverted peaks')
                     ax.scatter(inverted_shifted_peaks_x, inverted_shifted_peaks_y, facecolor="none",  s=50,marker= 'D', edgecolor="lime", label='shift of inverted peaks')
@@ -482,6 +482,7 @@ def main():
                         f.create_dataset("hit", data=1)
                         f.create_dataset("id", data=file_name)
                         f.create_dataset("index", data=n_frame)
+                        f.create_dataset("intensity", data=np.sum(corrected_data*mask))
                         f.create_dataset("refined_center", data=refined_center)
                         f.create_dataset("original_peaks_x", data=original_peaks_x)
                         f.create_dataset("original_peaks_y", data=original_peaks_y)

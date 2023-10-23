@@ -68,7 +68,7 @@ def main(raw_args=None):
 
     for idx, i in enumerate(index):
 
-        f = h5py.File(f"{args.input}_{i}.h5", "r")
+        f = h5py.File(f"{args.input}_master_{i}.h5", "r")
 
         size = len(f["data"])
 
@@ -90,7 +90,7 @@ def main(raw_args=None):
             corr_frame[idy] = apply_geom(j, args.geom)
 
     g = h5py.File(args.output + ".h5", "w")
-    g.create_dataset("data", data=corr_frame)
+    g.create_dataset("data", data=corr_frame, compression="gzip")
     g.close()
 
 
