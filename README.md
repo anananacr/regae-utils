@@ -53,6 +53,7 @@ python3 ../jungfrau/data_visualization/make_movie.py -i /asap3/fs-bmx/gpfs/regae
 ./turbo_center.sh 231020_mos_c3_ms_001/ed_rot_step_002 split_231020_mos_c3_ms_001_002_step 0 2
 
 ### Center plots
+
 /algorithms/
 
 ./plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all &
@@ -61,7 +62,7 @@ python3 ../jungfrau/data_visualization/make_movie.py -i /asap3/fs-bmx/gpfs/regae
 ./plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001 -l 231020_mos_c3_ms_001_001_step &
 
 
-### Optmize Sol67 current for sharpness of the diffraction pattern
+### Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
 python3 optimize_magnet.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/magnet_scan/mos2_magnet_scan -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/magnet_scan/plots
 
