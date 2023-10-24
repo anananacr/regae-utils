@@ -49,10 +49,10 @@ Example:
 
 python3 ../jungfrau/data_visualization/make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231020_mos_c3_ms_001/ed_rot_step_002/231020_mos_c3_ms_001_002 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_002/plots/img -l 231020_mos_c3_ms_001_002_step &
 
-## Center refinement
+### Center refinement
 ./turbo_center.sh 231020_mos_c3_ms_001/ed_rot_step_002 split_231020_mos_c3_ms_001_002_step 0 2
 
-## Center plots
+### Center plots
 /algorithms/
 
 ./plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all &
