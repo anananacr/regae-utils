@@ -1,15 +1,15 @@
 #!/bin/sh
 
 INPUT=$1
-START=$2
-END=$3
-ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed
+LABEL=$2
+START=$3
+END=$4
+ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed
 
 for i in $(seq $START 1 $END); do
-    LABEL=cc_${i}
     JNAME="cc_${i}"
     NAME="cc_${i}"
-    SLURMFILE="${NAME}_${INPUT}.sh"
+    SLURMFILE="${NAME}_${LABEL}.sh"
     echo "#!/bin/sh" > $SLURMFILE
     echo >> $SLURMFILE
     echo "#SBATCH --partition=allcpu,cfel" >> $SLURMFILE  # Set your partition here
@@ -19,8 +19,8 @@ for i in $(seq $START 1 $END); do
     echo "#SBATCH --chdir   $PWD" >> $SLURMFILE
     echo "#SBATCH --job-name  $JNAME" >> $SLURMFILE
     echo "#SBATCH --requeue" >> $SLURMFILE
-    echo "#SBATCH --output    $ROOT/error/${NAME}-%N-%j.out" >> $SLURMFILE
-    echo "#SBATCH --error     $ROOT/error/${NAME}-%N-%j.err" >> $SLURMFILE
+    echo "#SBATCH --output    $ROOT/../error/${NAME}-%N-%j.out" >> $SLURMFILE
+    echo "#SBATCH --error     $ROOT/../error/${NAME}-%N-%j.err" >> $SLURMFILE
     echo "#SBATCH --nice=0" >> $SLURMFILE
     echo "#SBATCH --mincpus=4" >> $SLURMFILE
     echo "#SBATCH --mem=4G" >> $SLURMFILE
@@ -33,7 +33,7 @@ for i in $(seq $START 1 $END); do
     echo "module load maxwell python/3.7" >> $SLURMFILE
     echo "source /home/rodria/scripts/regae/env-regae/bin/activate" >> $SLURMFILE
     echo >> $SLURMFILE
-    command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/split_${INPUT}.lst${i} -m  ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT} -g ${ROOT}/geom/${INPUT}/JF_regae.geom;"
+    command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/${LABEL}.lst0${i} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT}/${LABEL} -g ${ROOT}/../geom/JF_regae_v4.geom;"
 
     echo $command >> $SLURMFILE
     echo "chmod a+rw $PWD" >> $SLURMFILE
