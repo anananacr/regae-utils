@@ -15,7 +15,7 @@ from utils import (
     update_corner_in_geom,
     open_distance_map_global_min
 )
-
+from PIL import Image
 import itertools
 from models import PF8, PF8Info
 import multiprocessing
@@ -28,10 +28,23 @@ from scipy.signal import find_peaks
 import om.utils.crystfel_geometry as crystfel_geometry
 
 
-
+DetectorCenter=[592, 537]
 MinPeaks = 2
 global pf8_info
-
+## mica
+"""
+pf8_info = PF8Info(
+    max_num_peaks=10000,
+    adc_threshold=50,
+    minimum_snr=4,
+    min_pixel_count=5,
+    max_pixel_count=1000,
+    local_bg_radius=10,
+    min_res=50,
+    max_res=350
+)
+"""
+#mos step
 pf8_info = PF8Info(
     max_num_peaks=10000,
     adc_threshold=100,
@@ -39,9 +52,22 @@ pf8_info = PF8Info(
     min_pixel_count=5,
     max_pixel_count=1000,
     local_bg_radius=10,
-    min_res=10,
+    min_res=20,
     max_res=350
 )
+"""
+#mos fly
+pf8_info = PF8Info(
+    max_num_peaks=10000,
+    adc_threshold=100,
+    minimum_snr=3,
+    min_pixel_count=5,
+    max_pixel_count=1000,
+    local_bg_radius=10,
+    min_res=20,
+    max_res=350
+)
+"""
 
 def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -226,15 +252,15 @@ def main():
     
     #print('Det',det_dict)
 
-    global DetectorCenter
+    #global DetectorCenter
 
-    DetectorCenter=[_img_center_x, _img_center_y]
-    DetectorCenter=[589, 534]
+    #DetectorCenter=[_img_center_x, _img_center_y]
+
     print(DetectorCenter)
-    output_folder = args.output
+    output_folder = os.path.dirname(args.output)
 
     label = (
-        output_folder.split("/")[-1]
+        (args.output).split("/")[-1]
         + "_"
         + ((args.input).split("/")[-1]).split(".")[-1][3:]
     )
@@ -268,7 +294,7 @@ def main():
 
     if file_format == "lst":
         ref_image = []
-        for i in range(0, len(paths[:])):
+        for i in range(len(paths[:-1]), len(paths[:])):
         #for i in range(0, 20):
 
             file_name = paths[i][:-1]
@@ -288,6 +314,8 @@ def main():
                 f = h5py.File(f"{file_name}", "r")
                 data = np.array(f["data"])
                 f.close()
+            elif get_format(file_name) == "tif":
+                data = np.array(Image.open(file_name))
 
             if not mask_file_name:
                 mask = np.ones(data.shape)
@@ -307,9 +335,12 @@ def main():
                     mask = apply_geom(mask, args.geom)
                     f.close()
 
-            for n_frame,frame in enumerate(data):
+            #for n_frame,frame in enumerate(data):
+            for k in range(1):
+
                 ## Polarization correction factor
-                corrected_data=frame
+                #corrected_data=frame
+                corrected_data=data
                 print(len(corrected_data))
                 # Mask of defective pixels
                 mask[np.where(corrected_data < 0)] = 0
@@ -403,7 +434,7 @@ def main():
                     print('center',refined_center)
                     
                     fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-                    pos = ax.imshow(corrected_data*mask, vmax=20000, cmap="cividis")
+                    pos = ax.imshow(corrected_data*mask, vmax=200, cmap="cividis")
                     ax.scatter(DetectorCenter[0], DetectorCenter[1], color="lime", marker="+", s=150 ,label=f"Initial center:({DetectorCenter[0]},{DetectorCenter[1]})")
                     ax.scatter(
                         refined_center[0],
@@ -418,7 +449,8 @@ def main():
                     plt.title("Center refinement: autocorrelation of Friedel pairs")
                     fig.colorbar(pos, shrink=0.6)
                     ax.legend()
-                    plt.savefig(f"{args.output}/plots/centered/{label}_{i}_{n_frame}.png")
+                    plt.savefig(f"{output_folder}/plots/centered/{label}_{i}.png")
+                    #plt.savefig(f"{args.output}/plots/centered/{label}_{i}_{n_frame}.png")
                     # plt.show()
                     plt.close()
 
@@ -432,7 +464,7 @@ def main():
 
                     ## Check pairs allignement
                     fig, ax = plt.subplots(1,1, figsize=(8, 8))
-                    pos=ax.imshow(corrected_data*mask, vmax=20000, cmap='cividis')
+                    pos=ax.imshow(corrected_data*mask, vmax=200, cmap='cividis')
                     ax.scatter(original_peaks_x, original_peaks_y, facecolor="none", s=80, marker='s',edgecolor="red", label='original peaks')
                     ax.scatter(inverted_non_shifted_peaks_x, inverted_non_shifted_peaks_y, s=80, facecolor="none", marker='D', edgecolor="blue", label='inverted peaks')
                     ax.scatter(inverted_shifted_peaks_x, inverted_shifted_peaks_y, facecolor="none",  s=50,marker= 'D', edgecolor="lime", label='shift of inverted peaks')
@@ -445,10 +477,11 @@ def main():
                     plt.title("Bragg peaks allignement")
                     fig.colorbar(pos, shrink=0.6)
                     ax.legend()
-                    plt.savefig(f"{args.output}/plots/peaks/{label}_{i}_{n_frame}.png")
+                    plt.savefig(f"{output_folder}/plots/peaks/{label}_{i}.png")
+                    #plt.savefig(f"{args.output}/plots/peaks/{label}_{i}_{n_frame}.png")
                     # plt.show()
                     plt.close()
-
+                    """
                     # Update geom 
                     updated_geom = f"{args.geom[:-5]}_{label}_{i}_v1.geom"
                     cmd = f"cp {args.geom} {updated_geom}"
@@ -456,6 +489,7 @@ def main():
                     update_corner_in_geom(updated_geom, xc, yc)
                     cmd = f"cp {updated_geom} {output_folder}/final_geom "
                     sub.call(cmd, shell=True)
+                    
                     ## Clean geom directory
                     updated_geom = f"{args.geom[:-5]}_{label}_{i}_v1.geom"
                     cmd = f"cp {updated_geom} {output_folder}"
@@ -467,7 +501,7 @@ def main():
                         f"mv {output_folder}/*v1.geom {root_directory}"
                     )
                     sub.call(cmd, shell=True)
-
+                    """
 
                     original_peaks_x=[k+DetectorCenter[0] for k in peaks_list_x]
                     original_peaks_y=[k+DetectorCenter[1] for k in peaks_list_y]
@@ -478,10 +512,11 @@ def main():
 
 
                     if args.output:
-                        f = h5py.File(f"{output_folder}/h5_files/{label}_{i}_{n_frame}.h5", "w")
+                        f = h5py.File(f"{output_folder}/h5_files/{label}_{i}.h5", "w")
+                        #f = h5py.File(f"{output_folder}/h5_files/{label}_{i}_{n_frame}.h5", "w")
                         f.create_dataset("hit", data=1)
                         f.create_dataset("id", data=file_name)
-                        f.create_dataset("index", data=n_frame)
+                        #f.create_dataset("index", data=n_frame)
                         f.create_dataset("intensity", data=np.sum(corrected_data*mask))
                         f.create_dataset("refined_center", data=refined_center)
                         f.create_dataset("original_peaks_x", data=original_peaks_x)
