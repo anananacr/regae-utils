@@ -10,9 +10,9 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [589,534]
+DetectorCenter = [591,531]
 frequency=12.5
-frames_per_step=100
+frames_per_step=1
 
 def calculate_time_point_from_path(file_path:str, frame:int):
     #print(((file_path.split('/')[-1]).split('.')[0]).split('_')[-1])
@@ -29,7 +29,13 @@ def main():
         action="store",
         help="path to list of data files .lst",
     )
-
+    parser.add_argument(
+        "-l",
+        "--label",
+        type=str,
+        action="store",
+        help="path to list of data files .lst",
+    )
     parser.add_argument(
         "-o", "--output", type=str, action="store", help="path to output data files"
     )
@@ -42,16 +48,16 @@ def main():
 
     file_format = get_format(args.input)
     output_folder = args.output
-    label = "center_distribution_" + output_folder.split("/")[-1]
+    label = "center_distribution_" + args.label
     g=open(f'{args.output}/plots/beam_center.csv', 'w')
     g.write('time center_x center_y\n')
     #print(label)
     center_x = []
     center_y = []
-    x_min=582
-    x_max=596
-    y_min=528
-    y_max=540
+    x_min=DetectorCenter[0]-10
+    x_max=DetectorCenter[0]+10
+    y_min=DetectorCenter[1]-10
+    y_max=DetectorCenter[1]+10
     time=[]
     counts=[]
     if file_format == "lst":
@@ -62,7 +68,8 @@ def main():
                 center = np.array(f["refined_center"])
                 intensity=np.array(f["intensity"])
                 file_path=str(np.array(f["id"]))
-                frame=int(np.array(f["index"]))
+                #frame=int(np.array(f["index"]))
+                frame=0
                 error=math.sqrt((center[0]-DetectorCenter[0])**2+(center[1]-DetectorCenter[1])**2)
                 if center[1]>y_min and center[1]<y_max and center[0]<x_max and center[0]>x_min:
                     timestamp=calculate_time_point_from_path(file_path,frame)
@@ -90,7 +97,7 @@ def main():
     
     ax.set_ylabel("Detector center in x (pixel)", fontsize=10)
     ax.set_xlabel("Time (s)")
-    ax.set_xlim(0,8000)
+    #ax.set_xlim(0,8000)
     ax.scatter(time, center_x, marker='.', s=2)
 
     ax = fig.add_subplot(312)
@@ -98,14 +105,14 @@ def main():
     ax.set_ylabel("Detector center in y (pixel)",fontsize=10)
     ax.set_xlabel("Time (s)")
     ax.scatter(time, center_y, color='orange', marker='.', s=2)
-    ax.set_xlim(0,8000)
+    #ax.set_xlim(0,8000)
 
     ax = fig.add_subplot(313)
     
     ax.set_ylabel("Normalized intensity", fontsize=10)
     ax.set_xlabel("Time (s)")
     ax.scatter(time, norm_intensity, color='green', marker='.', s=2)
-    ax.set_xlim(0,8000)
+    #ax.set_xlim(0,8000)
     ax.legend()
     plt.savefig(f"{args.output}/plots/{label}_time.png")
     plt.show()

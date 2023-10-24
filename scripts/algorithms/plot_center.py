@@ -10,13 +10,20 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [589,534]
+DetectorCenter = [591,531]
 
 def main():
     parser = argparse.ArgumentParser(description="Plot calculated center distribution.")
     parser.add_argument(
         "-i",
         "--input",
+        type=str,
+        action="store",
+        help="path to list of data files .lst",
+    )
+    parser.add_argument(
+        "-l",
+        "--label",
         type=str,
         action="store",
         help="path to list of data files .lst",
@@ -34,15 +41,15 @@ def main():
 
     file_format = get_format(args.input)
     output_folder = args.output
-    label = "center_distribution_" + output_folder.split("/")[-1]
+    label = "center_distribution_" + args.label
 
     print(label)
     center_x = []
     center_y = []
-    x_min=582
-    x_max=596
-    y_min=528
-    y_max=540
+    x_min=DetectorCenter[0]-5
+    x_max=DetectorCenter[0]+5
+    y_min=DetectorCenter[1]-5
+    y_max=DetectorCenter[1]+5
     
     if file_format == "lst":
         for i in paths:
