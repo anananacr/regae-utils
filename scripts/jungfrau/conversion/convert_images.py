@@ -158,7 +158,7 @@ def main(raw_args=None):
         gain_file.close()
         dark_file.close()
 
-    index = np.arange(args.start_index, args.end_index, 1)
+    index = np.arange(args.start_index, args.end_index+1, 1)
     n_frames = args.end_index - args.start_index
 
     d = np.zeros((n_frames, 1024, 1024), dtype=np.int32)
