@@ -25,17 +25,18 @@ from scipy import signal
 import h5py
 import subprocess as sub
 
+
 def shift_and_calculate_fwhm(shift: tuple) -> Dict[str, int]:
     ## Radial average from the center of mass
     shift_x = shift[0]
     shift_y = shift[1]
     xc = center_x + shift_x
     yc = center_y + shift_y
-    
+
     x, y = azimuthal_average(unbragged_data, center=(xc, yc), mask=pf8_mask)
     # Plot all radial average
-    #fig, ax1 = plt.subplots(1, 1, figsize=(5, 5))
-    #plt.plot(x, y)
+    # fig, ax1 = plt.subplots(1, 1, figsize=(5, 5))
+    # plt.plot(x, y)
 
     ## Define background peak region
     x_min = 150
@@ -84,7 +85,9 @@ def shift_and_calculate_fwhm(shift: tuple) -> Dict[str, int]:
     }
 
 
-def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Dict[str, float]:
+def shift_and_calculate_cross_correlation(
+    data: np.array, shift: Tuple[int]
+) -> Dict[str, float]:
 
     shift_x = -shift[0]
     shift_y = -shift[1]
@@ -118,7 +121,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     )
     """
     ### Mica 4 and 6 fly scan
-    
+
     pf8_info = PF8Info(
         max_num_peaks=10000,
         pf8_detector_info=dict(
@@ -136,8 +139,6 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
         max_res=300,
         _bad_pixel_map=shifted_mask,
     )
-    
-    
 
     pf8 = PF8(pf8_info)
     peak_list = pf8.get_peaks_pf8(data=shifted_data)
@@ -152,12 +153,12 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     indices = (
         np.array(peak_list["ss"], dtype=int),
         np.array(peak_list["fs"], dtype=int),
-        )    
-    
+    )
+
     indices_flipped = (
         np.array(peak_list_flipped["ss"], dtype=int),
         np.array(peak_list_flipped["fs"], dtype=int),
-        )
+    )
 
     # Original image Bragg peak limits
     x_min_orig = np.min(indices[1])
@@ -193,7 +194,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     # img_1[y_orig, x_orig]=1
     img_1 = mask_peaks(img_1, (y_orig, x_orig), 1)
 
-    #global mask_1
+    # global mask_1
     mask_1 = img_1.copy()
     mask_1[np.where(img_1 == 0)] = np.nan
 
@@ -213,7 +214,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     # img_2[y_flip, x_flip]=1
     img_2 = mask_peaks(img_2, (y_flip, x_flip), 1)
 
-    #global mask_2
+    # global mask_2
     mask_2 = img_2.copy()
     mask_2[np.where(img_2 == 0)] = np.nan
 
@@ -233,8 +234,8 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     sub_reduced_cc_matrix = reduced_cc_matrix[row - 30 : row + 30, col - 30 : col + 30]
 
     ## Collect shifts from maximum and non zero values of the sub-reduced cc matrix
-    if np.max(sub_reduced_cc_matrix)==0:
-        maximum_index=[]
+    if np.max(sub_reduced_cc_matrix) == 0:
+        maximum_index = []
     else:
         maximum_index = np.where(sub_reduced_cc_matrix == np.max(sub_reduced_cc_matrix))
     non_zero_index = np.where(sub_reduced_cc_matrix != 0)
@@ -261,7 +262,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
                 orig_yc + ((yy[index]) / 2),
                 1 / math.sqrt(sub_reduced_cc_matrix[index]),
                 index[0],
-                index[1]
+                index[1],
             ]
         )
 
@@ -273,7 +274,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
                 orig_yc + ((yy[index]) / 2),
                 1 / math.sqrt(sub_reduced_cc_matrix[index]),
                 index[0],
-                index[1]
+                index[1],
             ]
         )
 
@@ -289,42 +290,44 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
     )
 
     ## Sort index list
-    non_zero_index=[]
+    non_zero_index = []
     for candidate in non_zero_candidates:
         non_zero_index.append((candidate[3], candidate[4]))
 
-    maximum_index=[]
+    maximum_index = []
     for candidate in max_candidates:
         maximum_index.append((candidate[3], candidate[4]))
-    
+
     ## Selection of best candidate for center approximation
-    if len(max_candidates)>0:
+    if len(max_candidates) > 0:
         xc = max_candidates[0][0]
         yc = max_candidates[0][1]
         index = (max_candidates[0][3], max_candidates[0][4])
-    else: 
+    else:
         xc = 0
         yc = 0
 
     ## Display plots
-    
-    fig, ((ax1, ax2),(ax3,ax4)) = plt.subplots(2, 2,figsize=(20, 20))
-    ax1.set_title('Original data')
-    pos1=ax1.imshow(shifted_data*shifted_mask, vmax=100,cmap='viridis')
+
+    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(20, 20))
+    ax1.set_title("Original data")
+    pos1 = ax1.imshow(shifted_data * shifted_mask, vmax=100, cmap="viridis")
     ax1.scatter(indices[1], indices[0], s=60, facecolor="none", edgecolor="red")
-    ax2.set_title('Flipped data')
-    pos2=ax2.imshow(flipped_data*shifted_mask[::-1,::-1], vmax=100, cmap='viridis')
-    ax2.scatter(indices_flipped[1], indices_flipped[0], s=60, facecolor="none", edgecolor="red")
-    ax3.imshow(orig_cut*img_1, cmap='viridis', vmax=100)
-    ax3.set_title('Bragg peaks original')
-    ax4.imshow(flip_cut*img_2, cmap='viridis', vmax=100)
-    ax4.set_title('Bragg peaks flipped')
-    fig.colorbar(pos1, ax=ax1,shrink=0.6)
-    fig.colorbar(pos2, ax=ax2,shrink=0.6)
-    plt.savefig(f'{args.output}/plots/cc_flip/mica_{frame_number}_{count}.png')
-    #plt.show()
+    ax2.set_title("Flipped data")
+    pos2 = ax2.imshow(flipped_data * shifted_mask[::-1, ::-1], vmax=100, cmap="viridis")
+    ax2.scatter(
+        indices_flipped[1], indices_flipped[0], s=60, facecolor="none", edgecolor="red"
+    )
+    ax3.imshow(orig_cut * img_1, cmap="viridis", vmax=100)
+    ax3.set_title("Bragg peaks original")
+    ax4.imshow(flip_cut * img_2, cmap="viridis", vmax=100)
+    ax4.set_title("Bragg peaks flipped")
+    fig.colorbar(pos1, ax=ax1, shrink=0.6)
+    fig.colorbar(pos2, ax=ax2, shrink=0.6)
+    plt.savefig(f"{args.output}/plots/cc_flip/mica_{frame_number}_{count}.png")
+    # plt.show()
     plt.close()
-    
+
     return {
         "max_index": np.array(maximum_index, dtype=np.int16),
         "index": np.array(index, dtype=np.int16),
@@ -333,7 +336,7 @@ def shift_and_calculate_cross_correlation(data:np.array,shift: Tuple[int]) -> Di
         "sub_reduced_cc_matrix": np.array(sub_reduced_cc_matrix, dtype=np.int32),
         "xx": xx,
         "yy": yy,
-        "max_candidates": max_candidates
+        "max_candidates": max_candidates,
     }
 
 
@@ -357,30 +360,33 @@ def correlate_2d(im1: np.ndarray, im2: np.ndarray) -> np.ndarray:
 
     corr = np.zeros((im1.shape[0] + im2.shape[0], (im1.shape[1] + im2.shape[1])))
     # Whole matrix
-    #scan_boundaries_x = (-im1.shape[1],im1.shape[1])
-    #scan_boundaries_y = (-im1.shape[0],im1.shape[0])
+    # scan_boundaries_x = (-im1.shape[1],im1.shape[1])
+    # scan_boundaries_y = (-im1.shape[0],im1.shape[0])
 
     # Fast mode
-    scan_boundaries_x = (-30,31)
-    scan_boundaries_y = (-30,31)
-    
+    scan_boundaries_x = (-30, 31)
+    scan_boundaries_y = (-30, 31)
+
     xx, yy = np.meshgrid(
         np.arange(scan_boundaries_x[0], scan_boundaries_x[1], 1, dtype=int),
         np.arange(scan_boundaries_y[0], scan_boundaries_y[1], 1, dtype=int),
     )
-    
+
     coordinates = np.column_stack((np.ravel(xx), np.ravel(yy)))
 
     coordinates_anchor_data = [(shift, im1, im2) for shift in coordinates]
-    
+
     pool = multiprocessing.Pool()
     with pool:
-        cc_summary=pool.map(calculate_product, coordinates_anchor_data)
+        cc_summary = pool.map(calculate_product, coordinates_anchor_data)
 
     corr_reduced = np.array(cc_summary).reshape((xx.shape))
-    center_row=im1.shape[0]
-    center_col=im1.shape[1]
-    corr[center_row+scan_boundaries_y[0]:center_row+scan_boundaries_y[1], center_col+scan_boundaries_x[0]:center_col+scan_boundaries_x[1]]=corr_reduced
+    center_row = im1.shape[0]
+    center_col = im1.shape[1]
+    corr[
+        center_row + scan_boundaries_y[0] : center_row + scan_boundaries_y[1],
+        center_col + scan_boundaries_x[0] : center_col + scan_boundaries_x[1],
+    ] = corr_reduced
     return corr
 
 
@@ -401,7 +407,7 @@ def calculate_product(key_args: tuple) -> float:
     cc: float
         Element of the cross correlation matrix regarding the given shift.
     """
-    
+
     shift_x = shift[0]
     shift_y = shift[1]
 
@@ -471,12 +477,12 @@ def main():
     mask_paths = mask_files.readlines()
     mask_files.close()
 
-    intensity_log=open(f'{args.output}/intensity_{args.start}.csv','w+')
-    intensity_log.write('file_id\tframe\ttotal\n')
+    intensity_log = open(f"{args.output}/intensity_{args.start}.csv", "w+")
+    intensity_log.write("file_id\tframe\ttotal\n")
     intensity_log.close()
 
-    pos_log=open(f'{args.output}/beam_position_{args.start}.csv','w+')
-    pos_log.write('file_id\tframe\tx\ty\n')
+    pos_log = open(f"{args.output}/beam_position_{args.start}.csv", "w+")
+    pos_log.write("file_id\tframe\tx\ty\n")
     pos_log.close()
     file_format = get_format(args.input)
 
@@ -484,16 +490,16 @@ def main():
         table_real_center, loaded_table = get_center_theory(paths, args.center)
 
     if not args.end:
-        args.end=len(paths[:])
+        args.end = len(paths[:])
 
     if file_format == "lst":
         ref_image = []
         for i in range(args.start, args.end):
             file_name = paths[i][:-1]
-            #global data
+            # global data
             global mask
             global frame_number
-            frame_number=i
+            frame_number = i
             global count
             print(file_name)
             if get_format(file_name) == "cbf":
@@ -513,7 +519,7 @@ def main():
                 data_stack = g["data"]
                 n_frames = data_stack.shape[0]
                 g.close()
-                
+
                 mask_file_name = mask_paths[0][:-1]
                 f = h5py.File(f"{mask_file_name}", "r")
                 mask = np.array(f["data/data"])
@@ -522,24 +528,26 @@ def main():
                 real_center = [537, 541]
 
                 for k in range(n_frames):
-                #for k in range(72,73):
+                    # for k in range(72,73):
                     g = h5py.File(f"{file_name}", "r")
                     data_stack = g["data"]
-                    data=np.array(data_stack[k])
+                    data = np.array(data_stack[k])
                     g.close()
 
                     if not np.any(data):
                         continue
 
                     mask[np.where(data < 0)] = 0
-                    count=k
-                    
+                    count = k
+
                     ## Approximate center of mass
-                    masked_data=data*mask
+                    masked_data = data * mask
                     xc, yc = center_of_mass(masked_data)
-                    total_intensity=int(np.sum(masked_data))
-                    intensity_log=open(f'{args.output}/intensity_{args.start}.csv','a+')
-                    intensity_log.write(f'{i}\t{k}\t{total_intensity}\n')
+                    total_intensity = int(np.sum(masked_data))
+                    intensity_log = open(
+                        f"{args.output}/intensity_{args.start}.csv", "a+"
+                    )
+                    intensity_log.write(f"{i}\t{k}\t{total_intensity}\n")
                     intensity_log.close()
                     ## Center of mass again with the flipped image to account for eventual background asymmetry
 
@@ -657,101 +665,125 @@ def main():
                     )
                     """
                     ### Mica 4 and 6 fly scan
-                    
+
                     pf8_info = PF8Info(
-                    max_num_peaks=10000,
-                    pf8_detector_info=dict(
-                        asic_nx=mask.shape[1],
-                        asic_ny=mask.shape[0],
-                        nasics_x=1,
-                        nasics_y=1,
-                    ),
-                    adc_threshold=200,
-                    minimum_snr=3.2,
-                    min_pixel_count=5,
-                    max_pixel_count=200,
-                    local_bg_radius=10,
-                    min_res=0,
-                    max_res=300,
-                    _bad_pixel_map=mask,
+                        max_num_peaks=10000,
+                        pf8_detector_info=dict(
+                            asic_nx=mask.shape[1],
+                            asic_ny=mask.shape[0],
+                            nasics_x=1,
+                            nasics_y=1,
+                        ),
+                        adc_threshold=200,
+                        minimum_snr=3.2,
+                        min_pixel_count=5,
+                        max_pixel_count=200,
+                        local_bg_radius=10,
+                        min_res=0,
+                        max_res=300,
+                        _bad_pixel_map=mask,
                     )
-                    
-                    
+
                     pf8 = PF8(pf8_info)
                     peak_list = pf8.get_peaks_pf8(data=data)
 
                     # shift to closest center know so far
 
-                    #shift = [int(-(data.shape[1] / 2) + xc), int(-(data.shape[0] / 2) + yc)]
-                    
+                    # shift = [int(-(data.shape[1] / 2) + xc), int(-(data.shape[0] / 2) + yc)]
+
                     shift = [
                         int(-(data.shape[1] / 2) + real_center[0]),
                         int(-(data.shape[0] / 2) + real_center[1]),
                     ]
-                                        
-                    if peak_list['num_peaks']>4:
+
+                    if peak_list["num_peaks"] > 4:
                         results = shift_and_calculate_cross_correlation(data, shift)
                         print("Third approximation", results["xc"], results["yc"])
                     else:
-                        results=[]
+                        results = []
 
-                    pos_log=open(f'{args.output}/beam_position_{args.start}.csv','a+')
+                    pos_log = open(
+                        f"{args.output}/beam_position_{args.start}.csv", "a+"
+                    )
                     if results:
-                        if results['index'][1]!=0 and results['index'][0]!=0:
-                            pos_log.write(f'{i}\t{k}\t{results["xc"]}\t{results["yc"]}\n')
+                        if results["index"][1] != 0 and results["index"][0] != 0:
+                            pos_log.write(
+                                f'{i}\t{k}\t{results["xc"]}\t{results["yc"]}\n'
+                            )
                         else:
-                            pos_log.write(f'{i}\t{k}\tnan\tnan\n')
+                            pos_log.write(f"{i}\t{k}\tnan\tnan\n")
                     else:
-                        pos_log.write(f'{i}\t{k}\tnan\tnan\n')
+                        pos_log.write(f"{i}\t{k}\tnan\tnan\n")
                     pos_log.close()
 
-                    if results and results['index'][1]!=0 and results['index'][0]!=0:   
+                    if (
+                        results
+                        and results["index"][1] != 0
+                        and results["index"][0] != 0
+                    ):
                         f = h5py.File(f"{args.output}/mica_{i}_{k}.h5", "w")
                         for key in results:
                             f.create_dataset(key, data=results[key])
                         f.close()
-                        sub.call(f"mv {args.output}/mica_{i}_{k}.h5 {args.output}/cc_data", shell=True)
+                        sub.call(
+                            f"mv {args.output}/mica_{i}_{k}.h5 {args.output}/cc_data",
+                            shell=True,
+                        )
                         ## Display plots
-                    
-                        xr=real_center[0]
-                        yr=real_center[1]
-                        fig, ax1 = plt.subplots(1, 1,figsize=(10, 10))
 
+                        xr = real_center[0]
+                        yr = real_center[1]
+                        fig, ax1 = plt.subplots(1, 1, figsize=(10, 10))
 
-                        pos1=ax1.imshow(data*mask, vmax=200, cmap='cividis')
-                        ax1.scatter(xr,yr, color='r', s=60, label='ref: (537,541)')
-                        ax1.scatter(results["xc"], results["yc"], s=60, color='lime', label=f'calculated center: ({results["xc"]}, {results["yc"]})')
-                        ax1.set_title('Third approximation: Autocorrelation \nof Bragg peaks position')
-                        fig.colorbar(pos1, ax=ax1,shrink=0.6)
+                        pos1 = ax1.imshow(data * mask, vmax=200, cmap="cividis")
+                        ax1.scatter(xr, yr, color="r", s=60, label="ref: (537,541)")
+                        ax1.scatter(
+                            results["xc"],
+                            results["yc"],
+                            s=60,
+                            color="lime",
+                            label=f'calculated center: ({results["xc"]}, {results["yc"]})',
+                        )
+                        ax1.set_title(
+                            "Third approximation: Autocorrelation \nof Bragg peaks position"
+                        )
+                        fig.colorbar(pos1, ax=ax1, shrink=0.6)
                         ax1.legend()
 
-                        plt.savefig(f'{args.output}/plots/third/mica_{i}_{k}.png')
+                        plt.savefig(f"{args.output}/plots/third/mica_{i}_{k}.png")
                         plt.close()
-                        #plt.show()
-                    
-                    
+                        # plt.show()
+
                         ## Display cc matrix plot
-                        xr=0
-                        yr=0
-                        
-                        #index=[30,30]
-                        
-                        index=[]
+                        xr = 0
+                        yr = 0
+
+                        # index=[30,30]
+
+                        index = []
                         try:
-                            index.append(np.where(results['yy']==yr)[0][0])
-                            index.append(np.where(results['xx']==xr)[1][0])
+                            index.append(np.where(results["yy"] == yr)[0][0])
+                            index.append(np.where(results["xx"] == xr)[1][0])
                         except:
-                            index=[0,0]
-                        fig, ax1 = plt.subplots(1, 1,figsize=(5, 5))
-                        pos1=ax1.imshow(results['sub_reduced_cc_matrix'], cmap='jet')
-                        ax1.scatter(index[0],index[1], color='r', label='ref: (537,541)')
-                        ax1.scatter(results['index'][1],results['index'][0], color='g', label=f'calculated center: ({results["xc"]}, {results["yc"]})')
-                        ax1.set_title('Autocorrelation matrix')
-                        fig.colorbar(pos1, ax=ax1,shrink=0.6)
+                            index = [0, 0]
+                        fig, ax1 = plt.subplots(1, 1, figsize=(5, 5))
+                        pos1 = ax1.imshow(results["sub_reduced_cc_matrix"], cmap="jet")
+                        ax1.scatter(
+                            index[0], index[1], color="r", label="ref: (537,541)"
+                        )
+                        ax1.scatter(
+                            results["index"][1],
+                            results["index"][0],
+                            color="g",
+                            label=f'calculated center: ({results["xc"]}, {results["yc"]})',
+                        )
+                        ax1.set_title("Autocorrelation matrix")
+                        fig.colorbar(pos1, ax=ax1, shrink=0.6)
                         ax1.legend()
-                        plt.savefig(f'{args.output}/plots/cc_map/mica_{i}_{k}.png')
-                        #plt.show()
-                        plt.close()                     
-            
+                        plt.savefig(f"{args.output}/plots/cc_map/mica_{i}_{k}.png")
+                        # plt.show()
+                        plt.close()
+
+
 if __name__ == "__main__":
     main()
