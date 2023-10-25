@@ -28,7 +28,7 @@ from scipy.signal import find_peaks
 import om.utils.crystfel_geometry as crystfel_geometry
 
 
-DetectorCenter=[592, 537]
+DetectorCenter=[594, 530]
 MinPeaks = 2
 global pf8_info
 ## mica
@@ -44,19 +44,21 @@ pf8_info = PF8Info(
     max_res=350
 )
 """
+
 #mos step
 pf8_info = PF8Info(
     max_num_peaks=10000,
-    adc_threshold=100,
+    adc_threshold=200,
     minimum_snr=4,
     min_pixel_count=5,
     max_pixel_count=1000,
     local_bg_radius=10,
-    min_res=20,
+    min_res=50,
     max_res=350
 )
+
 """
-#mos fly
+# fly
 pf8_info = PF8Info(
     max_num_peaks=10000,
     adc_threshold=100,
@@ -64,10 +66,11 @@ pf8_info = PF8Info(
     min_pixel_count=5,
     max_pixel_count=1000,
     local_bg_radius=10,
-    min_res=20,
+    min_res=50,
     max_res=350
 )
 """
+
 
 def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -294,7 +297,7 @@ def main():
 
     if file_format == "lst":
         ref_image = []
-        for i in range(len(paths[:-1]), len(paths[:])):
+        for i in range(0, len(paths[:])):
         #for i in range(0, 20):
 
             file_name = paths[i][:-1]
@@ -444,8 +447,8 @@ def main():
                         s=25,
                         label=f"Refined center:({refined_center[0]}, {refined_center[1]})",
                     )
-                    ax.set_xlim(200, 900)
-                    ax.set_ylim(900, 200)
+                    ax.set_xlim(100, 1000)
+                    ax.set_ylim(1000, 100)
                     plt.title("Center refinement: autocorrelation of Friedel pairs")
                     fig.colorbar(pos, shrink=0.6)
                     ax.legend()
@@ -472,8 +475,8 @@ def main():
                     #    peak_x_slab=[k+DetectorCenter[0] for k in peaks_0
                     #    ax.scatter((peaks_0[0]+DetectorCenter[0],-1*peak_1[0]+DetectorCenter[0]), (peak_0[1]+DetectorCenter[1],-1*peak_1[1]+DetectorCenter[1]), facecolor="none",  s=200,marker= '*', edgecolor="magenta", label='friedel pair')
 
-                    ax.set_xlim(200, 900)
-                    ax.set_ylim(900, 200)
+                    ax.set_xlim(100, 1000)
+                    ax.set_ylim(1000, 100)
                     plt.title("Bragg peaks allignement")
                     fig.colorbar(pos, shrink=0.6)
                     ax.legend()
