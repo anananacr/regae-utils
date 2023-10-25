@@ -9,10 +9,10 @@ from PIL import Image
 import os
 import cv2
 
-center = [591, 531]
-frames_per_step=1
+center = [594, 530]
+frames_per_step=10
 frequency=12.5
-max_frames=12999
+max_frames=1100
 
 
 def create_frames(file_path:str, output:str):
@@ -65,7 +65,7 @@ def save_gif(file_path:str, label:str):
             
     imageio.mimsave(f'{file_path}/../{label}_center_average_frames.gif',
                     images,
-                    duration=0.01
+                    duration=0.1
                     )
 
 

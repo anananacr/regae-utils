@@ -6,9 +6,11 @@ import math
 import json
 import pandas as pd
 import sys
+
 sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
-#from maskMakerGUI import pMakePolarisationArray as make_polarization_array_fast
+# from maskMakerGUI import pMakePolarisationArray as make_polarization_array_fast
 import geometry_funcs as gf
+
 
 def center_of_mass(data: np.ndarray, mask: np.ndarray = None) -> Tuple[int]:
     """
@@ -88,8 +90,10 @@ def azimuthal_average(
 
     return radius, px_bin / r_bin
 
+
 def open_distance_map_global_min(
-    lines: list, output_folder: str, label: str, pixel_step: int) -> tuple:
+    lines: list, output_folder: str, label: str, pixel_step: int
+) -> tuple:
     """
     Open distance minimization plot, fit projections in both axis to get the point of minimum distance.
 
@@ -100,7 +104,7 @@ def open_distance_map_global_min(
     """
 
     n = int(math.sqrt(len(lines)))
-    pixel_step/=2
+    pixel_step /= 2
     merged_dict = {}
     for dictionary in lines[:]:
 
@@ -111,35 +115,39 @@ def open_distance_map_global_min(
                 merged_dict[key] = [value]
 
     # Create a figure with three subplots
-    fig, (ax1, ax2,ax3) = plt.subplots(1, 3, figsize=(20, 5))
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20, 5))
 
     # Extract x, y, and z from merged_dict
 
     x = np.array(merged_dict["xc"]).reshape((n, n))[0]
     y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
     z = np.array(merged_dict["d"], dtype=np.float64).reshape((n, n))
-    
+
     pos1 = ax1.imshow(z, cmap="rainbow")
     step = 20
     n = z.shape[0]
     ax1.set_xticks(np.arange(0, n, step, dtype=float))
     ax1.set_yticks(np.arange(0, n, step, dtype=float))
-    step = round(step * (abs(x[0] - x[1])),1)
-    ax1.set_xticklabels(np.arange(round(x[0],1), round(x[-1]+step,1), step, dtype=int), rotation=45)
-    ax1.set_yticklabels(np.arange(round(y[0],1), round(y[-1]+step,1), step, dtype=int))
+    step = round(step * (abs(x[0] - x[1])), 1)
+    ax1.set_xticklabels(
+        np.arange(round(x[0], 1), round(x[-1] + step, 1), step, dtype=int), rotation=45
+    )
+    ax1.set_yticklabels(
+        np.arange(round(y[0], 1), round(y[-1] + step, 1), step, dtype=int)
+    )
 
     ax1.set_ylabel("yc [px]")
     ax1.set_xlabel("xc [px]")
     ax1.set_title("Distance [px]")
 
     proj_x = np.sum(z, axis=0)
-    #print('proj',len(proj_x))
-    x = np.arange(x[0], x[-1]+pixel_step, pixel_step)
-    #print('x',len(x))
+    # print('proj',len(proj_x))
+    x = np.arange(x[0], x[-1] + pixel_step, pixel_step)
+    # print('x',len(x))
     index_x = np.unravel_index(np.argmin(proj_x, axis=None), proj_x.shape)
     # print(index_x)
-    xc = round(x[index_x],1)
-    ax2.scatter(x, proj_x+pixel_step, color="b")
+    xc = round(x[index_x], 1)
+    ax2.scatter(x, proj_x + pixel_step, color="b")
     ax2.scatter(xc, proj_x[index_x], color="r", label=f"xc: {xc}")
     ax2.set_ylabel("Average distance [px]")
     ax2.set_xlabel("xc [px]")
@@ -147,10 +155,10 @@ def open_distance_map_global_min(
     ax2.legend()
 
     proj_y = np.sum(z, axis=1)
-    x = np.arange(y[0], y[-1]+pixel_step, pixel_step)
+    x = np.arange(y[0], y[-1] + pixel_step, pixel_step)
     index_y = np.unravel_index(np.argmin(proj_y, axis=None), proj_y.shape)
-    yc = round(x[index_y],1)
-    ax3.scatter(x,proj_y, color="b")
+    yc = round(x[index_y], 1)
+    ax3.scatter(x, proj_y, color="b")
     ax3.scatter(yc, proj_y[index_y], color="r", label=f"yc: {yc}")
     ax3.set_ylabel("Average Distance [px]")
     ax3.set_xlabel("yc [px]")
@@ -165,6 +173,7 @@ def open_distance_map_global_min(
     plt.savefig(f"{output_folder}/plots/distance_map/{label}.png")
     plt.close()
     return xc, yc
+
 
 def mask_peaks(mask: np.ndarray, indices: tuple, bragg: int) -> np.ndarray:
     """
@@ -248,25 +257,6 @@ def gaussian(x: np.ndarray, a: float, x0: float, sigma: float) -> np.ndarray:
         value of the function evaluated
     """
     return a * exp(-((x - x0) ** 2) / (2 * sigma**2))
-
-
-def double_gaussian(x: np.ndarray, a0: float, x0: float, sigma0: float,  a1: float, x1: float, sigma1: float) -> np.ndarray:
-    """
-    Gaussian function.
-
-    Parameters
-    ----------
-    x: np.ndarray
-        x array of the spectrum.
-    a, x0, sigma: float
-        gaussian parameters
-
-    Returns
-    ----------
-    y: np.ndarray
-        value of the function evaluated
-    """
-    return a0 * exp(-((x - x0) ** 2) / (2 * sigma0**2)) + a1 * exp(-((x - x1) ** 2) / (2 * sigma1**2))
 
 
 def quadratic(x, a, b, c):
@@ -381,8 +371,8 @@ def open_fwhm_map(lines: list, label: str = None):
     # Display the figure
 
     plt.show()
-    #plt.savefig(f'/home/rodria/Desktop/20230814/fwhm_map/lyso_{label}.png')
-    #plt.close()
+    # plt.savefig(f'/home/rodria/Desktop/20230814/fwhm_map/lyso_{label}.png')
+    # plt.close()
 
 
 def fit_fwhm(lines: list) -> Tuple[int]:
@@ -731,5 +721,3 @@ def correct_polarization(
     pol[np.where(mask == 0)] = 1
     Int = Int / pol
     return Int.reshape(data.shape), pol.reshape(data.shape)
-
-
