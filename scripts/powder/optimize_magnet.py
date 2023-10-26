@@ -15,21 +15,26 @@ from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
 center = [
-    [581, 562],
-    [581, 562],
-    [583, 562],
-    [585, 560],
-    [586, 558],
-    [587, 555],
-    [587, 554],
-    [587, 552],
-    [587, 549],
-    [587, 545],
-    [587, 540],
+    [573, 547],
+    [573, 547],
+    [573, 547],
+    [575, 547],
+    [575, 547],
+    [581, 545],
+    [581, 545],
+    [581, 545],
+    [583, 545],
+    [583, 545],
+    [585, 545],
+    [585, 545],
+    [585, 545],
+    [588, 545],
+    [588, 545],
+    [588, 545]
 ]
-height = [100, 100, 100, 100, 100, 100, 100, 100, 50, 5, 5]
+height = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]
 
-max_frames = 11
+max_frames = 8
 
 
 def gaussian_lin(
@@ -56,8 +61,8 @@ def gaussian_lin(
 def fit_gaussian(x: list, y: list, peak_position: int):
 
     a = y[peak_position]
-    x = x[peak_position - 20 : peak_position + 20]
-    y = y[peak_position - 20 : peak_position + 20]
+    x = x[peak_position - 10 : peak_position + 10]
+    y = y[peak_position - 10 : peak_position + 10]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
@@ -88,7 +93,7 @@ def get_minimum(file_path: str, output: str):
     rings = [10]
     ## Center of the image [xc,yc]
 
-    frames = np.arange(0, max_frames, 1)
+    frames = np.arange(0, max_frames+1, 1)
     fwhm_over_radius = []
     for frame in frames:
 
@@ -103,14 +108,15 @@ def get_minimum(file_path: str, output: str):
         ax.set_xlabel("Radial distance (pixel)")
         ax.set_ylabel("Average intensity (A.U.)")
 
-        peaks, properties = find_peaks(counts, height=height[frame], width=3)
+        peaks, properties = find_peaks(counts, height=height[frame], width=5)
+        print(peaks)
         x = bins[peaks[0]]
         y = counts[peaks[0]]
         fit_results = fit_gaussian(bins, counts, x)
         fwhm_over_radius.append(fit_results[0])
         popt = fit_results[1]
         r_squared = fit_results[2]
-        x_fit = np.arange(x - 20, x + 20, 1)
+        x_fit = np.arange(x - 10, x + 10, 1)
         y_fit = gaussian_lin(x_fit, *popt)
 
         plt.plot(
@@ -120,19 +126,19 @@ def get_minimum(file_path: str, output: str):
             label=f"gaussian fit \n a:{round(popt[0],2)} \n r:{round(popt[1],2)} \n sigma:{round(popt[2],2)} \n R² {round(r_squared, 4)}\n FWHM/r : {round(fwhm_over_radius[-1],3)}",
         )
         ax.scatter(x, y, c="r", marker="X", s=100)
-        ax.set_title(f"Sol67 {round(frame*0.3,1)} A")
-        plt.vlines([x - 20, x + 20], 0, 500, "r")
+        ax.set_title(f"Sol67 {round(frame*0.2,1)} A")
+        plt.vlines([x - 10, x + 10], 0, 500, "r")
         ax.legend()
-        plt.savefig(f"{output}/radial_average/mos_magnet_scan_{frame}.png")
+        plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
         plt.show()
 
-    current = np.arange(0, 3.1, 0.3)
+    current = np.arange(0, 0.2*(max_frames+1), 0.2)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
     ax.scatter(current, fwhm_over_radius, c="b")
     ax.set_title(f"Sol67 optimization")
     ax.set_xlabel("Current Sol67(A)")
     ax.set_ylabel("FWHM/r")
-    plt.savefig(f"{output}/radial_average/mos_magnet_scan_optmize.png")
+    plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_optmize.png")
     plt.show()
 
 

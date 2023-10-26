@@ -259,7 +259,7 @@ def open_fwhm_map(lines: list, output_folder: str, label: str, pixel_step: int):
 
     index_y, index_x = np.where(z == np.min(z))
     pos1 = ax1.imshow(z, cmap="rainbow")
-    step = 5
+    step = 2
     n = z.shape[0]
     ax1.set_xticks(np.arange(0, n, step, dtype=int))
     ax1.set_yticks(np.arange(0, n, step, dtype=int))
@@ -272,7 +272,7 @@ def open_fwhm_map(lines: list, output_folder: str, label: str, pixel_step: int):
     ax1.set_title("FWHM")
 
     pos2 = ax2.imshow(r, cmap="rainbow")
-    step = 5
+    step = 2
     n = z.shape[0]
     ax2.set_xticks(np.arange(0, n, step, dtype=int))
     ax2.set_yticks(np.arange(0, n, step, dtype=int))
