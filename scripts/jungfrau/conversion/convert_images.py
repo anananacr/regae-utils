@@ -161,26 +161,20 @@ def main(raw_args=None):
     index = np.arange(args.start_index, args.end_index+1, 1)
     n_frames = args.end_index - args.start_index
 
-    d = np.zeros((n_frames, 1024, 1024), dtype=np.int32)
-
-    for idx, i in enumerate(index):
+    d = np.zeros((n_frames+1, 1024, 1024), dtype=np.int32)
+    print(d.shape)
+    for i in index:
         print(i)
         acc_frame = np.zeros((1024, 1024), dtype=np.int32)
 
         f = h5py.File(f"{args.input}_master_{i}.h5", "r")
 
         size = len(f["entry/data/data"])
-
-        try:
-            raw = np.array(f["entry/data/data"][:size])
-        except OSError:
-            print("skipped", i)
-            continue
+        
+        raw = np.array(f["entry/data/data"][:size])
 
         if args.frames == None:
             n_frames_measured = raw.shape[0]
-        else:
-            n_frames_measured = args.frames
 
         corr_frame = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
 
@@ -193,7 +187,7 @@ def main(raw_args=None):
                 acc_frame += corr_frame[idy]
                 count+=1
 
-        d[idx] = acc_frame/count
+        d[i] = acc_frame/count
     
     if not os.path.exists(args.output + ".h5"):
         g = h5py.File(args.output + ".h5", "w")

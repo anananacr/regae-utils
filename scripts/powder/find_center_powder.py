@@ -28,10 +28,10 @@ from scipy.optimize import curve_fit
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-PeakIndex = 58
-Frame = 9
-DetectorCenter = [587, 545]
-
+Frame = 15
+DetectorCenter = [592, 533]
+PeakIndex = 127
+Width = 10
 
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -65,14 +65,14 @@ def calculate_fwhm(data_and_coordinates: tuple) -> Dict[str, int]:
     ## Define powder ring peak region
 
     a = y[PeakIndex]
-    x = x[PeakIndex - 20 : PeakIndex + 20]
-    y = y[PeakIndex - 20 : PeakIndex + 20]
+    x = x[PeakIndex - Width : PeakIndex + Width]
+    y = y[PeakIndex - Width : PeakIndex + Width]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
     y_linear = m0 * x + n0
     y_gaussian = y - y_linear
-    popt = []
+
     mean = sum(x * y_gaussian) / sum(y_gaussian)
     sigma = np.sqrt(sum(y_gaussian * (x - mean) ** 2) / sum(y_gaussian))
     try:
@@ -92,13 +92,14 @@ def calculate_fwhm(data_and_coordinates: tuple) -> Dict[str, int]:
         r_squared = 1
         fwhm = 800
         fwhm_over_radius = 800
+        popt=[]
 
     ## Display plots
-    if plot_flag and popt != []:
+    if plot_flag and len(popt)>0:
         x_fit = x.copy()
         y_fit = gaussian_lin(x_fit, *popt)
 
-        plt.vlines([x[0], x[-1]], 0, round(popt[0]) + 2, "r")
+        plt.vlines([x[0], x[-1]], 0, 3*round(popt[0]) , "r")
 
         plt.plot(
             x_fit,
@@ -108,7 +109,7 @@ def calculate_fwhm(data_and_coordinates: tuple) -> Dict[str, int]:
         )
         plt.title("Azimuthal integration")
         plt.xlim(0, 350)
-        plt.ylim(0, 1.2 * round(popt[0]))
+        plt.ylim(0, 2 * round(popt[0]))
         plt.legend()
         plt.savefig(
             f"{args.output}/plots/gaussian_fit/{stamp}_{center_to_radial_average[0]}_{center_to_radial_average[1]}.png"
@@ -255,10 +256,10 @@ def main():
             pixel_step = 1
             xx, yy = np.meshgrid(
                 np.arange(
-                    DetectorCenter[0] - 5, DetectorCenter[0] + 6, pixel_step, dtype=int
+                    DetectorCenter[0] - 3, DetectorCenter[0] + 4, pixel_step, dtype=int
                 ),
                 np.arange(
-                    DetectorCenter[1] - 5, DetectorCenter[1] + 6, pixel_step, dtype=int
+                    DetectorCenter[1] - 3, DetectorCenter[1] + 4, pixel_step, dtype=int
                 ),
             )
 
