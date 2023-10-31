@@ -5,12 +5,12 @@ import fabio
 import argparse
 import matplotlib.pyplot as plt
 import numpy as np
-from utils import get_format, gaussian, double_gaussian
+from utils import get_format, gaussian
 import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [592, 531]
+DetectorCenter = [587, 533]
 
 
 def main():
@@ -57,6 +57,8 @@ def main():
             try:
                 f = h5py.File(f"{i[:-1]}", "r")
                 center = np.array(f["refined_center"])
+                hit = np.array(f["hit"])
+                print(hit)
                 error = math.sqrt(
                     (center[0] - DetectorCenter[0]) ** 2
                     + (center[1] - DetectorCenter[1]) ** 2
@@ -66,6 +68,7 @@ def main():
                     and center[1] < y_max
                     and center[0] < x_max
                     and center[0] > x_min
+                    and hit == 1
                 ):
                     center_x.append(center[0])
                     center_y.append(center[1])
