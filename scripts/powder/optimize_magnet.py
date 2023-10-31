@@ -15,26 +15,26 @@ from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
 center = [
-    [573, 547],
-    [573, 547],
-    [573, 547],
-    [575, 547],
-    [575, 547],
-    [581, 545],
-    [581, 545],
-    [581, 545],
-    [583, 545],
-    [583, 545],
-    [585, 545],
-    [585, 545],
-    [585, 545],
-    [588, 545],
-    [588, 545],
-    [588, 545]
+    [543, 550],
+    [543, 550],
+    [543, 550],
+    [543, 550],
+    [545, 549],
+    [551, 545],
+    [551, 545],
+    [551, 545],
+    [553, 545],
+    [553, 545],
+    [555, 545],
+    [558, 545],
+    [558, 545],
+    [563, 545],
+    [563, 545],
+    [563, 545],
 ]
-height = [150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150, 150]
+height = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
 
-max_frames = 8
+max_frames = 15
 
 
 def gaussian_lin(
@@ -93,7 +93,7 @@ def get_minimum(file_path: str, output: str):
     rings = [10]
     ## Center of the image [xc,yc]
 
-    frames = np.arange(0, max_frames+1, 1)
+    frames = np.arange(0, max_frames + 1, 1)
     fwhm_over_radius = []
     for frame in frames:
 
@@ -103,7 +103,7 @@ def get_minimum(file_path: str, output: str):
         bins, counts = azimuthal_average(data, center[frame], mask)
         fig, ax = plt.subplots(1, 1, figsize=(10, 10))
         ax.plot(bins, counts)
-        ax.set_ylim(0, 500)
+        ax.set_ylim(0, 200)
         ax.set_xlim(0, 350)
         ax.set_xlabel("Radial distance (pixel)")
         ax.set_ylabel("Average intensity (A.U.)")
@@ -132,7 +132,7 @@ def get_minimum(file_path: str, output: str):
         plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
         plt.show()
 
-    current = np.arange(0, 0.2*(max_frames+1), 0.2)
+    current = np.arange(0, 0.2 * (max_frames + 1), 0.2)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
     ax.scatter(current, fwhm_over_radius, c="b")
     ax.set_title(f"Sol67 optimization")

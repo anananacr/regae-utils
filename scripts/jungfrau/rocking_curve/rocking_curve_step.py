@@ -144,7 +144,7 @@ def main(raw_args=None):
         for idy, j in enumerate(raw):
             skip = filter_data(j)
             if skip == 0:
-                corr_frame[idy] = apply_calibration(j,dark,gain)
+                corr_frame[idy] = apply_calibration(j, dark, gain)
                 acc_frame += corr_frame[idy]
         d[idx] = acc_frame / n_frames_measured
     print(d.shape)

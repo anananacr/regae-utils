@@ -10,28 +10,28 @@ import os
 import cv2
 
 center = [594, 530]
-frames_per_step=10
-frequency=12.5
-max_frames=1100
+frames_per_step = 10
+frequency = 12.5
+max_frames = 1100
 
 
-def create_frames(file_path:str, output:str):
+def create_frames(file_path: str, output: str):
     ## Rings radius in pixels
     rings = [10]
     ## Center of the image [xc,yc]
 
-    frames=np.arange(0,max_frames, 1)
-    sub_frames=np.arange(1)
+    frames = np.arange(0, max_frames, 1)
+    sub_frames = np.arange(1)
     print(frames)
 
     for frame in frames:
-        #for count in sub_frames:
-        #hf = h5py.File(f'{file_path}_{frame}.h5', "r")
+        # for count in sub_frames:
+        # hf = h5py.File(f'{file_path}_{frame}.h5', "r")
         ##HDF5_path
-        #data_name = "data"
-        #data = np.array(hf[data_name][count])
-        #hf.close()
-        data=np.array(Image.open(f"{file_path}_{frame:06}.tif"))
+        # data_name = "data"
+        # data = np.array(hf[data_name][count])
+        # hf.close()
+        data = np.array(Image.open(f"{file_path}_{frame:06}.tif"))
         fig, ax = plt.subplots(1, 1, figsize=(10, 10))
         pos = ax.imshow(
             data,
@@ -43,30 +43,29 @@ def create_frames(file_path:str, output:str):
         for i in rings:
             circle = plt.Circle(center, i, fill=True, color="red", ls=":")
             ax.add_patch(circle)
-        fig.colorbar(pos,shrink=1)
-        plt.title(f't = {round(((frames_per_step*frame))/frequency)} s')
-        #plt.savefig(f'{output}/img_{frame}_{count}.png', transparent=False, facecolor= 'white')
-        plt.savefig(f'{output}/img_{frame}.png', transparent=False, facecolor= 'white')
+        fig.colorbar(pos, shrink=1)
+        plt.title(f"t = {round(((frames_per_step*frame))/frequency)} s")
+        # plt.savefig(f'{output}/img_{frame}_{count}.png', transparent=False, facecolor= 'white')
+        plt.savefig(f"{output}/img_{frame}.png", transparent=False, facecolor="white")
         plt.close()
 
-def save_gif(file_path:str, label:str):
-    frames=np.arange(0,max_frames, 1)
-    sub_frames=np.arange(1)
-    images=[]
+
+def save_gif(file_path: str, label: str):
+    frames = np.arange(0, max_frames, 1)
+    sub_frames = np.arange(1)
+    images = []
 
     for frame in frames:
         for count in sub_frames:
             try:
-                #images.append(imageio.imread(f'{file_path}/img_{frame}_{count}.png'))
-                images.append(imageio.imread(f'{file_path}/img_{frame}.png'))
+                # images.append(imageio.imread(f'{file_path}/img_{frame}_{count}.png'))
+                images.append(imageio.imread(f"{file_path}/img_{frame}.png"))
             except:
                 print(frame, count)
-            
-            
-    imageio.mimsave(f'{file_path}/../{label}_center_average_frames.gif',
-                    images,
-                    duration=0.1
-                    )
+
+    imageio.mimsave(
+        f"{file_path}/../{label}_center_average_frames.gif", images, duration=0.1
+    )
 
 
 def main():
@@ -86,13 +85,9 @@ def main():
     )
     args = parser.parse_args()
     file_path = args.input
-    output_folder=args.output
+    output_folder = args.output
     create_frames(file_path, output_folder)
     save_gif(output_folder, args.label)
-    
-   
-    
-
 
 
 if __name__ == "__main__":

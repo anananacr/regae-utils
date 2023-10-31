@@ -208,6 +208,7 @@ def open_fwhm_map_global_min(
     plt.close()
     return xc, yc
 
+
 def quadratic(x, a, b, c):
     """
     Quadratic function.
@@ -225,7 +226,6 @@ def quadratic(x, a, b, c):
         value of the function evaluated
     """
     return a * x**2 + b * x + c
-
 
 
 def open_fwhm_map(lines: list, output_folder: str, label: str, pixel_step: int):

@@ -158,10 +158,10 @@ def main(raw_args=None):
         gain_file.close()
         dark_file.close()
 
-    index = np.arange(args.start_index, args.end_index+1, 1)
+    index = np.arange(args.start_index, args.end_index + 1, 1)
     n_frames = args.end_index - args.start_index
 
-    d = np.zeros((n_frames+1, 1024, 1024), dtype=np.int32)
+    d = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
     print(d.shape)
     for i in index:
         print(i)
@@ -170,7 +170,7 @@ def main(raw_args=None):
         f = h5py.File(f"{args.input}_master_{i}.h5", "r")
 
         size = len(f["entry/data/data"])
-        
+
         raw = np.array(f["entry/data/data"][:size])
 
         if args.frames == None:
@@ -179,21 +179,21 @@ def main(raw_args=None):
         corr_frame = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
 
         f.close()
-        count=0
+        count = 0
         for idy, j in enumerate(raw[:n_frames_measured]):
             skip = filter_data(j)
             if skip == 0:
                 corr_frame[idy] = apply_calibration(j, dark, gain)
                 acc_frame += corr_frame[idy]
-                count+=1
+                count += 1
 
-        d[i] = acc_frame/count
-    
+        d[i] = acc_frame / count
+
     if not os.path.exists(args.output + ".h5"):
         g = h5py.File(args.output + ".h5", "w")
-        if args.mode==0:
+        if args.mode == 0:
             g.create_dataset("data", data=corr_frame, compression="gzip")
-        if args.mode==1:
+        if args.mode == 1:
             g.create_dataset("data", data=d, compression="gzip")
         g.close()
 

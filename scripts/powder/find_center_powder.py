@@ -33,6 +33,7 @@ DetectorCenter = [592, 533]
 PeakIndex = 127
 Width = 10
 
+
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
     geometry, _, __ = crystfel_geometry.load_crystfel_geometry(geometry_filename)
@@ -92,14 +93,14 @@ def calculate_fwhm(data_and_coordinates: tuple) -> Dict[str, int]:
         r_squared = 1
         fwhm = 800
         fwhm_over_radius = 800
-        popt=[]
+        popt = []
 
     ## Display plots
-    if plot_flag and len(popt)>0:
+    if plot_flag and len(popt) > 0:
         x_fit = x.copy()
         y_fit = gaussian_lin(x_fit, *popt)
 
-        plt.vlines([x[0], x[-1]], 0, 3*round(popt[0]) , "r")
+        plt.vlines([x[0], x[-1]], 0, 3 * round(popt[0]), "r")
 
         plt.plot(
             x_fit,
@@ -272,8 +273,10 @@ def main():
             for shift in coordinates_anchor_data:
                 fwhm_summary.append(calculate_fwhm(shift))
             ## Display plots
-            fit = open_fwhm_map(fwhm_summary, args.output, f"fine_{label}_{i}", pixel_step)
-            
+            fit = open_fwhm_map(
+                fwhm_summary, args.output, f"fine_{label}_{i}", pixel_step
+            )
+
             if not fit:
                 xc, yc = open_fwhm_map_global_min(
                     fwhm_summary, args.output, f"{label}_{i}", pixel_step

@@ -7,7 +7,8 @@ import om.utils.crystfel_geometry as crystfel_geometry
 import cbf
 from PIL import Image
 
-def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
+
+def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
     geometry, _, __ = crystfel_geometry.load_crystfel_geometry(geometry_filename)
     _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
@@ -25,6 +26,7 @@ def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
     corr_data = crystfel_geometry.apply_geometry_to_data(data, geometry)
     return corr_data.astype(np.int32)
 
+
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
         description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according tro the file index."
@@ -41,7 +43,6 @@ def main(raw_args=None):
     )
     args = parser.parse_args(raw_args)
 
-
     geometry, _, __ = crystfel_geometry.load_crystfel_geometry(args.geom)
     _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
 
@@ -54,28 +55,28 @@ def main(raw_args=None):
     visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
     f = h5py.File(f"{args.input}_master.h5", "r")
     size = len(f["data"])
-    idy=9
-    
-    label=(args.input).split('/')[-1]
+    idy = 9
 
-    for i in range(size):       
+    label = (args.input).split("/")[-1]
+
+    for i in range(size):
         try:
             raw = np.array(f["data"][i])
-            raw[np.where(raw<=0)]=-1
+            raw[np.where(raw <= 0)] = -1
         except OSError:
             print("skipped", i)
             continue
-        corr_frame = np.zeros((visual_img_shape[0],visual_img_shape[1]), dtype=np.int32)
+        corr_frame = np.zeros(
+            (visual_img_shape[0], visual_img_shape[1]), dtype=np.int32
+        )
         corr_frame = apply_geom(raw, args.geom)
-        corr_frame[np.where(corr_frame<=0)]=-1
+        corr_frame[np.where(corr_frame <= 0)] = -1
 
-        #cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
-        Image.fromarray(corr_frame).save(f'{args.output}/{label}_{i:06}.tif')
-
+        # cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
+        Image.fromarray(corr_frame).save(f"{args.output}/{label}_{i:06}.tif")
 
     f.close()
 
+
 if __name__ == "__main__":
     main()
-
-    

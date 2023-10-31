@@ -98,7 +98,7 @@ def main(raw_args=None):
         help="path to the output file",
     )
     args = parser.parse_args(raw_args)
- 
+
     global dark, gain
 
     num_panels: int = 2
@@ -142,7 +142,7 @@ def main(raw_args=None):
 
     d = np.zeros((n_frames, y, x), dtype=np.float64)
     for idx, i in enumerate(filt_data):
-        d[idx] = apply_calibration(i,dark,gain)
+        d[idx] = apply_calibration(i, dark, gain)
 
     peak_image = np.zeros(
         (n_frames, peak_pos_y[1] - peak_pos_y[0], peak_pos_x[1] - peak_pos_x[0]),

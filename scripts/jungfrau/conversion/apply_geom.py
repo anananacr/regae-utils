@@ -3,7 +3,8 @@ import argparse
 import numpy as np
 import om.utils.crystfel_geometry as crystfel_geometry
 
-def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
+
+def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
     geometry, _, __ = crystfel_geometry.load_crystfel_geometry(geometry_filename)
     _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
@@ -21,6 +22,7 @@ def apply_geom(data:np.ndarray, geometry_filename: str)-> np.ndarray:
     corr_data = crystfel_geometry.apply_geometry_to_data(data, geometry)
     return corr_data
 
+
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
         description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according tro the file index."
@@ -28,7 +30,7 @@ def main(raw_args=None):
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"
     )
-   
+
     parser.add_argument(
         "-s", "--start_index", type=int, action="store", help="starting file index"
     )
@@ -50,7 +52,6 @@ def main(raw_args=None):
         "-o", "--output", type=str, action="store", help="hdf5 output path"
     )
     args = parser.parse_args(raw_args)
-
 
     index = np.arange(args.start_index, args.end_index, 1)
     n_frames = args.end_index - args.start_index
@@ -83,7 +84,10 @@ def main(raw_args=None):
         else:
             n_frames_measured = args.frames
 
-        corr_frame = np.zeros((n_frames_measured, visual_img_shape[0],visual_img_shape[1]), dtype=np.int32)
+        corr_frame = np.zeros(
+            (n_frames_measured, visual_img_shape[0], visual_img_shape[1]),
+            dtype=np.int32,
+        )
         f.close()
 
         for idy, j in enumerate(raw[:n_frames_measured]):
@@ -96,5 +100,3 @@ def main(raw_args=None):
 
 if __name__ == "__main__":
     main()
-
-    

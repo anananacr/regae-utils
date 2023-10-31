@@ -10,7 +10,7 @@ def main(raw_args=None):
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"
     )
-   
+
     parser.add_argument(
         "-s", "--start_frame", type=int, action="store", help="starting file index"
     )
@@ -25,7 +25,7 @@ def main(raw_args=None):
         action="store",
         help="If more than one frame was measured per step. Number of frames to be accumulated per step for rotational step manner. None for fly scan.",
     )
-    
+
     parser.add_argument(
         "-o", "--output", type=str, action="store", help="hdf5 output path"
     )
@@ -33,7 +33,6 @@ def main(raw_args=None):
 
     n_frames = args.frames
     index = np.arange(args.start_frame, args.end_frame, n_frames)
-    
 
     for idx, i in enumerate(index):
 
@@ -42,7 +41,7 @@ def main(raw_args=None):
         size = len(f["data"])
 
         try:
-            data = np.array(f["data"][i:i+n_frames], dtype=np.int32)
+            data = np.array(f["data"][i : i + n_frames], dtype=np.int32)
         except OSError:
             print("skipped", i)
             continue
@@ -56,5 +55,3 @@ def main(raw_args=None):
 
 if __name__ == "__main__":
     main()
-
-    
