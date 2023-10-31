@@ -25,48 +25,20 @@ from scipy.signal import find_peaks
 import om.utils.crystfel_geometry as crystfel_geometry
 
 
-DetectorCenter = [594, 530]
+DetectorCenter = [586, 533]
 MinPeaks = 2
 global pf8_info
-## mica
-"""
+
 pf8_info = PF8Info(
     max_num_peaks=10000,
     adc_threshold=50,
-    minimum_snr=4,
-    min_pixel_count=5,
+    minimum_snr=3,
+    min_pixel_count=4,
     max_pixel_count=1000,
     local_bg_radius=10,
-    min_res=50,
-    max_res=350
-)
-"""
-
-# mos step
-pf8_info = PF8Info(
-    max_num_peaks=10000,
-    adc_threshold=200,
-    minimum_snr=4,
-    min_pixel_count=5,
-    max_pixel_count=1000,
-    local_bg_radius=10,
-    min_res=50,
+    min_res=80,
     max_res=350,
 )
-
-"""
-# fly
-pf8_info = PF8Info(
-    max_num_peaks=10000,
-    adc_threshold=100,
-    minimum_snr=3,
-    min_pixel_count=5,
-    max_pixel_count=1000,
-    local_bg_radius=10,
-    min_res=50,
-    max_res=350
-)
-"""
 
 
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
@@ -187,7 +159,7 @@ def select_closest_peaks(peaks_list: list, inverted_peaks: list) -> list:
     for i in inverted_peaks:
         radius = 1
         found_peak = False
-        while not found_peak and radius <= 30:
+        while not found_peak and radius <= 20:
             found_peak = find_a_peak_in_the_surrounding(peaks_list, i, radius)
             radius += 1
         if found_peak:
@@ -371,6 +343,7 @@ def main():
                 ## Polarization correction factor
                 # corrected_data=frame
                 corrected_data = data
+                h, w = corrected_data.shape
                 print(len(corrected_data))
                 # Mask of defective pixels
                 mask[np.where(corrected_data < 0)] = 0
@@ -380,20 +353,6 @@ def main():
                 corrected_data, pol_array_first = correct_polarization(
                     x_map, y_map, clen_v, data, mask=mask
                 )
-                
-                fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(15, 5))
-                pos1 = ax1.imshow(data * mask, vmax=50, cmap="jet")
-                pos2 = ax2.imshow(corrected_data * mask, vmax=50, cmap="jet")
-                pos3 = ax3.imshow(pol_array_first, vmin=0.7, vmax=1, cmap="jet")
-                ax1.set_title("Original data")
-                ax2.set_title("Polarization corrected data")
-                ax3.set_title("Polarization array")
-                fig.colorbar(pos1, shrink=0.6, ax=ax1)
-                fig.colorbar(pos2, shrink=0.6, ax=ax2)
-                fig.colorbar(pos3, shrink=0.6, ax=ax3)
-                # plt.show()
-                #plt.savefig(f"{args.output}/plots/pol/{label}_{i}.png")
-                plt.close()
                 """
                 ## Peakfinder8 detector information and bad_pixel_map
 
@@ -624,6 +583,13 @@ def main():
                         f.create_dataset(
                             "shifted_peaks_y", data=inverted_shifted_peaks_y
                         )
+                else:
+                    f = h5py.File(f"{output_folder}/h5_files/{label}_{i}.h5", "w")
+                    # f = h5py.File(f"{output_folder}/h5_files/{label}_{i}_{n_frame}.h5", "w")
+                    f.create_dataset("hit", data=0)
+                    f.create_dataset("id", data=file_name)
+                    f.create_dataset("intensity", data=np.sum(corrected_data * mask))
+                    f.create_dataset("refined_center", data=DetectorCenter)
 
                     now = datetime.now()
                     print(f"Current end time = {now}")
