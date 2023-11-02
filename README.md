@@ -44,29 +44,43 @@ sbatch convert_step.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_0
 Example:
 ./save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
 
+## Data analysis @ REGAE
 
 ### Save movie
+On /jungfrau/data_visualization/ folder
 
+python3 make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*/file_label -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/output_folder -l file_label &
+
+Example:
 python3 ../jungfrau/data_visualization/make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231020_mos_c3_ms_001/ed_rot_step_002/231020_mos_c3_ms_001_002 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_002/plots/img -l 231020_mos_c3_ms_001_002_step &
 
 ### Center refinement
+
+./turbo_center.sh folder_on_raw/ed_rot_scantype_00* list_file_label start_index end_index
+
+Example:
 ./turbo_center.sh 231020_mos_c3_ms_001/ed_rot_step_002 split_231020_mos_c3_ms_001_002_step 0 2
 
-### Center plots
+### Detector center distribution plots
 
 /algorithms/
 
+Example:
 ./plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all &
 
 
+Example:
 ./plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001 -l 231020_mos_c3_ms_001_001_step &
 
 
 ### Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
+Example:
 python3 optimize_magnet.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/magnet_scan/mos2_magnet_scan -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/magnet_scan/plots
 
-## Stabilize images
+### Stabilize images
+
+Example:
 ./stabilize_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231027_tas_c4_005/ed_rot_step_003/lists/h5_files.lst -g  /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/refined/231027_tas_c4_005/ed_rot_step_003  &
 
 ## Source code structure:
