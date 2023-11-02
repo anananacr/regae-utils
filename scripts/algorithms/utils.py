@@ -172,7 +172,11 @@ def open_distance_map_global_min(
     # plt.show()
     plt.savefig(f"{output_folder}/plots/distance_map/{label}.png")
     plt.close()
-    return xc, yc
+    if int(np.sum(proj_y)) == 0 or int(np.sum(proj_x)) == 0:
+        converged = 0
+    else:
+        converged = 1
+    return xc, yc, converged
 
 
 def mask_peaks(mask: np.ndarray, indices: tuple, bragg: int) -> np.ndarray:
