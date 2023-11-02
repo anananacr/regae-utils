@@ -44,7 +44,7 @@ sbatch convert_step.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_0
 Example:
 ./save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
 
-## Data analysis @ REGAE
+## Data analysis
 
 ### Save movie
 On /jungfrau/data_visualization/ folder
