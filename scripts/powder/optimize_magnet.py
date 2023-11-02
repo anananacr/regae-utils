@@ -15,24 +15,24 @@ from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
 center = [
-    [543, 550],
-    [543, 550],
-    [543, 550],
-    [543, 550],
-    [545, 549],
-    [551, 545],
-    [551, 545],
-    [551, 545],
-    [553, 545],
-    [553, 545],
-    [555, 545],
-    [558, 545],
-    [558, 545],
-    [563, 545],
-    [563, 545],
-    [563, 545],
+    [557, 545],
+    [557, 545],
+    [557, 545],
+    [557, 545],
+    [557, 545],
+    [561, 545],
+    [561, 543],
+    [560, 542],
+    [561, 540],
+    [560, 540],
+    [557, 538],
+    [557, 538],
+    [553, 536],
+    [554, 536],
+    [551, 536],
+    [551, 535],
 ]
-height = [10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10, 10]
+height = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
 
 max_frames = 15
 
@@ -61,8 +61,8 @@ def gaussian_lin(
 def fit_gaussian(x: list, y: list, peak_position: int):
 
     a = y[peak_position]
-    x = x[peak_position - 10 : peak_position + 10]
-    y = y[peak_position - 10 : peak_position + 10]
+    x = x[peak_position - 10 : peak_position + 8]
+    y = y[peak_position - 10 : peak_position + 8]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
@@ -116,7 +116,7 @@ def get_minimum(file_path: str, output: str):
         fwhm_over_radius.append(fit_results[0])
         popt = fit_results[1]
         r_squared = fit_results[2]
-        x_fit = np.arange(x - 10, x + 10, 1)
+        x_fit = np.arange(x - 10, x + 8, 1)
         y_fit = gaussian_lin(x_fit, *popt)
 
         plt.plot(
@@ -127,7 +127,7 @@ def get_minimum(file_path: str, output: str):
         )
         ax.scatter(x, y, c="r", marker="X", s=100)
         ax.set_title(f"Sol67 {round(frame*0.2,1)} A")
-        plt.vlines([x - 10, x + 10], 0, 500, "r")
+        plt.vlines([x - 10, x + 8], 0, 500, "r")
         ax.legend()
         plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
         plt.show()

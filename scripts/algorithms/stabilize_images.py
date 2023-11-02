@@ -13,7 +13,7 @@ from PIL import Image
 import os
 from find_center_friedel import apply_geom
 
-DetectorCenter = [587, 533]
+DetectorCenter = [554, 536]
 
 
 def main():
@@ -57,12 +57,14 @@ def main():
             f = h5py.File(f"{i[:-1]}", "r")
             center = np.array(f["refined_center"])
             image_id = str(np.array(f["id"]))
-            error = math.sqrt(
+            distance = math.sqrt(
                 (center[0] - DetectorCenter[0]) ** 2
                 + (center[1] - DetectorCenter[1]) ** 2
             )
-            if error > 10:
-                print(i[:-1])
+            if distance > 10:
+                print(
+                    f"Warning!! Refined center more than 10 pixels far from the median for file {image_id[2:-1]}"
+                )
             f.close()
 
             image_file = image_id[2:-1]
@@ -86,7 +88,7 @@ def main():
             assembled_data = np.array(Image.open(assembled_path + "/" + basename))
             h, w = assembled_data.shape
             shift = [int(np.round(w / 2 - center[0])), int(np.round(h / 2 - center[1]))]
-            print(basename, center, w / 2, h / 2, shift)
+            # print(basename, center, w / 2, h / 2, shift)
             h5_file = h5py.File(f"{converted_path}/{basename[:-11]}_master.h5", "r")
             data = np.array(h5_file["data"][index])
             masked_data = data * mask
@@ -111,13 +113,13 @@ def main():
                 except IndexError:
                     value.append([i, -1])
 
-            fig = plt.figure(figsize=(20, 5))
-            ax = fig.add_subplot(121, title="Corrected data")
-            ax.imshow(corrected_data, vmin=-1, vmax=100)
-            ax = fig.add_subplot(122, title="Shifted data")
-            ax.imshow(shifted_data, vmin=-1, vmax=100)
+            # fig = plt.figure(figsize=(20, 5))
+            # ax = fig.add_subplot(121, title="Corrected data")
+            # ax.imshow(corrected_data, vmin=-1, vmax=100)
+            # ax = fig.add_subplot(122, title="Shifted data")
+            # ax.imshow(shifted_data, vmin=-1, vmax=100)
             # plt.show()
-            plt.close("all")
+            # plt.close("all")
 
             shifted_data = shift_image_by_n_pixels(
                 shift_image_by_n_pixels(masked_data, shift[0], 1), shift[1], 0
@@ -129,31 +131,32 @@ def main():
                 index, v = i
                 corrected_data[index] = v
 
-            fig = plt.figure(figsize=(20, 5))
-            ax = fig.add_subplot(121, title="Corrected data")
-            ax.imshow(corrected_data, vmin=-1, vmax=100)
-            ax = fig.add_subplot(122, title="Shifted data")
-            ax.imshow(shifted_data, vmin=-1, vmax=100)
+            # fig = plt.figure(figsize=(20, 5))
+            # ax = fig.add_subplot(121, title="Corrected data")
+            # ax.imshow(corrected_data, vmin=-1, vmax=100)
+            # ax = fig.add_subplot(122, title="Shifted data")
+            # ax.imshow(shifted_data, vmin=-1, vmax=100)
             # plt.show()
-            plt.close("all")
+            # plt.close("all")
 
             corrected_mask = apply_geom(mask, args.geom)
             shifted_mask = shift_image_by_n_pixels(
                 shift_image_by_n_pixels(corrected_mask, shift[0], 1), shift[1], 0
             )
-            plt.imshow(shifted_mask)
+            # plt.imshow(shifted_mask)
             # plt.show()
-            plt.close("all")
+            # plt.close("all")
 
             h, w = corrected_data.shape
             # print(h,w)
-            plt.imshow(corrected_data * shifted_mask, vmin=-1, vmax=100)
-            plt.scatter(w / 2, h / 2, c="r")
+            # plt.imshow(corrected_data * shifted_mask, vmin=-1, vmax=100)
+            # plt.scatter(w / 2, h / 2, c="r")
             # plt.show()
-            plt.close("all")
+            # plt.close("all")
 
             final_data = corrected_data * shifted_mask
             final_data[np.where(final_data == 0)] = -1
+            final_data=np.array(final_data, dtype=np.int32)
             Image.fromarray(final_data).save(f"{args.output}/{basename}")
 
 

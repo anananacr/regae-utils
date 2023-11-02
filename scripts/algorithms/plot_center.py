@@ -10,7 +10,7 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [587, 533]
+DetectorCenter = [554, 536]
 
 
 def main():
@@ -43,8 +43,6 @@ def main():
     file_format = get_format(args.input)
     output_folder = args.output
     label = "center_distribution_" + args.label
-
-    print(label)
     center_x = []
     center_y = []
     x_min = DetectorCenter[0] - 5
@@ -54,35 +52,32 @@ def main():
 
     if file_format == "lst":
         for i in paths:
-            try:
-                f = h5py.File(f"{i[:-1]}", "r")
-                center = np.array(f["refined_center"])
-                hit = np.array(f["hit"])
-                print(hit)
-                error = math.sqrt(
-                    (center[0] - DetectorCenter[0]) ** 2
-                    + (center[1] - DetectorCenter[1]) ** 2
-                )
-                if (
-                    center[1] > y_min
-                    and center[1] < y_max
-                    and center[0] < x_max
-                    and center[0] > x_min
-                    and hit == 1
-                ):
-                    center_x.append(center[0])
-                    center_y.append(center[1])
-                if error > 10:
-                    print(i[:-1])
-                f.close()
-            except KeyError:
+
+            f = h5py.File(f"{i[:-1]}", "r")
+            center = np.array(f["refined_center"])
+            hit = np.array(f["hit"])
+            file_id = str(np.array(f["id"]))
+            converged = np.array(f["converged"])
+
+            distance = math.sqrt(
+                (center[0] - DetectorCenter[0]) ** 2
+                + (center[1] - DetectorCenter[1]) ** 2
+            )
+            if converged == 0:
+                print(f"Warning!! {file_id[2:-1]} center refinement did not converged.")
+            elif converged == 1:
+                center_x.append(center[0])
+                center_y.append(center[1])
+
+            if distance > 10:
                 print(i[:-1])
-            except:
-                print("OS", i[:-1])
-    print(len(center_x))
+            f.close()
+
+    print(
+        f"Center refinement converged on: {len(center_x)} files of {len(paths)}.\n Convergence ratio: {round(len(center_x)*100/len(paths),1)}%"
+    )
 
     bins = 0.1
-
     xedges = np.arange(x_min, x_max, bins)
     yedges = np.arange(y_min, y_max, bins)
 
