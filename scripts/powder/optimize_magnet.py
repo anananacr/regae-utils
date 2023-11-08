@@ -14,27 +14,86 @@ from utils import azimuthal_average, gaussian
 from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
-center = [
-    [557, 545],
-    [557, 545],
-    [557, 545],
-    [557, 545],
-    [557, 545],
-    [561, 545],
-    [561, 543],
-    [560, 542],
-    [561, 540],
-    [560, 540],
-    [557, 538],
-    [557, 538],
-    [553, 536],
-    [554, 536],
-    [551, 536],
-    [551, 535],
-]
-height = [50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50, 50]
+max_frames = 36
+initial_center = [573, 549]
+end_center = [590, 539]
 
-max_frames = 15
+initial_guess_x = [
+    573,
+    572,
+    573,
+    575,
+    575,
+    582,
+    582,
+    582,
+    582,
+    582,
+    582,
+    583,
+    583,
+    584,
+    584,
+    586,
+    587,
+    588,
+    588,
+    588,
+    588,
+    588,
+    589,
+    589,
+    588,
+    588,
+    588,
+    588,
+    588,
+    589,
+    589,
+    589,
+    589,
+    590,
+    590,
+    590,
+]
+initial_guess_y = [
+    549,
+    548,
+    549,
+    547,
+    547,
+    547,
+    547,
+    547,
+    547,
+    546,
+    546,
+    546,
+    546,
+    546,
+    546,
+    546,
+    545,
+    544,
+    544,
+    544,
+    545,
+    544,
+    545,
+    545,
+    544,
+    543,
+    544,
+    544,
+    542,
+    542,
+    541,
+    541,
+    540,
+    540,
+    539,
+    539,
+]
 
 
 def gaussian_lin(
@@ -157,6 +216,21 @@ def main():
     parser.add_argument(
         "-l", "--label", type=str, action="store", help="output folder images and gif"
     )
+
+    global center
+    center = np.zeros((max_frames, 2), dtype=np.int32)
+    global height
+    height = 10 * np.ones(max_frames)
+    current = np.arange(0, (max_frames) * 0.2, 0.2)
+    print(current)
+    x = current
+    y = initial_guess_x
+    plt.scatter(initial_guess_x, initial_guess_y)
+    plt.show()
+    plt.scatter(current, initial_guess_x)
+    plt.scatter(current, initial_guess_y)
+    plt.show()
+    center = list(zip(initial_guess_x, initial_guess_y))
     args = parser.parse_args()
     file_path = args.input
     output_folder = args.output
