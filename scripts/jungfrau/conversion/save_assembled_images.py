@@ -5,6 +5,8 @@ import argparse
 import numpy as np
 import om.utils.crystfel_geometry as crystfel_geometry
 import cbf
+import os
+import subprocess as sub
 from PIL import Image
 
 
@@ -53,9 +55,14 @@ def main(raw_args=None):
         2 * int(max(abs(_pixelmaps["x"].max()), abs(_pixelmaps["x"].min()))) + 2
     )
     visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
+
+    raw_folder = os.path.dirname(args.input)
+    output_folder = args.output
+    cmd = f"cp {raw_folder}/info.txt {output_folder}"
+    sub.call(cmd, shell=True)
+
     f = h5py.File(f"{args.input}_master.h5", "r")
     size = len(f["data"])
-    idy = 9
 
     label = (args.input).split("/")[-1]
 
