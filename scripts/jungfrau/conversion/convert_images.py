@@ -10,11 +10,14 @@ import numpy as np
 import matplotlib.pyplot as plt
 from typing import Any, BinaryIO, List
 import glob
+import subprocess as sub
 import os
 import matplotlib.colors as color
 
 dark = None
 gain = None
+
+# bad_frames = []
 
 
 def filter_data(data):
@@ -33,7 +36,7 @@ def filter_data(data):
     """
     gain_3 = np.where(data & 2**15 > 0)
     counts = gain_3[0].shape[0]
-    if counts > 1e4:
+    if counts > 1e3:
         return 1
     else:
         return 0
@@ -137,6 +140,11 @@ def main(raw_args=None):
     args = parser.parse_args(raw_args)
 
     global dark, gain
+
+    raw_folder = os.path.dirname(args.input)
+    output_folder = os.path.dirname(args.output)
+    cmd = f"cp {raw_folder}/info.txt {output_folder}"
+    sub.call(cmd, shell=True)
 
     num_panels: int = 2
     dark_filenames = [args.pedestal1, args.pedestal2]
