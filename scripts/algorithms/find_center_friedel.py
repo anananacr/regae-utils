@@ -18,21 +18,34 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-
-DetectorCenter = [553, 533]
+DetectorCenter = [541, 527]
 MinPeaks = 2
-SearchRadius = 10
+SearchRadius = 30
 
 PF8Config = PF8Info(
     max_num_peaks=10000,
-    adc_threshold=30,
-    minimum_snr=3,
-    min_pixel_count=3,
+    adc_threshold=200,
+    minimum_snr=5,
+    min_pixel_count=5,
     max_pixel_count=1000,
     local_bg_radius=10,
     min_res=30,
-    max_res=350
+    max_res=150,
 )
+
+BeamSweepingParam = {
+    "initial_center": DetectorCenter,
+    "min_peaks": MinPeaks,
+    "search_radius": SearchRadius,
+    "pf8_max_num_peaks": PF8Config.max_num_peaks,
+    "pf8_adc_threshold": PF8Config.adc_threshold,
+    "pf8_minimum_snr": PF8Config.minimum_snr,
+    "pf8_min_pixel_count": PF8Config.min_pixel_count,
+    "pf8_max_pixel_count": PF8Config.max_pixel_count,
+    "pf8_local_bg_radius": PF8Config.local_bg_radius,
+    "pf8_min_res": PF8Config.min_res,
+    "pf8_max_res": PF8Config.max_res,
+}
 
 
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
@@ -197,7 +210,7 @@ def main():
 
             frame_number = i
             print(file_name)
-            label = (file_name.split("/")[-1]).split('.')[0]
+            label = (file_name.split("/")[-1]).split(".")[0]
             initial_center = DetectorCenter
 
             if get_format(file_name) == "cbf":
@@ -367,7 +380,7 @@ def main():
 
                 ax.set_xlim(100, 1000)
                 ax.set_ylim(1000, 100)
-                plt.title("Bragg peaks allignement")
+                plt.title("Bragg peaks alignement")
                 fig.colorbar(pos, shrink=0.6)
                 ax.legend()
                 plt.savefig(f"{output_folder}/plots/peaks/{label}.png")
@@ -389,31 +402,47 @@ def main():
                 ]
                 if args.output:
                     f = h5py.File(f"{output_folder}/h5_files/{label}.h5", "w")
-                    f.create_dataset("hit", data=1)
-                    f.create_dataset("converged", data=converged)
-                    f.create_dataset("id", data=file_name)
-                    f.create_dataset("intensity", data=np.sum(corrected_data * mask))
+                    grp = f.create_group("data")
+                    grp.create_dataset("hit", data=1)
+                    grp.create_dataset("converged", data=converged)
+                    grp.create_dataset("id", data=file_name)
+                    grp.create_dataset("intensity", data=np.sum(corrected_data * mask))
                     if converged == 1:
-                        f.create_dataset("refined_center", data=refined_center)
+                        grp.create_dataset("refined_center", data=refined_center)
                     else:
-                        f.create_dataset("refined_center", data=DetectorCenter)
-                    f.create_dataset("original_peaks_x", data=original_peaks_x)
-                    f.create_dataset("original_peaks_y", data=original_peaks_y)
-                    f.create_dataset(
+                        grp.create_dataset(
+                            "refined_center",
+                            data=[DetectorCenter[0] - 20, DetectorCenter[1] - 20],
+                        )
+                    grp = f.create_group("beam_sweeping_config")
+                    for key, value in BeamSweepingParam.items():
+                        grp.create_dataset(key, data=value)
+                    grp = f.create_group("peaks_positions")
+                    grp.create_dataset("original_peaks_x", data=original_peaks_x)
+                    grp.create_dataset("original_peaks_y", data=original_peaks_y)
+                    grp.create_dataset(
                         "inverted_peaks_x", data=inverted_non_shifted_peaks_x
                     )
-                    f.create_dataset(
+                    grp.create_dataset(
                         "inverted_peaks_y", data=inverted_non_shifted_peaks_y
                     )
-                    f.create_dataset("shifted_peaks_x", data=inverted_shifted_peaks_x)
-                    f.create_dataset("shifted_peaks_y", data=inverted_shifted_peaks_y)
+                    grp.create_dataset("shifted_peaks_x", data=inverted_shifted_peaks_x)
+                    grp.create_dataset("shifted_peaks_y", data=inverted_shifted_peaks_y)
             else:
                 f = h5py.File(f"{output_folder}/h5_files/{label}.h5", "w")
-                f.create_dataset("hit", data=0)
-                f.create_dataset("converged", data=0)
-                f.create_dataset("id", data=file_name)
-                f.create_dataset("intensity", data=np.sum(corrected_data * mask))
-                f.create_dataset("refined_center", data=DetectorCenter)
+                grp = f.create_group("data")
+                grp.create_dataset("hit", data=0)
+                grp.create_dataset("converged", data=0)
+                grp.create_dataset("id", data=file_name)
+                grp.create_dataset("intensity", data=np.sum(corrected_data * mask))
+                grp.create_dataset(
+                    "refined_center",
+                    data=[DetectorCenter[0] - 20, DetectorCenter[1] - 20],
+                )
+                grp = f.create_group("beam_sweeping_config")
+                for key, value in BeamSweepingParam.items():
+                    grp.create_dataset(key, data=value)
+
                 now = datetime.now()
                 print(f"Current end time = {now}")
 
