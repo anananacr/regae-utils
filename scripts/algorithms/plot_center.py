@@ -10,7 +10,7 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [554, 536]
+DetectorCenter = [541, 527]
 
 
 def main():
@@ -54,10 +54,10 @@ def main():
         for i in paths:
 
             f = h5py.File(f"{i[:-1]}", "r")
-            center = np.array(f["refined_center"])
-            hit = np.array(f["hit"])
-            file_id = str(np.array(f["id"]))
-            converged = np.array(f["converged"])
+            center = np.array(f["data/refined_center"])
+            hit = np.array(f["data/hit"])
+            file_id = str(np.array(f["data/id"]))
+            converged = np.array(f["data/converged"])
 
             distance = math.sqrt(
                 (center[0] - DetectorCenter[0]) ** 2

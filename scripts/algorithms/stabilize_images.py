@@ -13,7 +13,7 @@ from PIL import Image
 import os
 from find_center_friedel import apply_geom
 
-DetectorCenter = [554, 536]
+DetectorCenter = [541, 527]
 
 
 def main():
@@ -55,8 +55,8 @@ def main():
     if file_format == "lst":
         for i in paths:
             f = h5py.File(f"{i[:-1]}", "r")
-            center = np.array(f["refined_center"])
-            image_id = str(np.array(f["id"]))
+            center = np.array(f["data/refined_center"])
+            image_id = str(np.array(f["data/id"]))
             distance = math.sqrt(
                 (center[0] - DetectorCenter[0]) ** 2
                 + (center[1] - DetectorCenter[1]) ** 2
@@ -65,6 +65,7 @@ def main():
                 print(
                     f"Warning!! Refined center more than 10 pixels far from the median for file {image_id[2:-1]}"
                 )
+                center = DetectorCenter
             f.close()
 
             image_file = image_id[2:-1]
@@ -156,7 +157,7 @@ def main():
 
             final_data = corrected_data * shifted_mask
             final_data[np.where(final_data == 0)] = -1
-            final_data=np.array(final_data, dtype=np.int32)
+            final_data = np.array(final_data, dtype=np.int32)
             Image.fromarray(final_data).save(f"{args.output}/{basename}")
 
 
