@@ -7,6 +7,13 @@ END=$4
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed
 
 for i in $(seq $START 1 $END); do
+    if [ "$i" -le 9 ];
+    then
+        LIST_NAME=${LABEL}.lst0${i}
+    else 
+        LIST_NAME=${LABEL}.lst${i}
+    fi
+
     JNAME="cc_${i}"
     NAME="cc_${i}"
     SLURMFILE="${NAME}_${LABEL}.sh"
@@ -33,7 +40,7 @@ for i in $(seq $START 1 $END); do
     echo "module load maxwell python/3.7" >> $SLURMFILE
     echo "source /home/rodria/scripts/regae/env-regae/bin/activate" >> $SLURMFILE
     echo >> $SLURMFILE
-    command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/${LABEL}.lst0${i} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT}/${LABEL} -g ${ROOT}/../geom/JF_regae_v4.geom;"
+    command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/${LIST_NAME} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT}/${LABEL} -g ${ROOT}/../geom/JF_regae_v4.geom;"
 
     echo $command >> $SLURMFILE
     echo "chmod a+rw $PWD" >> $SLURMFILE

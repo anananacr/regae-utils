@@ -128,12 +128,16 @@ def open_distance_map_global_min(
     n = z.shape[0]
     ax1.set_xticks(np.arange(0, n, step, dtype=float))
     ax1.set_yticks(np.arange(0, n, step, dtype=float))
+    
+    ticks_len=(np.arange(0, n, step)).shape[0]
     step = round(step * (abs(x[0] - x[1])), 1)
+    print(ticks_len)
+    print(np.linspace(round(x[0], 1), round(x[-1], 1), ticks_len, dtype=int))
     ax1.set_xticklabels(
-        np.arange(round(x[0], 1), round(x[-1] + step, 1), step, dtype=int), rotation=45
+        np.linspace(round(x[0], 1), round(x[-1] + step, 1), ticks_len, dtype=int), rotation=45
     )
     ax1.set_yticklabels(
-        np.arange(round(y[0], 1), round(y[-1] + step, 1), step, dtype=int)
+        np.linspace(round(y[0], 1), round(y[-1] + step, 1), ticks_len, dtype=int)
     )
 
     ax1.set_ylabel("yc [px]")
@@ -461,232 +465,6 @@ def shift_image_by_n_pixels(data: np.ndarray, n: int, axis: int) -> np.ndarray:
     # print("Image cut shape", image_cut.shape)
     return image_cut
 
-
-def table_of_center(
-    crystal: int, rot: int, center_file: str = None, loaded_table_center: Dict = None
-) -> List[int]:
-    """
-    Return theoretical center positions for the data given its ID (crystal and rotation number) in a .txt file.
-
-    Parameters
-    ----------
-    crystal: int
-        Crystal number identification.
-    rot: int
-        Rotation number identification.
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-    loaded_table_center: Dict
-        Bypass loading of the table if the function had already been called.
-
-    Returns
-    ----------
-    center_theory: Tuple[int]
-        Theoretical center positions for the data with given crystal and rotation ID.
-    """
-
-    if loaded_table_center is None:
-        if center_file is None:
-            data = {
-                "crystal": [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5],
-                "rot": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2],
-                "center_x": [
-                    831,
-                    834,
-                    825,
-                    830,
-                    831,
-                    832,
-                    832,
-                    833,
-                    831,
-                    831,
-                    831,
-                    834,
-                    831,
-                    833,
-                    831,
-                    829,
-                    826,
-                    825,
-                    823,
-                    831,
-                ],
-                "center_y": [
-                    993,
-                    982,
-                    979,
-                    973,
-                    962,
-                    928,
-                    927,
-                    925,
-                    894,
-                    885,
-                    877,
-                    851,
-                    833,
-                    824,
-                    810,
-                    795,
-                    785,
-                    774,
-                    766,
-                    761,
-                ],
-            }
-        else:
-            # print(center_file)
-            data = get_table_center(center_file)
-
-            # print(data)
-        loaded_table_center = data.copy()
-
-    data = loaded_table_center
-    df = pd.DataFrame.from_dict(data)
-    # print(df)
-    match = df.loc[(df["crystal"] == crystal) & (df["rot"] == rot)].reset_index()
-
-    return [match["center_x"][0], match["center_y"][0]], loaded_table_center
-
-
-def get_table_center(center_file: str) -> Dict:
-    """
-    Load theoretical center positions for the data given its ID (crystal and rotation number) from a .txt file.
-
-    Parameters
-    ----------
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-
-    Returns
-    ----------
-    loaded_table_center: Dict
-        Theoretical center positions table.
-    """
-    data = open(center_file, "r").read().splitlines()
-    data = [x.replace("'", '"') for x in data]
-    data = [json.loads(d) for d in data]
-    # print(data)
-    return transpose_dict(data)
-
-
-def transpose_dict(data: list) -> dict:
-    """
-    Transposes a list of dictionaries into a dictionary of lists.
-
-    Parameters:
-        data (list): A list of dictionaries to be transposed.
-
-    Returns:
-        dict: A dictionary with keys from the original dictionaries and values as lists
-              containing the corresponding values from each dictionary.
-
-    Example:
-        >>> data = [{'key1': 1, 'key2': 2}, {'key1': 3, 'key2': 4}]
-        >>> transpose_dict(data)
-        {'key1': [1, 3], 'key2': [2, 4]}
-    """
-    result = {}
-    for d in data:
-        for k, v in d.items():
-            if k not in result:
-                result[k] = []
-            result[k].append(v)
-
-    return result
-
-
-def get_center_theory(
-    files_path: np.ndarray, center_file: str = None, loaded_table_center: str = None
-) -> List[int]:
-    """
-    Extract crystal and rotation number ID from the file name and get theoretical center positions from a .txt file.
-
-    Parameters
-    ----------
-    files_path: np.ndarray
-        Array of input images path.
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-    loaded_table_center: Dict
-        Theoretical center positions table.
-    Returns
-    ----------
-    center_theory: List[int]
-        Theoretical center positions table for input images.
-    loaded_table_center: Dict
-        Theoretical center positions table from .txt file to avoid opening it many times.
-    """
-    center_theory = []
-    for i in files_path:
-
-        label = str(i).split("/")[-1]
-        crystal = int(label.split("_")[-3][-2:])
-        rot = int(label.split("_")[-2][:])
-        center, loaded_table_center = table_of_center(
-            crystal, rot, center_file, loaded_table_center
-        )
-        center_theory.append(center)
-    center_theory = np.array(center_theory)
-    return center_theory, loaded_table_center
-
-
-def update_corner_in_geom(geom: str, new_xc: float, new_yc: float):
-    """
-    Write new direct beam position in detector coordinates in the geometry file.
-
-    Parameters
-    ----------
-    geom: str
-        CrystFEL eometry file name to be updated .geom format.
-    new_xc: float
-        Direct beam position in detector coordinates in the x axis.
-    new_yc: float
-        Direct beam position in detector coordinates in the y axis.
-
-    Returns
-    ----------
-    corrected_data: np.ndarray
-        Corrected data frame for polarization effect.
-    pol: np.ndarray
-        Polarization array for polarization correction.
-    """
-    # convert y x values to i j values
-    y = int(-new_yc + 1)
-    x = int(-new_xc + 1)
-    # print(x,y)
-    f = open(geom, "r")
-    lines = f.readlines()
-    f.close()
-
-    new_lines = []
-
-    for i in lines:
-        key_args = i.split(" = ")[0]
-
-        if key_args[-8:] == "corner_x":
-            new_lines.append(f"{key_args} = {x}\n")
-        elif key_args[-8:] == "corner_y":
-            new_lines.append(f"{key_args} = {y}\n")
-        else:
-            new_lines.append(i)
-
-    f = open(geom, "w")
-    for i in new_lines:
-        f.write(i)
-    f.close()
-
-
 def correct_polarization(
     x: np.ndarray, y: np.ndarray, dist: float, data: np.ndarray, mask: np.ndarray
 ) -> np.ndarray:
@@ -725,3 +503,27 @@ def correct_polarization(
     pol[np.where(mask == 0)] = 1
     Int = Int / pol
     return Int.reshape(data.shape), pol.reshape(data.shape)
+
+def circle_mask(data:np.ndarray, center:tuple, radius:int) ->np.ndarray:
+    """
+    Make a  ring mask for the data
+
+    Parameters
+    ----------
+    data: np.ndarray
+        Image in which mask will be shaped
+    radius: int
+        Outer radius of the mask
+   
+    Returns
+    ----------
+    mask: np.ndarray
+    """
+
+    bin_size = bin
+    a = data.shape[0]
+    b = data.shape[1]
+    
+    [X, Y] = np.meshgrid(np.arange(b) - center[0], np.arange(a) - center[1])
+    R = np.sqrt(np.square(X) + np.square(Y))
+    return np.less(R, radius) 

@@ -5,6 +5,7 @@ a research centre of the Helmholtz Association.
 
 import h5py
 import argparse
+import math
 from scipy import constants
 import numpy as np
 import matplotlib.pyplot as plt
@@ -17,8 +18,7 @@ import matplotlib.colors as color
 dark = None
 gain = None
 
-# bad_frames = []
-
+fly_frames_to_merge=20
 
 def filter_data(data):
     """
@@ -74,7 +74,7 @@ def apply_calibration(data: np.ndarray, dark=dark, gain=gain) -> np.ndarray:
         corrected_data[where_gain[gain_mode]] /= gain[gain_mode][where_gain[gain_mode]]
         corrected_data[np.where(dark[0] == 0)] = 0
 
-    return corrected_data
+    return corrected_data.astype(np.int32)
 
 
 def main(raw_args=None):
@@ -166,44 +166,52 @@ def main(raw_args=None):
         gain_file.close()
         dark_file.close()
 
-    index = np.arange(args.start_index, args.end_index + 1, 1)
-    n_frames = args.end_index - args.start_index
-
-    d = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
-    print(d.shape)
-    for i in index:
-        print(i)
-        acc_frame = np.zeros((1024, 1024), dtype=np.int32)
-
-        f = h5py.File(f"{args.input}_master_{i}.h5", "r")
-
+    if args.mode == 0:
+        """Fly scan accumulate n sequential images"""
+        f = h5py.File(f"{args.input}_master_0.h5", "r")
         size = len(f["entry/data/data"])
-
-        raw = np.array(f["entry/data/data"][:size])
-
-        if args.frames == None:
-            n_frames_measured = raw.shape[0]
-
-        corr_frame = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
-
-        f.close()
-        count = 0
-        for idy, j in enumerate(raw[:n_frames_measured]):
-            skip = filter_data(j)
+        n_frames_measured=math.floor(size/fly_frames_to_merge)
+        averaged_frames = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32) 
+        acc_frame = np.zeros((1024, 1024), dtype=np.int32)
+        count=0
+        for i in range(fly_frames_to_merge*n_frames_measured):
+            raw = np.array(f["entry/data/data"][i])
+            skip = filter_data(raw)
             if skip == 0:
-                corr_frame[idy] = apply_calibration(j, dark, gain)
-                acc_frame += corr_frame[idy]
-                count += 1
+                acc_frame += apply_calibration(raw, dark, gain)
+                count+=1
 
-        d[i] = acc_frame / count
+            if (i+1)%fly_frames_to_merge==0:
+                index=int((i+1)/fly_frames_to_merge)-1
+                if count!=0:
+                    averaged_frames[index]=acc_frame/count
+                acc_frame = np.zeros((1024, 1024), dtype=np.int32)
+                count=0
+        f.close()
 
-    if not os.path.exists(args.output + ".h5"):
-        g = h5py.File(args.output + ".h5", "w")
-        if args.mode == 0:
-            g.create_dataset("data", data=corr_frame, compression="gzip")
-        if args.mode == 1:
-            g.create_dataset("data", data=d, compression="gzip")
-        g.close()
+    elif args.mode == 1:
+        """Step scan accumulate all images inside the container file"""
+        index = np.arange(args.start_index, args.end_index + 1, 1)
+        n_frames = args.end_index - args.start_index
+        averaged_frames = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
+        for i in index:
+            acc_frame = np.zeros((1024, 1024), dtype=np.int32)
+            f = h5py.File(f"{args.input}_master_{i}.h5", "r")
+            size = len(f["entry/data/data"])
+            count = 0
+            for j in range(size):
+                raw = np.array(f["entry/data/data"][j], dtype=np.int32)
+                skip = filter_data(raw)
+                if skip == 0:
+                    acc_frame += apply_calibration(raw, dark, gain)
+                    count += 1
+            averaged_frames[i] = acc_frame / count
+            f.close()
+
+    
+    g = h5py.File(args.output + ".h5", "w")
+    g.create_dataset("data", data=averaged_frames, compression="gzip")
+    g.close()
 
 
 if __name__ == "__main__":
