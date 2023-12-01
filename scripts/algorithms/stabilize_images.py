@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.7
-
 from typing import List, Optional, Callable, Tuple, Any, Dict
 import fabio
 import argparse
@@ -13,8 +11,9 @@ from PIL import Image
 import os
 from find_center_friedel import apply_geom
 
-DetectorCenter = [553.5, 536.2]
-max_deviation=1000
+DetectorCenter = [606.44, 539]
+max_deviation = 1000
+
 
 def main():
     parser = argparse.ArgumentParser(description="Plot calculated center distribution.")
@@ -65,7 +64,7 @@ def main():
                 print(
                     f"Warning!! Refined center more than {max_deviation} pixels far from the median for file {image_id[2:-1]}"
                 )
-                #center = DetectorCenter
+                # center = DetectorCenter
             f.close()
 
             image_file = image_id[2:-1]
