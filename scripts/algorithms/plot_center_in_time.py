@@ -10,9 +10,9 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [592, 531]
+DetectorCenter = [606, 539]
 frequency = 12.5
-frames_per_step = 10
+frames_per_step = 100
 
 
 def calculate_time_point_from_path(file_path: str, frame: int):
@@ -67,9 +67,9 @@ def main():
             print(i)
             try:
                 f = h5py.File(f"{i[:-1]}", "r")
-                center = np.array(f["refined_center"])
-                intensity = np.array(f["intensity"])
-                file_path = str(np.array(f["id"]))
+                center = np.array(f["data/refined_center"])
+                intensity = np.array(f["data/intensity"])
+                file_path = str(np.array(f["data/id"]))
                 # frame=int(np.array(f["index"]))
                 frame = 0
                 error = math.sqrt(

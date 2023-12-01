@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.7
-
 from typing import List, Optional, Callable, Tuple, Any, Dict
 import fabio
 import argparse
@@ -10,8 +8,9 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [589.6, 529.5]
-Width = 8
+DetectorCenter = [606, 539]
+Width = 6
+
 
 def main():
     parser = argparse.ArgumentParser(description="Plot calculated center distribution.")
@@ -69,7 +68,7 @@ def main():
                 center_x.append(center[0])
                 center_y.append(center[1])
 
-            if distance > 2*Width:
+            if distance > Width:
                 print(i[:-1])
             f.close()
 
