@@ -18,7 +18,8 @@ import matplotlib.colors as color
 dark = None
 gain = None
 
-fly_frames_to_merge=20
+fly_frames_to_merge = 20
+
 
 def filter_data(data):
     """
@@ -170,23 +171,23 @@ def main(raw_args=None):
         """Fly scan accumulate n sequential images"""
         f = h5py.File(f"{args.input}_master_0.h5", "r")
         size = len(f["entry/data/data"])
-        n_frames_measured=math.floor(size/fly_frames_to_merge)
-        averaged_frames = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32) 
+        n_frames_measured = math.floor(size / fly_frames_to_merge)
+        averaged_frames = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
         acc_frame = np.zeros((1024, 1024), dtype=np.int32)
-        count=0
-        for i in range(fly_frames_to_merge*n_frames_measured):
+        count = 0
+        for i in range(fly_frames_to_merge * n_frames_measured):
             raw = np.array(f["entry/data/data"][i])
             skip = filter_data(raw)
             if skip == 0:
                 acc_frame += apply_calibration(raw, dark, gain)
-                count+=1
+                count += 1
 
-            if (i+1)%fly_frames_to_merge==0:
-                index=int((i+1)/fly_frames_to_merge)-1
-                if count!=0:
-                    averaged_frames[index]=acc_frame/count
+            if (i + 1) % fly_frames_to_merge == 0:
+                index = int((i + 1) / fly_frames_to_merge) - 1
+                if count != 0:
+                    averaged_frames[index] = acc_frame / count
                 acc_frame = np.zeros((1024, 1024), dtype=np.int32)
-                count=0
+                count = 0
         f.close()
 
     elif args.mode == 1:
@@ -208,7 +209,6 @@ def main(raw_args=None):
             averaged_frames[i] = acc_frame / count
             f.close()
 
-    
     g = h5py.File(args.output + ".h5", "w")
     g.create_dataset("data", data=averaged_frames, compression="gzip")
     g.close()
