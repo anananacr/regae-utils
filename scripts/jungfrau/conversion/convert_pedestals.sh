@@ -35,4 +35,4 @@ ls /asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/raw/${INP}*_stop_pedal*_*d1_f*.h
 
 ## average dark
 
-./merge_pedal.py -l ${N}_${MODE}
+python merge_pedal.py -l ${N}_${MODE}
