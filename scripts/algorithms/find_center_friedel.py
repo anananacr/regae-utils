@@ -10,7 +10,13 @@ sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
 import geometry_funcs as gf
 import argparse
 import numpy as np
-from utils import get_format, open_distance_map_global_min, center_of_mass, circle_mask
+from utils import (
+    get_format,
+    open_distance_map_global_min,
+    center_of_mass,
+    circle_mask,
+    open_distance_map_fit_min,
+)
 from PIL import Image
 from models import PF8, PF8Info
 import math
@@ -18,23 +24,23 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-DetectorCenter = [589.0, 529.5]
+DetectorCenter = [606, 539]
 MinPeaks = 4
-SearchRadius = 3.1
-AutoFlag=True
-OuterMask=True
-OuterRadius=200
-OutlierDistance = 1.55
+SearchRadius = 8
+AutoFlag = False
+OuterMask = True
+OuterRadius = 200
+OutlierDistance = 4
 
 PF8Config = PF8Info(
-max_num_peaks=10000,
-adc_threshold=0,
-minimum_snr=4,
-min_pixel_count=4,
-max_pixel_count=1000,
-local_bg_radius=10,
-min_res=10,
-max_res=200
+    max_num_peaks=10000,
+    adc_threshold=0,
+    minimum_snr=5,
+    min_pixel_count=4,
+    max_pixel_count=1000,
+    local_bg_radius=10,
+    min_res=10,
+    max_res=180,
 )
 
 BeamSweepingParam = {
@@ -49,9 +55,9 @@ BeamSweepingParam = {
     "pf8_local_bg_radius": PF8Config.local_bg_radius,
     "pf8_min_res": PF8Config.min_res,
     "pf8_max_res": PF8Config.max_res,
-    "auto_flag":AutoFlag,
-    "outer_mask":OuterMask,
-    "outlier_distance":OutlierDistance
+    "auto_flag": AutoFlag,
+    "outer_mask": OuterMask,
+    "outlier_distance": OutlierDistance,
 }
 
 
@@ -199,7 +205,7 @@ def main():
     print(DetectorCenter)
     output_folder = os.path.dirname(args.output)
     global initial_center
-    initial_center = [0,0]
+    initial_center = [0, 0]
 
     label = (
         (args.output).split("/")[-1]
@@ -220,7 +226,6 @@ def main():
             frame_number = i
             print(file_name)
             label = (file_name.split("/")[-1]).split(".")[0]
-            
 
             if get_format(file_name) == "cbf":
                 data = np.array(fabio.open(f"{file_name}").data)
@@ -262,16 +267,20 @@ def main():
             mask[np.where(corrected_data < 0)] = 0
             # Mask hot pixels
             # mask[np.where(corrected_data > 1e5)] = 0
-            
-                            
+
             if AutoFlag:
                 if OuterMask:
-                    outer_mask=circle_mask(corrected_data,DetectorCenter, OuterRadius)
-                    initial_center = center_of_mass(corrected_data, mask*outer_mask)
+                    outer_mask = circle_mask(
+                        corrected_data, DetectorCenter, OuterRadius
+                    )
+                    initial_center = center_of_mass(corrected_data, mask * outer_mask)
                 else:
                     initial_center = center_of_mass(corrected_data, mask)
-                
-                distance=math.sqrt((initial_center[0]-DetectorCenter[0])**2+(initial_center[1]-DetectorCenter[1])**2)
+
+                distance = math.sqrt(
+                    (initial_center[0] - DetectorCenter[0]) ** 2
+                    + (initial_center[1] - DetectorCenter[1]) ** 2
+                )
                 if distance > OutlierDistance:
                     initial_center = DetectorCenter
             else:
@@ -318,9 +327,16 @@ def main():
                         shift_inverted_peaks_and_calculate_minimum_distance(shift)
                     )
                 ## Display plots
-                xc, yc, converged = open_distance_map_global_min(
+
+                ## Fine tune
+                # xc, yc, converged = open_distance_map_global_min(
+                #    distance_summary, output_folder, f"{label}", pixel_step
+                # )
+                ## Ultrafine tune
+                xc, yc, converged = open_distance_map_fit_min(
                     distance_summary, output_folder, f"{label}", pixel_step
                 )
+
                 refined_center = (np.around(xc, 1), np.around(yc, 1))
                 shift_x = 2 * (xc - initial_center[0])
                 shift_y = 2 * (yc - initial_center[1])
@@ -440,7 +456,7 @@ def main():
                     grp = f.create_group("beam_sweeping_config")
                     for key, value in BeamSweepingParam.items():
                         grp.create_dataset(key, data=value)
-                    grp.create_dataset('initial_center', data=initial_center)
+                    grp.create_dataset("initial_center", data=initial_center)
                     grp = f.create_group("peaks_positions")
                     grp.create_dataset("original_peaks_x", data=original_peaks_x)
                     grp.create_dataset("original_peaks_y", data=original_peaks_y)
