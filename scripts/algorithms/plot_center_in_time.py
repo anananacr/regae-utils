@@ -10,7 +10,7 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [606, 539]
+DetectorCenter = [556, 530]
 frequency = 12.5
 frames_per_step = 100
 
@@ -64,7 +64,6 @@ def main():
     counts = []
     if file_format == "lst":
         for i in paths[:]:
-            print(i)
             try:
                 f = h5py.File(f"{i[:-1]}", "r")
                 center = np.array(f["data/refined_center"])
