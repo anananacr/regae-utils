@@ -24,13 +24,22 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-DetectorCenter = [606, 539]
+DetectorCenter = [556, 532]
 MinPeaks = 4
-SearchRadius = 8
-AutoFlag = False
 OuterMask = True
 OuterRadius = 200
-OutlierDistance = 4
+"""
+## Auto 
+SearchRadius = 20
+AutoFlag = True
+OutlierDistance = 10
+
+"""
+## Fine search
+SearchRadius = 2
+AutoFlag = False
+OutlierDistance = 1
+
 
 PF8Config = PF8Info(
     max_num_peaks=10000,
