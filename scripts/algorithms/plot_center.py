@@ -8,8 +8,8 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [606, 539]
-Width = 6
+DetectorCenter = [556, 530]
+Width = 4
 
 
 def main():
@@ -100,9 +100,7 @@ def main():
     mean = sum(x * y) / sum(y)
     sigma = np.sqrt(sum(y * (x - mean) ** 2) / sum(y))
     popt, pcov = curve_fit(gaussian, x, y, p0=[max(y), mean, sigma])
-    # popt, pcov = curve_fit(double_gaussian, x, y, p0=[max(y), 536, sigma, max(y), 541, sigma])
     residuals = y - gaussian(x, *popt)
-    # residuals = y - double_gaussian(x, *popt)
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
@@ -111,8 +109,6 @@ def main():
     ## Divide by radius of the peak to get shasrpness ratio
 
     x_fit = np.arange(xedges[0], xedges[-1], 0.01)
-    y_fit = gaussian(x_fit, *popt)
-    # y_fit = double_gaussian(x_fit, *popt)
     ax1.plot(
         x_fit,
         y_fit,
