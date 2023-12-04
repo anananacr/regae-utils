@@ -5,7 +5,6 @@ import argparse
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot peak positions according to angle."

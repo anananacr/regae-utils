@@ -5,7 +5,6 @@ import matplotlib.pyplot as plt
 
 
 def main(raw_args=None):
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot pixel intensity histogram over files measured for single electron detection."

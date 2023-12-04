@@ -6,7 +6,6 @@ import argparse
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot time scans from scan_radial_to_file.py states on and off."

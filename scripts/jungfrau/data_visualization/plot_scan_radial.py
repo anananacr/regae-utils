@@ -6,7 +6,6 @@ import argparse
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot radial average for different Time delays in pump and probe experiments, states on and off."
