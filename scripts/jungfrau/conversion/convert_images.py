@@ -69,7 +69,6 @@ def apply_calibration(data: np.ndarray, dark=dark, gain=gain) -> np.ndarray:
     gain_mode: int
 
     for gain_mode in range(3):
-
         corrected_data[where_gain[gain_mode]] -= dark[gain_mode][where_gain[gain_mode]]
 
         corrected_data[where_gain[gain_mode]] /= gain[gain_mode][where_gain[gain_mode]]
