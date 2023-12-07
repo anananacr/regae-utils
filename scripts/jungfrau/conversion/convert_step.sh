@@ -40,6 +40,9 @@ then
 elif [ "$MODE" == "magnet" ];
 then
   MODE_NUMBER=1
+elif [ "$MODE" == "screening" ];
+then
+  MODE_NUMBER=1
 else
   MODE_NUMBER=0
 fi

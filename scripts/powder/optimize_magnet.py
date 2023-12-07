@@ -14,73 +14,76 @@ from utils import azimuthal_average, gaussian
 from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
-max_frames = 30
+max_frames = 20
+increment_current = 0.2
+height_base = 80
 
 initial_guess_x = [
-    597,
-    598,
-    599,
-    599,
-    599,
-    600,
-    600,
-    601,
-    601,
-    601,
-    602,
-    603,
-    603,
-    603,
-    603,
-    603,
-    605,
-    605,
-    604,
-    603,
-    603,
-    603,
-    603,
-    603,
-    603,
-    603,
-    605,
-    605,
-    605,
-    605,
-    605,
-]
-initial_guess_y = [
+    547,
+    548,
     549,
     550,
-    549,
-    549,
-    549,
-    549,
-    549,
+    551,
+    551,
+    552,
+    551,
+    551,
+    551,
     548,
-    548,
-    548,
-    548,
-    548,
-    547,
-    547,
-    547,
-    547,
+    549,
+    551,
+    552,
+    552,
+    554,
+    554,
+    554,
+    557,
+    557,
+    557,
+    559,
+    559,
+    559,
+    559,
+    564,
+    565,
+    563,
+    563,
+    563,
+    563,
+]
+
+initial_guess_y = [
     545,
+    544,
+    544,
+    544,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    547,
+    547,
+    546,
+    546,
     545,
+    543,
+    543,
+    543,
     545,
     545,
     545,
     544,
     544,
     543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
+    542,
+    542,
+    541,
+    541,
+    541,
+    541,
+    541,
 ]
 
 
@@ -107,15 +110,15 @@ def gaussian_lin(
 
 def fit_gaussian(x: list, y: list, peak_position: int):
 
-    if frame_number <= 15:
+    if frame_number < 26:
         right_leg = 16  # for peak_3
         # right_leg=12
     else:
-        right_leg = 14  # for peak_3
+        right_leg = 12  # for peak_3
         # right_leg=10
     a = y[peak_position]
-    x = x[peak_position - 10 : peak_position + right_leg]
-    y = y[peak_position - 10 : peak_position + right_leg]
+    x = x[peak_position - 16 : peak_position + right_leg]
+    y = y[peak_position - 16 : peak_position + right_leg]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
@@ -165,20 +168,20 @@ def get_minimum(file_path: str, output: str):
         ax.set_ylabel("Average intensity (A.U.)")
 
         peaks, properties = find_peaks(counts, height=height[frame], width=5)
-        print(f"{round(frame*0.1,1)} A", peaks)
+        print(f"{round(frame*increment_current,1)} A", peaks)
         x = bins[peaks[1]]
         y = counts[peaks[1]]
         fit_results = fit_gaussian(bins, counts, x)
         fwhm_over_radius.append(fit_results[0])
         popt = fit_results[1]
         r_squared = fit_results[2]
-        if frame_number <= 15:
+        if frame_number < 26:
             right_leg = 16  # for peak_3
             # right_leg=12
         else:
-            right_leg = 14  # for peak_3
+            right_leg = 12  # for peak_3
             # right_leg=10
-        x_fit = np.arange(x - 10, x + right_leg, 1)
+        x_fit = np.arange(x - 16, x + right_leg, 1)
         y_fit = gaussian_lin(x_fit, *popt)
 
         plt.plot(
@@ -188,13 +191,13 @@ def get_minimum(file_path: str, output: str):
             label=f"gaussian fit \n a:{round(popt[0],2)} \n r:{round(popt[1],2)} \n sigma:{round(popt[2],2)} \n R² {round(r_squared, 4)}\n FWHM/r : {round(fwhm_over_radius[-1],3)}",
         )
         ax.scatter(x, y, c="r", marker="X", s=100)
-        ax.set_title(f"Sol67 {round(frame*0.1,1)} A")
-        plt.vlines([x - 10, x + right_leg], 0, 500, "r")
+        ax.set_title(f"Sol67 {round(frame*increment_current,1)} A")
+        plt.vlines([x - 16, x + right_leg], 0, 500, "r")
         ax.legend()
         plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
         plt.show()
 
-    current = np.arange(0, 0.1 * (max_frames + 1), 0.1)
+    current = np.arange(0, increment_current * (max_frames + 1), increment_current)
     fig, ax = plt.subplots(1, 1, figsize=(8, 6))
     ax.scatter(current, fwhm_over_radius, c="b")
     ax.set_title(f"Sol67 optimization")
@@ -223,20 +226,22 @@ def main():
     global center
     center = np.zeros((max_frames, 2), dtype=np.int32)
     global height
-    height = 110 * np.ones(max_frames + 1)
-    height_adjusted = [x + 10 if idx >= 18 else x for idx, x in enumerate(height)]
-    height = height_adjusted.copy()
+    height = height_base * np.ones(max_frames + 1)
+    # height_adjusted = [x + 10 if idx >= 18 else x for idx, x in enumerate(height)]
+    # height = height_adjusted.copy()
     print(height)
-    current = np.arange(0, (max_frames + 1) * 0.1, 0.1)
+    current = np.arange(0, (max_frames + 1) * increment_current, increment_current)
     print(current)
     x = current
     y = initial_guess_x
     plt.scatter(initial_guess_x, initial_guess_y)
     plt.show()
-    plt.scatter(current, initial_guess_x)
-    plt.scatter(current, initial_guess_y)
+    plt.scatter(current, initial_guess_x[: max_frames + 1])
+    plt.scatter(current, initial_guess_y[: max_frames + 1])
     plt.show()
-    center = list(zip(initial_guess_x, initial_guess_y))
+    center = list(
+        zip(initial_guess_x[: max_frames + 1], initial_guess_y[: max_frames + 1])
+    )
     args = parser.parse_args()
     file_path = args.input
     output_folder = args.output

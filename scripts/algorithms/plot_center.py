@@ -8,8 +8,8 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [556, 530]
-Width = 4
+DetectorCenter = [590, 530]
+Width = 10
 
 
 def main():
@@ -109,6 +109,7 @@ def main():
     ## Divide by radius of the peak to get shasrpness ratio
 
     x_fit = np.arange(xedges[0], xedges[-1], 0.01)
+    y_fit = gaussian(x_fit, *popt)
     ax1.plot(
         x_fit,
         y_fit,

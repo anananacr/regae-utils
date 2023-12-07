@@ -33,7 +33,7 @@ for i in $(seq $START 1 $END); do
     echo "module load maxwell python/3.7" >> $SLURMFILE
     echo "source /home/rodria/scripts/regae/env-regae/bin/activate" >> $SLURMFILE
     echo >> $SLURMFILE
-    command="./find_center_powder.py -i ${ROOT}/${INPUT}/lists/${LABEL}.lst0${i} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT} -g ${ROOT}/../geom/JF_regae_v4.geom;"
+    command="python find_center_powder_dynamic_range.py -i ${ROOT}/${INPUT}/lists/${LABEL}.lst0${i} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT} -g ${ROOT}/../geom/JF_regae_v4.geom;"
 
     echo $command >> $SLURMFILE
     echo "chmod a+rw $PWD" >> $SLURMFILE
