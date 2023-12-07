@@ -14,76 +14,76 @@ from utils import azimuthal_average, gaussian
 from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
-max_frames = 20
-increment_current = 0.2
-height_base = 80
+max_frames = 30
+increment_current = 0.1
+height_base = 50
 
 initial_guess_x = [
-    547,
+    548,
     548,
     549,
     550,
-    551,
-    551,
-    552,
-    551,
-    551,
-    551,
-    548,
-    549,
-    551,
+    550,
     552,
     552,
-    554,
-    554,
-    554,
+    552,
+    552,
+    552,
+    552,
+    552,
+    552,
+    553,
+    553,
+    555,
+    555,
+    556,
     557,
     557,
     557,
-    559,
-    559,
-    559,
-    559,
-    564,
-    565,
-    563,
-    563,
-    563,
-    563,
+    558,
+    558,
+    558,
+    558,
+    558,
+    558,
+    558,
+    558,
+    558,
+    558,
 ]
 
 initial_guess_y = [
-    545,
     544,
     544,
     544,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    547,
-    547,
-    546,
-    546,
-    545,
-    543,
-    543,
-    543,
-    545,
-    545,
-    545,
-    544,
     544,
     543,
-    542,
-    542,
-    541,
-    541,
-    541,
-    541,
-    541,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
+    543,
 ]
 
 
@@ -110,15 +110,15 @@ def gaussian_lin(
 
 def fit_gaussian(x: list, y: list, peak_position: int):
 
-    if frame_number < 26:
-        right_leg = 16  # for peak_3
-        # right_leg=12
+    if frame_number < 18:
+        #right_leg = 16  # for peak_3
+        right_leg=8
     else:
-        right_leg = 12  # for peak_3
-        # right_leg=10
+        #right_leg = 12  # for peak_3
+        right_leg=6
     a = y[peak_position]
-    x = x[peak_position - 16 : peak_position + right_leg]
-    y = y[peak_position - 16 : peak_position + right_leg]
+    x = x[peak_position - 10 : peak_position + right_leg]
+    y = y[peak_position - 10 : peak_position + right_leg]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
@@ -169,19 +169,19 @@ def get_minimum(file_path: str, output: str):
 
         peaks, properties = find_peaks(counts, height=height[frame], width=5)
         print(f"{round(frame*increment_current,1)} A", peaks)
-        x = bins[peaks[1]]
-        y = counts[peaks[1]]
+        x = bins[peaks[0]]
+        y = counts[peaks[0]]
         fit_results = fit_gaussian(bins, counts, x)
         fwhm_over_radius.append(fit_results[0])
         popt = fit_results[1]
         r_squared = fit_results[2]
         if frame_number < 26:
-            right_leg = 16  # for peak_3
-            # right_leg=12
+            #right_leg = 16  # for peak_3
+            right_leg=8
         else:
-            right_leg = 12  # for peak_3
-            # right_leg=10
-        x_fit = np.arange(x - 16, x + right_leg, 1)
+            #right_leg = 12  # for peak_3
+            right_leg=6
+        x_fit = np.arange(x - 10, x + right_leg, 1)
         y_fit = gaussian_lin(x_fit, *popt)
 
         plt.plot(
@@ -192,7 +192,7 @@ def get_minimum(file_path: str, output: str):
         )
         ax.scatter(x, y, c="r", marker="X", s=100)
         ax.set_title(f"Sol67 {round(frame*increment_current,1)} A")
-        plt.vlines([x - 16, x + right_leg], 0, 500, "r")
+        plt.vlines([x - 10, x + right_leg], 0, 500, "r")
         ax.legend()
         plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
         plt.show()
