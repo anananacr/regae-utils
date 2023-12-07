@@ -36,8 +36,11 @@ def filter_data(data):
         True if file should be skipped before apply calibration
     """
     gain_3 = np.where(data & 2**15 > 0)
-    counts = gain_3[0].shape[0]
-    if counts > 1e3:
+    counts_3 = gain_3[0].shape[0]
+    #gain_0 = np.where((data & 2**14 == 0) & (data & 2**15 == 0))
+    #counts_0 = gain_3[0].shape[0]
+    #total_n_pixels=data.flatten().shape[0]
+    if counts_3 > 1e3:
         return 1
     else:
         return 0

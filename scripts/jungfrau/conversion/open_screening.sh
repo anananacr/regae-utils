@@ -33,4 +33,4 @@ python save_assembled_images.py -i ${ROOT}/processed/converted/${INP} -g ${ROOT}
 echo "----------------------- Opening image -----------------------"
 module load xray;
 
-adxv ${ROOT}/processed/assembled/${INP}*.tif
+adxv ${ROOT}/processed/assembled/*.tif
