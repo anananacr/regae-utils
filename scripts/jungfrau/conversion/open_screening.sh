@@ -15,7 +15,7 @@ module purge
 source /home/rodria/scripts/regae/env-regae/bin/activate
 
 echo "----------------------- Converting pedestals -----------------------"
-convert_pedestals.sh ${INP} ${MODE} &> /dev/null;
+convert_pedestals.sh ${INP} ${MODE};
 
 echo "----------------------- Creating folders on processed -----------------------"
 FOLDER_UP=$(echo $INP | cut -d'/' -f1)
