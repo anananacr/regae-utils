@@ -12,7 +12,7 @@ ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/$beamtime
 
 source /etc/profile.d/modules.sh
 module purge
-source /home/rodria/scripts/regae/env-regae/bin/activate
+source "/home/rodria/scripts/regae/env-regae/bin/activate"
 
 echo "----------------------- Converting pedestals -----------------------"
 convert_pedestals.sh ${INP} ${MODE};
