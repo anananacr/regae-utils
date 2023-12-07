@@ -35,7 +35,6 @@ def main(raw_args=None):
     index = np.arange(args.start_frame, args.end_frame, n_frames)
 
     for idx, i in enumerate(index):
-
         f = h5py.File(f"{args.input}", "r")
 
         size = len(f["data"])

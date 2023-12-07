@@ -10,7 +10,13 @@ sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
 import geometry_funcs as gf
 import argparse
 import numpy as np
-from utils import get_format, open_distance_map_global_min
+from utils import (
+    get_format,
+    open_distance_map_global_min,
+    center_of_mass,
+    circle_mask,
+    open_distance_map_fit_min,
+)
 from PIL import Image
 from models import PF8, PF8Info
 import math
@@ -18,23 +24,42 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-DetectorCenter = [541, 527]
-MinPeaks = 2
-SearchRadius = 30
+DetectorCenter = [590, 528]
+MinPeaks = 4
+OuterMask = True
+OuterRadius = 200
+
+## Auto 
+SearchRadius = 20
+AutoFlag = True
+OutlierDistance = 10
+
+"""
+## Fine search
+SearchRadius = 8
+AutoFlag = False
+OutlierDistance = 4
+"""
+"""
+## Ramping machine
+SearchRadius = 6
+AutoFlag = False
+OutlierDistance = 3
+"""
 
 PF8Config = PF8Info(
     max_num_peaks=10000,
-    adc_threshold=200,
-    minimum_snr=5,
-    min_pixel_count=5,
+    adc_threshold=0,
+    minimum_snr=4.0,
+    min_pixel_count=4,
     max_pixel_count=1000,
     local_bg_radius=10,
-    min_res=30,
-    max_res=150,
+    min_res=10,
+    max_res=200,
 )
 
 BeamSweepingParam = {
-    "initial_center": DetectorCenter,
+    "detector_center": DetectorCenter,
     "min_peaks": MinPeaks,
     "search_radius": SearchRadius,
     "pf8_max_num_peaks": PF8Config.max_num_peaks,
@@ -45,6 +70,9 @@ BeamSweepingParam = {
     "pf8_local_bg_radius": PF8Config.local_bg_radius,
     "pf8_min_res": PF8Config.min_res,
     "pf8_max_res": PF8Config.max_res,
+    "auto_flag": AutoFlag,
+    "outer_mask": OuterMask,
+    "outlier_distance": OutlierDistance,
 }
 
 
@@ -92,9 +120,9 @@ def shift_inverted_peaks_and_calculate_minimum_distance(
 
     return {
         "shift_x": shift[0],
-        "xc": (shift[0] / 2) + DetectorCenter[0],
+        "xc": (shift[0] / 2) + initial_center[0],
         "shift_y": shift[1],
-        "yc": (shift[1] / 2) + DetectorCenter[1],
+        "yc": (shift[1] / 2) + initial_center[1],
         "d": distance,
     }
 
@@ -191,6 +219,8 @@ def main():
 
     print(DetectorCenter)
     output_folder = os.path.dirname(args.output)
+    global initial_center
+    initial_center = [0, 0]
 
     label = (
         (args.output).split("/")[-1]
@@ -211,7 +241,6 @@ def main():
             frame_number = i
             print(file_name)
             label = (file_name.split("/")[-1]).split(".")[0]
-            initial_center = DetectorCenter
 
             if get_format(file_name) == "cbf":
                 data = np.array(fabio.open(f"{file_name}").data)
@@ -254,7 +283,25 @@ def main():
             # Mask hot pixels
             # mask[np.where(corrected_data > 1e5)] = 0
 
+            if AutoFlag:
+                if OuterMask:
+                    outer_mask = circle_mask(
+                        corrected_data, DetectorCenter, OuterRadius
+                    )
+                    initial_center = center_of_mass(corrected_data, mask * outer_mask)
+                else:
+                    initial_center = center_of_mass(corrected_data, mask)
+
+                distance = math.sqrt(
+                    (initial_center[0] - DetectorCenter[0]) ** 2
+                    + (initial_center[1] - DetectorCenter[1]) ** 2
+                )
+                if distance > OutlierDistance:
+                    initial_center = DetectorCenter
+            else:
+                initial_center = DetectorCenter
             ## Peakfinder8 detector information and bad_pixel_map
+
             PF8Config.pf8_detector_info = dict(
                 asic_nx=mask.shape[1],
                 asic_ny=mask.shape[0],
@@ -262,14 +309,14 @@ def main():
                 nasics_y=1,
             )
             PF8Config._bad_pixel_map = mask
-            PF8Config.modify_radius(DetectorCenter[0], DetectorCenter[1])
+            PF8Config.modify_radius(initial_center[0], initial_center[1])
             pf8 = PF8(PF8Config)
             peaks_list = pf8.get_peaks_pf8(data=corrected_data)
             if peaks_list["num_peaks"] > MinPeaks:
                 now = datetime.now()
                 print(f"Current begin time = {now}")
-                peaks_list_x = [k - DetectorCenter[0] for k in peaks_list["fs"]]
-                peaks_list_y = [k - DetectorCenter[1] for k in peaks_list["ss"]]
+                peaks_list_x = [k - initial_center[0] for k in peaks_list["fs"]]
+                peaks_list_y = [k - initial_center[1] for k in peaks_list["ss"]]
                 peaks = list(zip(peaks_list_x, peaks_list_y))
 
                 inverted_peaks_x = [-1 * k for k in peaks_list_x]
@@ -295,22 +342,29 @@ def main():
                         shift_inverted_peaks_and_calculate_minimum_distance(shift)
                     )
                 ## Display plots
-                xc, yc, converged = open_distance_map_global_min(
+
+                ## Fine tune
+                # xc, yc, converged = open_distance_map_global_min(
+                #    distance_summary, output_folder, f"{label}", pixel_step
+                # )
+                ## Ultrafine tune
+                xc, yc, converged = open_distance_map_fit_min(
                     distance_summary, output_folder, f"{label}", pixel_step
                 )
+
                 refined_center = (np.around(xc, 1), np.around(yc, 1))
-                shift_x = 2 * (xc - DetectorCenter[0])
-                shift_y = 2 * (yc - DetectorCenter[1])
+                shift_x = 2 * (xc - initial_center[0])
+                shift_y = 2 * (yc - initial_center[1])
 
                 fig, ax = plt.subplots(1, 1, figsize=(8, 8))
                 pos = ax.imshow(corrected_data * mask, vmax=200, cmap="cividis")
                 ax.scatter(
-                    DetectorCenter[0],
-                    DetectorCenter[1],
+                    initial_center[0],
+                    initial_center[1],
                     color="lime",
                     marker="+",
                     s=150,
-                    label=f"Initial center:({DetectorCenter[0]},{DetectorCenter[1]})",
+                    label=f"Initial center:({np.round(initial_center[0],1)},{np.round(initial_center[1], 1)})",
                 )
                 ax.scatter(
                     refined_center[0],
@@ -329,22 +383,22 @@ def main():
                 plt.close("all")
 
                 original_peaks_x = [
-                    np.round(k + DetectorCenter[0]) for k in peaks_list_x
+                    np.round(k + initial_center[0]) for k in peaks_list_x
                 ]
                 original_peaks_y = [
-                    np.round(k + DetectorCenter[1]) for k in peaks_list_y
+                    np.round(k + initial_center[1]) for k in peaks_list_y
                 ]
                 inverted_non_shifted_peaks_x = [
-                    np.round(k + DetectorCenter[0]) for k in inverted_peaks_x
+                    np.round(k + initial_center[0]) for k in inverted_peaks_x
                 ]
                 inverted_non_shifted_peaks_y = [
-                    np.round(k + DetectorCenter[1]) for k in inverted_peaks_y
+                    np.round(k + initial_center[1]) for k in inverted_peaks_y
                 ]
                 inverted_shifted_peaks_x = [
-                    np.round(k + DetectorCenter[0] + shift_x) for k in inverted_peaks_x
+                    np.round(k + initial_center[0] + shift_x) for k in inverted_peaks_x
                 ]
                 inverted_shifted_peaks_y = [
-                    np.round(k + DetectorCenter[1] + shift_y) for k in inverted_peaks_y
+                    np.round(k + initial_center[1] + shift_y) for k in inverted_peaks_y
                 ]
 
                 ## Check pairs alignement
@@ -386,19 +440,19 @@ def main():
                 plt.savefig(f"{output_folder}/plots/peaks/{label}.png")
                 plt.close()
 
-                original_peaks_x = [k + DetectorCenter[0] for k in peaks_list_x]
-                original_peaks_y = [k + DetectorCenter[1] for k in peaks_list_y]
+                original_peaks_x = [k + initial_center[0] for k in peaks_list_x]
+                original_peaks_y = [k + initial_center[1] for k in peaks_list_y]
                 inverted_non_shifted_peaks_x = [
-                    k + DetectorCenter[0] for k in inverted_peaks_x
+                    k + initial_center[0] for k in inverted_peaks_x
                 ]
                 inverted_non_shifted_peaks_y = [
-                    k + DetectorCenter[1] for k in inverted_peaks_y
+                    k + initial_center[1] for k in inverted_peaks_y
                 ]
                 inverted_shifted_peaks_x = [
-                    k + DetectorCenter[0] + shift_x for k in inverted_peaks_x
+                    k + initial_center[0] + shift_x for k in inverted_peaks_x
                 ]
                 inverted_shifted_peaks_y = [
-                    k + DetectorCenter[1] + shift_y for k in inverted_peaks_y
+                    k + initial_center[1] + shift_y for k in inverted_peaks_y
                 ]
                 if args.output:
                     f = h5py.File(f"{output_folder}/h5_files/{label}.h5", "w")
@@ -412,11 +466,12 @@ def main():
                     else:
                         grp.create_dataset(
                             "refined_center",
-                            data=[DetectorCenter[0] - 20, DetectorCenter[1] - 20],
+                            data=[initial_center[0] - 20, initial_center[1] - 20],
                         )
                     grp = f.create_group("beam_sweeping_config")
                     for key, value in BeamSweepingParam.items():
                         grp.create_dataset(key, data=value)
+                    grp.create_dataset("initial_center", data=initial_center)
                     grp = f.create_group("peaks_positions")
                     grp.create_dataset("original_peaks_x", data=original_peaks_x)
                     grp.create_dataset("original_peaks_y", data=original_peaks_y)
@@ -437,7 +492,7 @@ def main():
                 grp.create_dataset("intensity", data=np.sum(corrected_data * mask))
                 grp.create_dataset(
                     "refined_center",
-                    data=[DetectorCenter[0] - 20, DetectorCenter[1] - 20],
+                    data=initial_center,
                 )
                 grp = f.create_group("beam_sweeping_config")
                 for key, value in BeamSweepingParam.items():

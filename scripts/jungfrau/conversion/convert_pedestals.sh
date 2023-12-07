@@ -21,18 +21,31 @@ echo $N
 
 ## convert start dark
 ls /asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/raw/${INP}*_start_pedal*_*d0_f*.h5>pedal_d0.lst
-/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d0.lst ${OUTPUT}/pedal_d0_${N}_${MODE}_start.h5
+/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d0.lst ${OUTPUT}/pedal_d0_${N}_${MODE}_start.h5;
 
 ls /asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/raw/${INP}*_start_pedal*_*d1_f*.h5>pedal_d1.lst
-/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d1.lst ${OUTPUT}/pedal_d1_${N}_${MODE}_start.h5
+/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d1.lst ${OUTPUT}/pedal_d1_${N}_${MODE}_start.h5;
 
 ## convert stop dark
 ls /asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/raw/${INP}*_stop_pedal*_*d0_f*.h5>pedal_d0.lst
-/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d0.lst ${OUTPUT}/pedal_d0_${N}_${MODE}_stop.h5
+/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d0.lst ${OUTPUT}/pedal_d0_${N}_${MODE}_stop.h5;
 
 ls /asap3/fs-bmx/gpfs/regae/2023/data/$beamtime/raw/${INP}*_stop_pedal*_*d1_f*.h5>pedal_d1.lst
-/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d1.lst ${OUTPUT}/pedal_d1_${N}_${MODE}_stop.h5
+/home/rodria/software/om_dev_regae/om/bin_src/om_jungfrau_dark.py pedal_d1.lst ${OUTPUT}/pedal_d1_${N}_${MODE}_stop.h5;
 
 ## average dark
+if [ "$MODE" == "step" ];
+then
+  python merge_pedal.py -l ${N}_${MODE}
+elif [ "$MODE" == "magnet" ];
+then
+  cp ${OUTPUT}/pedal_d0_${N}_${MODE}_start.h5 ${OUTPUT}/pedal_d0_${N}_${MODE}_average.h5
+  cp ${OUTPUT}/pedal_d1_${N}_${MODE}_start.h5 ${OUTPUT}/pedal_d1_${N}_${MODE}_average.h5
+elif [ "$MODE" == "screening" ];
+then
+  cp ${OUTPUT}/pedal_d0_${N}_${MODE}_start.h5 ${OUTPUT}/pedal_d0_${N}_${MODE}_average.h5
+  cp ${OUTPUT}/pedal_d1_${N}_${MODE}_start.h5 ${OUTPUT}/pedal_d1_${N}_${MODE}_average.h5
+else
+  python merge_pedal.py -l ${N}_${MODE}
+fi
 
-./merge_pedal.py -l ${N}_${MODE}

@@ -128,19 +128,23 @@ def open_distance_map_global_min(
     n = z.shape[0]
     ax1.set_xticks(np.arange(0, n, step, dtype=float))
     ax1.set_yticks(np.arange(0, n, step, dtype=float))
+
+    ticks_len = (np.arange(0, n, step)).shape[0]
     step = round(step * (abs(x[0] - x[1])), 1)
+
     ax1.set_xticklabels(
-        np.arange(round(x[0], 1), round(x[-1] + step, 1), step, dtype=int), rotation=45
+        np.linspace(round(x[0], 1), round(x[-1] + step, 1), ticks_len, dtype=int),
+        rotation=45,
     )
     ax1.set_yticklabels(
-        np.arange(round(y[0], 1), round(y[-1] + step, 1), step, dtype=int)
+        np.linspace(round(y[0], 1), round(y[-1] + step, 1), ticks_len, dtype=int)
     )
 
     ax1.set_ylabel("yc [px]")
     ax1.set_xlabel("xc [px]")
     ax1.set_title("Distance [px]")
 
-    proj_x = np.sum(z, axis=0)
+    proj_x = np.sum(z, axis=0) / z.shape[0]
     # print('proj',len(proj_x))
     x = np.arange(x[0], x[-1] + pixel_step, pixel_step)
     # print('x',len(x))
@@ -154,7 +158,7 @@ def open_distance_map_global_min(
     ax2.set_title("Distance projection in x")
     ax2.legend()
 
-    proj_y = np.sum(z, axis=1)
+    proj_y = np.sum(z, axis=1) / z.shape[1]
     x = np.arange(y[0], y[-1] + pixel_step, pixel_step)
     index_y = np.unravel_index(np.argmin(proj_y, axis=None), proj_y.shape)
     yc = round(x[index_y], 1)
@@ -171,6 +175,130 @@ def open_distance_map_global_min(
 
     # plt.show()
     plt.savefig(f"{output_folder}/plots/distance_map/{label}.png")
+    plt.close()
+    if int(np.sum(proj_y)) == 0 or int(np.sum(proj_x)) == 0:
+        converged = 0
+    else:
+        converged = 1
+    return xc, yc, converged
+
+
+def open_distance_map_fit_min(
+    lines: list, output_folder: str, label: str, pixel_step: int
+) -> tuple:
+    """
+    Open distance minimization plot, fit projections in both axis to get the point of minimum distance.
+
+    Parameters
+    ----------
+    lines: list
+        Output of grid search for distance optmization, each line should contain a dictionary contaning entries for xc, yc and distance.
+    """
+
+    n = int(math.sqrt(len(lines)))
+    pixel_step /= 2
+    merged_dict = {}
+    for dictionary in lines[:]:
+
+        for key, value in dictionary.items():
+            if key in merged_dict:
+                merged_dict[key].append(value)
+            else:
+                merged_dict[key] = [value]
+
+    # Create a figure with three subplots
+    fig, (ax1, ax2, ax3) = plt.subplots(1, 3, figsize=(20, 5))
+
+    # Extract x, y, and z from merged_dict
+
+    x = np.array(merged_dict["xc"]).reshape((n, n))[0]
+    y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
+    z = np.array(merged_dict["d"], dtype=np.float64).reshape((n, n))
+
+    pos1 = ax1.imshow(z, cmap="rainbow")
+    step = 20
+    n = z.shape[0]
+    ax1.set_xticks(np.arange(0, n, step, dtype=float))
+    ax1.set_yticks(np.arange(0, n, step, dtype=float))
+
+    ticks_len = (np.arange(0, n, step)).shape[0]
+    step = round(step * (abs(x[0] - x[1])), 1)
+
+    ax1.set_xticklabels(
+        np.linspace(round(x[0], 1), round(x[-1] + step, 1), ticks_len, dtype=int),
+        rotation=45,
+    )
+    ax1.set_yticklabels(
+        np.linspace(round(y[0], 1), round(y[-1] + step, 1), ticks_len, dtype=int)
+    )
+
+    ax1.set_ylabel("yc [px]")
+    ax1.set_xlabel("xc [px]")
+    ax1.set_title("Distance [px]")
+
+    proj_x = np.sum(z, axis=0) / z.shape[0]
+    x = np.arange(x[0], x[-1] + pixel_step, pixel_step)
+
+    popt = np.polyfit(x, proj_x, 2)
+    residuals = proj_x - quadratic(x, *popt)
+    ss_res = np.sum(residuals**2)
+    ss_tot = np.sum((proj_x - np.mean(proj_x)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot)
+
+    x_fit = np.arange(x[0], x[-1] + 0.1, 0.1)
+    y_fit = quadratic(x_fit, *popt)
+
+    a, b, c = popt
+    xc = round((-1 * b) / (2 * a), 1)
+    y_min = round((-1 * (b**2) + 4 * a * c) / (4 * a), 1)
+    ax2.plot(
+        x_fit,
+        y_fit,
+        "r",
+        label=f"quadratic fit:\nR²: {round(r_squared,5)}, xc: {xc}",
+    )
+
+    ax2.scatter(x, proj_x + pixel_step, color="b")
+    ax2.scatter(xc, y_min, color="r", label=f"xc: {xc}")
+    ax2.set_ylabel("Average distance (px)")
+    ax2.set_xlabel("Detector center in x (px)")
+    ax2.set_title("Distance projection in x")
+    ax2.legend()
+
+    proj_y = np.sum(z, axis=1) / z.shape[1]
+    x = np.arange(y[0], y[-1] + pixel_step, pixel_step)
+    popt = np.polyfit(x, proj_y, 2)
+    residuals = proj_y - quadratic(x, *popt)
+    ss_res = np.sum(residuals**2)
+    ss_tot = np.sum((proj_y - np.mean(proj_y)) ** 2)
+    r_squared = 1 - (ss_res / ss_tot)
+
+    a, b, c = popt
+    yc = round((-1 * b) / (2 * a), 1)
+    y_min = round((-1 * (b**2) + 4 * a * c) / (4 * a), 1)
+
+    x_fit = np.arange(y[0], y[-1] + 0.1, 0.1)
+    y_fit = quadratic(x_fit, *popt)
+    ax3.plot(
+        x_fit,
+        y_fit,
+        "r",
+        label=f"quadratic fit:\nR²: {round(r_squared,5)}, yc: {yc}",
+    )
+
+    ax3.scatter(x, proj_y, color="b")
+    ax3.scatter(yc, y_min, color="r", label=f"yc: {yc}")
+    ax3.set_ylabel("Average distance (px)")
+    ax3.set_xlabel("Detector center in y (px)")
+    ax3.set_title("Distance projection in y")
+    ax3.legend()
+
+    fig.colorbar(pos1, ax=ax1, shrink=0.6)
+
+    # Display the figure
+
+    # plt.show()
+    plt.savefig(f"{output_folder}/plots/distance_map_fit/{label}.png")
     plt.close()
     if int(np.sum(proj_y)) == 0 or int(np.sum(proj_x)) == 0:
         converged = 0
@@ -308,7 +436,7 @@ def open_fwhm_map(lines: list, label: str = None):
 
     x = np.array(merged_dict["xc"]).reshape((n, n))[0]
     y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
-    z = np.array(merged_dict["fwhm_over_radius"]).reshape((n, n))
+    z = np.array(merged_dict["fwhm"]).reshape((n, n))
 
     index_y, index_x = np.where(z == np.min(z))
     pos1 = ax1.imshow(z, cmap="rainbow")
@@ -320,9 +448,9 @@ def open_fwhm_map(lines: list, label: str = None):
     ax1.set_xticklabels(np.arange(x[0], x[-1] + step, step, dtype=int))
     ax1.set_yticklabels(np.arange(y[0], y[-1] + step, step, dtype=int))
 
-    ax1.set_ylabel("yc [px]")
-    ax1.set_xlabel("xc [px]")
-    ax1.set_title("FWHM/R")
+    ax1.set_ylabel("yc (px)")
+    ax1.set_xlabel("xc (px)")
+    ax1.set_title("FWHM")
     proj_x = np.sum(z, axis=0) / z.shape[0]
     x = np.arange(x[0], x[-1] + 1, 1)
 
@@ -341,9 +469,9 @@ def open_fwhm_map(lines: list, label: str = None):
         label=f"quadratic fit:\nR²: {round(r_squared,5)}, Xc: {round((-1*popt[1])/(2*popt[0]))}",
     )
     ax2.scatter(x, proj_x, color="b")
-    ax2.set_ylabel("Average FWHM/R")
+    ax2.set_ylabel("Average FWHM")
     ax2.set_xlabel("xc [px]")
-    ax2.set_title("FWHM/R projection in x")
+    ax2.set_title("FWHM projection in x")
     ax2.legend()
     print(f"xc {round((-1*popt[1])/(2*popt[0]))}")
 
@@ -366,7 +494,7 @@ def open_fwhm_map(lines: list, label: str = None):
     ax3.scatter(proj_y, x, color="b")
     ax3.set_xlabel("Average FWHM/R")
     ax3.set_ylabel("yc [px]")
-    ax3.set_title("FWHM/R projection in y")
+    ax3.set_title("FWHM projection in y")
     ax3.legend()
     print(f"yc {round((-1*popt[1])/(2*popt[0]))}")
 
@@ -462,231 +590,6 @@ def shift_image_by_n_pixels(data: np.ndarray, n: int, axis: int) -> np.ndarray:
     return image_cut
 
 
-def table_of_center(
-    crystal: int, rot: int, center_file: str = None, loaded_table_center: Dict = None
-) -> List[int]:
-    """
-    Return theoretical center positions for the data given its ID (crystal and rotation number) in a .txt file.
-
-    Parameters
-    ----------
-    crystal: int
-        Crystal number identification.
-    rot: int
-        Rotation number identification.
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-    loaded_table_center: Dict
-        Bypass loading of the table if the function had already been called.
-
-    Returns
-    ----------
-    center_theory: Tuple[int]
-        Theoretical center positions for the data with given crystal and rotation ID.
-    """
-
-    if loaded_table_center is None:
-        if center_file is None:
-            data = {
-                "crystal": [1, 1, 1, 1, 1, 2, 2, 2, 2, 2, 3, 3, 3, 3, 4, 4, 4, 4, 5, 5],
-                "rot": [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 1, 2, 3, 4, 1, 2],
-                "center_x": [
-                    831,
-                    834,
-                    825,
-                    830,
-                    831,
-                    832,
-                    832,
-                    833,
-                    831,
-                    831,
-                    831,
-                    834,
-                    831,
-                    833,
-                    831,
-                    829,
-                    826,
-                    825,
-                    823,
-                    831,
-                ],
-                "center_y": [
-                    993,
-                    982,
-                    979,
-                    973,
-                    962,
-                    928,
-                    927,
-                    925,
-                    894,
-                    885,
-                    877,
-                    851,
-                    833,
-                    824,
-                    810,
-                    795,
-                    785,
-                    774,
-                    766,
-                    761,
-                ],
-            }
-        else:
-            # print(center_file)
-            data = get_table_center(center_file)
-
-            # print(data)
-        loaded_table_center = data.copy()
-
-    data = loaded_table_center
-    df = pd.DataFrame.from_dict(data)
-    # print(df)
-    match = df.loc[(df["crystal"] == crystal) & (df["rot"] == rot)].reset_index()
-
-    return [match["center_x"][0], match["center_y"][0]], loaded_table_center
-
-
-def get_table_center(center_file: str) -> Dict:
-    """
-    Load theoretical center positions for the data given its ID (crystal and rotation number) from a .txt file.
-
-    Parameters
-    ----------
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-
-    Returns
-    ----------
-    loaded_table_center: Dict
-        Theoretical center positions table.
-    """
-    data = open(center_file, "r").read().splitlines()
-    data = [x.replace("'", '"') for x in data]
-    data = [json.loads(d) for d in data]
-    # print(data)
-    return transpose_dict(data)
-
-
-def transpose_dict(data: list) -> dict:
-    """
-    Transposes a list of dictionaries into a dictionary of lists.
-
-    Parameters:
-        data (list): A list of dictionaries to be transposed.
-
-    Returns:
-        dict: A dictionary with keys from the original dictionaries and values as lists
-              containing the corresponding values from each dictionary.
-
-    Example:
-        >>> data = [{'key1': 1, 'key2': 2}, {'key1': 3, 'key2': 4}]
-        >>> transpose_dict(data)
-        {'key1': [1, 3], 'key2': [2, 4]}
-    """
-    result = {}
-    for d in data:
-        for k, v in d.items():
-            if k not in result:
-                result[k] = []
-            result[k].append(v)
-
-    return result
-
-
-def get_center_theory(
-    files_path: np.ndarray, center_file: str = None, loaded_table_center: str = None
-) -> List[int]:
-    """
-    Extract crystal and rotation number ID from the file name and get theoretical center positions from a .txt file.
-
-    Parameters
-    ----------
-    files_path: np.ndarray
-        Array of input images path.
-    center_file:
-        Path to the theoretical center positions .txt file.
-        Example: center.txt
-        {'crystal': 1, 'rot': 1, 'center_x': 831, 'center_y': 993}
-        {'crystal': 1, 'rot': 2, 'center_x': 834, 'center_y': 982}
-    loaded_table_center: Dict
-        Theoretical center positions table.
-    Returns
-    ----------
-    center_theory: List[int]
-        Theoretical center positions table for input images.
-    loaded_table_center: Dict
-        Theoretical center positions table from .txt file to avoid opening it many times.
-    """
-    center_theory = []
-    for i in files_path:
-
-        label = str(i).split("/")[-1]
-        crystal = int(label.split("_")[-3][-2:])
-        rot = int(label.split("_")[-2][:])
-        center, loaded_table_center = table_of_center(
-            crystal, rot, center_file, loaded_table_center
-        )
-        center_theory.append(center)
-    center_theory = np.array(center_theory)
-    return center_theory, loaded_table_center
-
-
-def update_corner_in_geom(geom: str, new_xc: float, new_yc: float):
-    """
-    Write new direct beam position in detector coordinates in the geometry file.
-
-    Parameters
-    ----------
-    geom: str
-        CrystFEL eometry file name to be updated .geom format.
-    new_xc: float
-        Direct beam position in detector coordinates in the x axis.
-    new_yc: float
-        Direct beam position in detector coordinates in the y axis.
-
-    Returns
-    ----------
-    corrected_data: np.ndarray
-        Corrected data frame for polarization effect.
-    pol: np.ndarray
-        Polarization array for polarization correction.
-    """
-    # convert y x values to i j values
-    y = int(-new_yc + 1)
-    x = int(-new_xc + 1)
-    # print(x,y)
-    f = open(geom, "r")
-    lines = f.readlines()
-    f.close()
-
-    new_lines = []
-
-    for i in lines:
-        key_args = i.split(" = ")[0]
-
-        if key_args[-8:] == "corner_x":
-            new_lines.append(f"{key_args} = {x}\n")
-        elif key_args[-8:] == "corner_y":
-            new_lines.append(f"{key_args} = {y}\n")
-        else:
-            new_lines.append(i)
-
-    f = open(geom, "w")
-    for i in new_lines:
-        f.write(i)
-    f.close()
-
-
 def correct_polarization(
     x: np.ndarray, y: np.ndarray, dist: float, data: np.ndarray, mask: np.ndarray
 ) -> np.ndarray:
@@ -725,3 +628,28 @@ def correct_polarization(
     pol[np.where(mask == 0)] = 1
     Int = Int / pol
     return Int.reshape(data.shape), pol.reshape(data.shape)
+
+
+def circle_mask(data: np.ndarray, center: tuple, radius: int) -> np.ndarray:
+    """
+    Make a  ring mask for the data
+
+    Parameters
+    ----------
+    data: np.ndarray
+        Image in which mask will be shaped
+    radius: int
+        Outer radius of the mask
+
+    Returns
+    ----------
+    mask: np.ndarray
+    """
+
+    bin_size = bin
+    a = data.shape[0]
+    b = data.shape[1]
+
+    [X, Y] = np.meshgrid(np.arange(b) - center[0], np.arange(a) - center[1])
+    R = np.sqrt(np.square(X) + np.square(Y))
+    return np.less(R, radius)

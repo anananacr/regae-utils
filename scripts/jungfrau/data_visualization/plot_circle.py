@@ -6,7 +6,6 @@ import argparse
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot resolution rings. Parameters need to be correctly set in code."

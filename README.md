@@ -10,7 +10,9 @@ Mail: ana.rodrigues@desy.de
 
 ## Dependencies:
 
-* Python 3.6.8
+* Python 3.7.13 (default, Jun 21 2022, 17:24:56) 
+[GCC 4.8.5 20150623 (Red Hat 4.8.5-44)] on linux
+
 * requirements.txt
 
 ## Presentations
@@ -39,20 +41,20 @@ sbatch convert_step.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_0
 
 ### Assemble images
 
-./save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/folder_on_raw/ed_rot_scantype_00*/file_label -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*
+python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/folder_on_raw/ed_rot_scantype_00*/file_label -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*
 
 Example:
-./save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
+python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
 
 ## Data analysis
 
 ### Save movie
 On /jungfrau/data_visualization/ folder
 
-python3 make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*/file_label -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/output_folder -l file_label &
+python make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*/file_label -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/output_folder -l file_label &
 
 Example:
-python3 ../jungfrau/data_visualization/make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231020_mos_c3_ms_001/ed_rot_step_002/231020_mos_c3_ms_001_002 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_002/plots/img -l 231020_mos_c3_ms_001_002_step &
+python make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231020_mos_c3_ms_001/ed_rot_step_002/231020_mos_c3_ms_001_002 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_002/plots/img -l 231020_mos_c3_ms_001_002_step &
 
 ### Center refinement
 
@@ -66,103 +68,19 @@ Example:
 /algorithms/
 
 Example:
-./plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/processed/mica_c4_all &
+python plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001 -l 231130_c3b_mica020_001
 
 
 Example:
-./plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_001 -l 231020_mos_c3_ms_001_001_step &
+python plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001 -l 231130_c3b_mica020_001
 
 
 ### Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
 Example:
-python3 optimize_magnet.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/magnet_scan/mos2_magnet_scan -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/magnet_scan/plots
+python optimize_magnet.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/magnet_scan/mos2_magnet_scan -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/magnet_scan/plots
 
 ### Stabilize images
 
 Example:
-./stabilize_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231027_tas_c4_005/ed_rot_step_003/lists/h5_files.lst -g  /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/refined/231027_tas_c4_005/ed_rot_step_003  &
-
-## Source code structure:
-
-
-```bash
-
-scripts
-├── distortions
-│   ├── ellipse_cut.py
-│   └── ellipse.py
-├── gui
-│   ├── centering
-│   │   ├── center_finding.py
-│   │   ├── sumup_center.py
-│   │   └── turbo-center-v0
-│   ├── fit
-│   │   ├── fit_peaks_gaus_lin.py
-│   │   └── fit_peaks_gaus.py
-│   ├── merge
-│   │   ├── merge_average.py
-│   │   ├── merge_average_radial.py
-│   │   └── merge_scan.py
-│   ├── processing
-│   │   ├── autoproc.py
-│   │   ├── convert.py
-│   │   ├── rad_ave.py
-│   │   ├── scan_radial_to_file.py
-│   │   └── select_peak.py
-│   ├── qt
-│   │   ├── regae_autoproc.py
-│   │   ├── results_gui.py
-│   │   └── select_peaks_gui.py
-│   └── scaling
-│       ├── no_scaling.py
-│       ├── scaling_begin.py
-│       └── scaling_sum.py
-├── jungfrau
-│   ├── cluster-maxwell
-│   │   ├── turbo_convert.sh
-│   │   └── turbo_hist.sh
-│   ├── conversion
-│   │   ├── convert_images.py
-│   │   ├── convert_pedestals.sh
-│   │   ├── convert_step.sh
-│   │   └── merge_all_convert.py
-│   ├── data_visualization
-│   │   ├── hdf_see_rings.py
-│   │   ├── plot_circle.py
-│   │   ├── plot_ellipse.py
-│   │   ├── plot_scan_err.py
-│   │   ├── plot_scan_err_ref.py
-│   │   ├── plot_scan_methods.py
-│   │   ├── plot_scan_mov.py
-│   │   ├── plot_scan.py
-│   │   ├── plot_scan_radial.py
-│   │   ├── plot_scan_ring_dev.py
-│   │   ├── plot_time_scan.py
-│   │   └── plot_two_states.py
-│   ├── histogram
-│   │   └── hist_pixel.py
-│   └── rocking_curve
-│       ├── rocking_curve_fly.py
-│       ├── rocking_curve_step.py
-│       ├── run_rock_fly.sh
-│       └── run_rock_step.sh
-├── powder
-│   ├── bib_regae_sample.yaml
-│   ├── sim_pattern.py
-│   └── sumup_powder.py
-└── utils
-    ├── calc_dist.py
-    ├── check_r.py
-    ├── fit_central_beam.py
-    ├── label_data.py
-    ├── max_res_px.py
-    ├── max_res.py
-    ├── shell
-    │   ├── loop_center.sh
-    │   └── save_average.sh
-    └── utils.py
-
-17 directories, 56 files
-
-```
+python stabilize_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231027_tas_c4_005/ed_rot_step_003/lists/h5_files.lst -g  /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/refined/231027_tas_c4_005/ed_rot_step_003  &

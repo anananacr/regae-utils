@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.7
-
 from typing import List, Optional, Callable, Tuple, Any, Dict
 import fabio
 import argparse
@@ -13,7 +11,8 @@ from PIL import Image
 import os
 from find_center_friedel import apply_geom
 
-DetectorCenter = [541, 527]
+DetectorCenter = [606.44, 539]
+max_deviation = 1000
 
 
 def main():
@@ -61,11 +60,11 @@ def main():
                 (center[0] - DetectorCenter[0]) ** 2
                 + (center[1] - DetectorCenter[1]) ** 2
             )
-            if distance > 10:
+            if distance > max_deviation:
                 print(
-                    f"Warning!! Refined center more than 10 pixels far from the median for file {image_id[2:-1]}"
+                    f"Warning!! Refined center more than {max_deviation} pixels far from the median for file {image_id[2:-1]}"
                 )
-                center = DetectorCenter
+                # center = DetectorCenter
             f.close()
 
             image_file = image_id[2:-1]

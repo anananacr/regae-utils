@@ -10,7 +10,6 @@ def fit(x, a, b):
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot pump and probe scan intensity and FWHM, states on or off, substituting points by the mean running average."
@@ -46,7 +45,6 @@ def main():
     fwhm_peak_2 = []
 
     for idx, i in enumerate(size):
-
         file_path = f"{args.input}_{i}.h5"
         hf = h5py.File(file_path, "r")
         rad_0 = np.array(hf[data_name])
@@ -75,7 +73,6 @@ def main():
     ## Running average with 2 points
     for i in range(0, len(int_peak_1) - 1):
         if i % 2 == 0:
-
             mean = round(((int_peak_1[i] + int_peak_1[i + 1]) / 2), 6)
             mov_int_peak_1.append(mean)
             mean = round(((int_peak_2[i] + int_peak_2[i + 1]) / 2), 6)

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.7
-
 from typing import List, Optional, Callable, Tuple, Any, Dict
 import fabio
 import argparse
@@ -10,7 +8,8 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [541, 527]
+DetectorCenter = [590, 530]
+Width = 10
 
 
 def main():
@@ -45,10 +44,10 @@ def main():
     label = "center_distribution_" + args.label
     center_x = []
     center_y = []
-    x_min = DetectorCenter[0] - 5
-    x_max = DetectorCenter[0] + 5
-    y_min = DetectorCenter[1] - 5
-    y_max = DetectorCenter[1] + 5
+    x_min = DetectorCenter[0] - Width
+    x_max = DetectorCenter[0] + Width
+    y_min = DetectorCenter[1] - Width
+    y_max = DetectorCenter[1] + Width
 
     if file_format == "lst":
         for i in paths:
@@ -69,7 +68,7 @@ def main():
                 center_x.append(center[0])
                 center_y.append(center[1])
 
-            if distance > 10:
+            if distance > Width:
                 print(i[:-1])
             f.close()
 
@@ -89,7 +88,7 @@ def main():
     ax.set_xlabel("Detector center in x (pixel)")
     ax.set_ylabel("Detector center in y (pixel)")
     X, Y = np.meshgrid(xedges, yedges)
-    pos = ax.pcolormesh(X, Y, H)
+    pos = ax.pcolormesh(X, Y, H, cmap="plasma")
     fig.colorbar(pos)
 
     ax1 = fig.add_subplot(132, title="Projection in  x (pixel)")
@@ -101,9 +100,7 @@ def main():
     mean = sum(x * y) / sum(y)
     sigma = np.sqrt(sum(y * (x - mean) ** 2) / sum(y))
     popt, pcov = curve_fit(gaussian, x, y, p0=[max(y), mean, sigma])
-    # popt, pcov = curve_fit(double_gaussian, x, y, p0=[max(y), 536, sigma, max(y), 541, sigma])
     residuals = y - gaussian(x, *popt)
-    # residuals = y - double_gaussian(x, *popt)
     ss_res = np.sum(residuals**2)
     ss_tot = np.sum((y - np.mean(y)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
@@ -113,7 +110,6 @@ def main():
 
     x_fit = np.arange(xedges[0], xedges[-1], 0.01)
     y_fit = gaussian(x_fit, *popt)
-    # y_fit = double_gaussian(x_fit, *popt)
     ax1.plot(
         x_fit,
         y_fit,

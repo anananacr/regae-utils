@@ -11,6 +11,38 @@ sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
 import geometry_funcs as gf
 
 
+def center_of_mass(data: np.ndarray, mask: np.ndarray = None) -> Tuple[int]:
+    """
+    Adapted from Robert Bücker work on diffractem (https://github.com/robertbuecker/diffractem/tree/master)
+    Bücker, R., Hogan-Lamarre, P., Mehrabi, P. et al. Serial protein crystallography in an electron microscope. Nat Commun 11, 996 (2020). https://doi.org/10.1038/s41467-020-14793-0
+
+    Parameters
+    ----------
+    data: np.ndarray
+        Input data in which center of mass will be calculated. Values equal or less than zero will not be considered.
+    mask: np.ndarray
+        Corresponding mask of data, containing zeros for unvalid pixels and one for valid pixels. Mask shape should be same size of data.
+
+    Returns
+    ----------
+    xc, yc: int
+         coordinates of the diffraction center in x and y, such as the image center corresponds to data[yc, xc].
+    """
+
+    if mask is None:
+        mask = np.ones_like(data)
+    data = data * mask
+    indices = np.where(data > 0)
+    if np.any(data):
+        xc = np.sum(data[indices] * indices[1]) / np.sum(data[indices])
+        yc = np.sum(data[indices] * indices[0]) / np.sum(data[indices])
+    else:
+        xc = 0
+        yc = 0
+
+    return xc, yc
+
+
 def gaussian_lin(
     x: np.ndarray, a: float, x0: float, sigma: float, m: float, n: float
 ) -> np.ndarray:

@@ -10,9 +10,9 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [592, 531]
+DetectorCenter = [590, 530]
 frequency = 12.5
-frames_per_step = 10
+frames_per_step = 100
 
 
 def calculate_time_point_from_path(file_path: str, frame: int):
@@ -56,20 +56,19 @@ def main():
     # print(label)
     center_x = []
     center_y = []
-    x_min = DetectorCenter[0] - 10
-    x_max = DetectorCenter[0] + 10
-    y_min = DetectorCenter[1] - 10
-    y_max = DetectorCenter[1] + 10
+    x_min = DetectorCenter[0] - 20
+    x_max = DetectorCenter[0] + 20
+    y_min = DetectorCenter[1] - 20
+    y_max = DetectorCenter[1] + 20
     time = []
     counts = []
     if file_format == "lst":
         for i in paths[:]:
-            print(i)
             try:
                 f = h5py.File(f"{i[:-1]}", "r")
-                center = np.array(f["refined_center"])
-                intensity = np.array(f["intensity"])
-                file_path = str(np.array(f["id"]))
+                center = np.array(f["data/refined_center"])
+                intensity = np.array(f["data/intensity"])
+                file_path = str(np.array(f["data/id"]))
                 # frame=int(np.array(f["index"]))
                 frame = 0
                 error = math.sqrt(
@@ -108,20 +107,20 @@ def main():
     ax.set_ylabel("Detector center in x (pixel)", fontsize=10)
     ax.set_xlabel("Time (s)")
     # ax.set_xlim(0,8000)
-    ax.scatter(time, center_x, marker=".", s=2)
+    ax.scatter(time, center_x, marker=".", s=10)
 
     ax = fig.add_subplot(312)
 
     ax.set_ylabel("Detector center in y (pixel)", fontsize=10)
     ax.set_xlabel("Time (s)")
-    ax.scatter(time, center_y, color="orange", marker=".", s=2)
+    ax.scatter(time, center_y, color="orange", marker=".", s=10)
     # ax.set_xlim(0,8000)
 
     ax = fig.add_subplot(313)
 
     ax.set_ylabel("Normalized intensity", fontsize=10)
     ax.set_xlabel("Time (s)")
-    ax.scatter(time, norm_intensity, color="green", marker=".", s=2)
+    ax.scatter(time, norm_intensity, color="green", marker=".", s=10)
     # ax.set_xlim(0,8000)
     ax.legend()
     plt.savefig(f"{args.output}/plots/{label}_time.png")

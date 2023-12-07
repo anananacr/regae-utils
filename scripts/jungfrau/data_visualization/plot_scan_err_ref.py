@@ -5,7 +5,6 @@ import argparse
 
 
 def main(raw_args=None):
-
     # argument parser
     parser = argparse.ArgumentParser(
         description="Plot pump and probe scan intensity and FWHM, states on/off and error bars."
