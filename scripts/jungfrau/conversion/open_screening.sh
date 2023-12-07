@@ -23,6 +23,7 @@ mkdir $ROOT/processed/converted/$FOLDER_UP 2> /dev/null
 mkdir $ROOT/processed/assembled/$FOLDER_UP 2> /dev/null
 
 FOLDER=$(echo $INP | cut -d'/' -f2)
+
 mkdir $ROOT/processed/converted/$FOLDER_UP/$FOLDER 2> /dev/null;
 mkdir $ROOT/processed/assembled/$FOLDER_UP/$FOLDER 2> /dev/null;
 
@@ -33,4 +34,4 @@ python save_assembled_images.py -i ${ROOT}/processed/converted/${INP} -g ${ROOT}
 echo "----------------------- Opening image -----------------------"
 module load xray;
 
-adxv ${ROOT}/processed/assembled/*.tif
+adxv ${ROOT}/processed/assembled/
