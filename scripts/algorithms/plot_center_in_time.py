@@ -10,7 +10,7 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [590, 530]
+DetectorCenter = [560, 533]
 frequency = 12.5
 frames_per_step = 100
 
