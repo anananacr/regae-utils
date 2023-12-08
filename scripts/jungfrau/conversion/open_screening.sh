@@ -4,9 +4,20 @@
 
 
 
-SCRIPTS_FOLDER=/home/rodria/scripts/regae/regae-utils/scripts/jungfrau/conversion
+SCRIPTS_FOLDER=/home/rodria/scripts/regae/screen_scripts
 beamtime=11018148
 INP=$1
+
+if [ -z "$1" ]; then
+    echo "Error: Missing the first argument."
+    echo "Usage: $0 <folder_on_raw/ed_screening_00*/folder_on_raw_screen_00*> "
+    echo "Example: $0 <231207_test_screen/ed_screening_002/231207_test_screen_002> "
+
+    exit 1
+fi
+
+echo "Convert images for data: $1"
+
 MODE=screening
 N=$(basename $INP)
 START=0
