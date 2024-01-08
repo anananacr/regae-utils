@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.6
-
 import h5py
 import argparse
 import numpy as np
@@ -8,7 +6,6 @@ import cbf
 import os
 import subprocess as sub
 from PIL import Image
-
 
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -61,7 +58,7 @@ def main(raw_args=None):
     cmd = f"cp {raw_folder}/info.txt {output_folder}"
     sub.call(cmd, shell=True)
 
-    f = h5py.File(f"{args.input}_master.h5", "r")
+    f = h5py.File(f"{args.input}_master_merged.h5", "r")
     size = len(f["data"])
 
     label = (args.input).split("/")[-1]
