@@ -14,76 +14,76 @@ from utils import azimuthal_average, gaussian
 from scipy.signal import find_peaks as find_peaks
 from scipy.optimize import curve_fit
 
-max_frames = 30
+max_frames = 20
 increment_current = 0.1
-height_base = 50
+height_base = 80
 
 initial_guess_x = [
-    548,
-    548,
-    549,
-    550,
-    550,
-    552,
-    552,
-    552,
-    552,
-    552,
-    552,
-    552,
-    552,
+    553,
+    553,
+    553,
+    553,
+    553,
+    553,
+    553,
+    553,
+    553,
+    553,
     553,
     553,
     555,
+    559,
+    559,
+    559,
+    559,
+    559,
+    559,
+    559,
+    559,
     555,
-    556,
-    557,
-    557,
-    557,
-    558,
-    558,
-    558,
-    558,
-    558,
-    558,
-    558,
-    558,
-    558,
-    558,
+    555,
+    555,
+    555,
+    555,
+    555,
+    555,
+    555,
+    555,
+    555,
 ]
 
 initial_guess_y = [
-    544,
-    544,
-    544,
-    544,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
-    543,
+    534,
+    534,
+    534,
+    534,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    535,
+    535,
+    535,
+    535,
+    535,
+    535,
+    535,
+    535,
+    535,
+    535,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
+    533,
 ]
 
 
@@ -110,12 +110,12 @@ def gaussian_lin(
 
 def fit_gaussian(x: list, y: list, peak_position: int):
 
-    if frame_number < 18:
-        #right_leg = 16  # for peak_3
-        right_leg=8
+    if frame_number < 12:
+        right_leg = 16  # for peak_3
+        #right_leg=24
     else:
-        #right_leg = 12  # for peak_3
-        right_leg=6
+        right_leg = 8  # for peak_3
+        #right_leg=20
     a = y[peak_position]
     x = x[peak_position - 10 : peak_position + right_leg]
     y = y[peak_position - 10 : peak_position + right_leg]
@@ -162,25 +162,25 @@ def get_minimum(file_path: str, output: str):
         bins, counts = azimuthal_average(data, center[frame], mask)
         fig, ax = plt.subplots(1, 1, figsize=(10, 10))
         ax.plot(bins, counts)
-        ax.set_ylim(0, 400)
+        ax.set_ylim(0, 600)
         ax.set_xlim(0, 350)
         ax.set_xlabel("Radial distance (pixel)")
         ax.set_ylabel("Average intensity (A.U.)")
 
         peaks, properties = find_peaks(counts, height=height[frame], width=5)
         print(f"{round(frame*increment_current,1)} A", peaks)
-        x = bins[peaks[0]]
-        y = counts[peaks[0]]
+        x = bins[peaks[1]]
+        y = counts[peaks[1]]
         fit_results = fit_gaussian(bins, counts, x)
         fwhm_over_radius.append(fit_results[0])
         popt = fit_results[1]
         r_squared = fit_results[2]
-        if frame_number < 26:
-            #right_leg = 16  # for peak_3
-            right_leg=8
+        if frame_number < 12:
+            right_leg = 16  # for peak_3
+            #right_leg=24
         else:
-            #right_leg = 12  # for peak_3
-            right_leg=6
+            right_leg = 8  # for peak_3
+            #right_leg=20
         x_fit = np.arange(x - 10, x + right_leg, 1)
         y_fit = gaussian_lin(x_fit, *popt)
 
@@ -191,7 +191,7 @@ def get_minimum(file_path: str, output: str):
             label=f"gaussian fit \n a:{round(popt[0],2)} \n r:{round(popt[1],2)} \n sigma:{round(popt[2],2)} \n R² {round(r_squared, 4)}\n FWHM/r : {round(fwhm_over_radius[-1],3)}",
         )
         ax.scatter(x, y, c="r", marker="X", s=100)
-        ax.set_title(f"Sol67 {round(frame*increment_current,1)} A")
+        ax.set_title(f"Sol67 {round(2+(frame*increment_current),1)} A")
         plt.vlines([x - 10, x + right_leg], 0, 500, "r")
         ax.legend()
         plt.savefig(f"{output}/plots/radial_average/au_magnet_scan_{frame}.png")
@@ -227,10 +227,10 @@ def main():
     center = np.zeros((max_frames, 2), dtype=np.int32)
     global height
     height = height_base * np.ones(max_frames + 1)
-    # height_adjusted = [x + 10 if idx >= 18 else x for idx, x in enumerate(height)]
-    # height = height_adjusted.copy()
+    height_adjusted = [x + 50 if idx >= 18 else x for idx, x in enumerate(height)]
+    height = height_adjusted.copy()
     print(height)
-    current = np.arange(0, (max_frames + 1) * increment_current, increment_current)
+    current = np.arange(2, 2+ (max_frames + 1) * increment_current, increment_current)
     print(current)
     x = current
     y = initial_guess_x
