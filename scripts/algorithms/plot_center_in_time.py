@@ -10,9 +10,9 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [560, 533]
-frequency = 12.5
-frames_per_step = 100
+DetectorCenter = [567, 530]
+frequency = 50
+frames_per_step = 240
 
 
 def calculate_time_point_from_path(file_path: str, frame: int):
@@ -98,7 +98,6 @@ def main():
             #    print("OS", i[:-1])
     # print(len(center_x))
     g.close()
-
     norm_intensity = counts / np.median(counts)
 
     fig = plt.figure(figsize=(15, 9))
