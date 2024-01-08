@@ -24,17 +24,18 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-DetectorCenter = [560, 533]
+DetectorCenter = [556, 535]
 MinPeaks = 4
 OuterMask = True
 OuterRadius = 200
+
 """
 ## Auto 
 SearchRadius = 20
 AutoFlag = True
 OutlierDistance = 10
-
 """
+
 ## Fine search
 SearchRadius = 6
 AutoFlag = False
@@ -51,12 +52,12 @@ OutlierDistance = 3
 PF8Config = PF8Info(
     max_num_peaks=10000,
     adc_threshold=0,
-    minimum_snr=5.0,
+    minimum_snr=4.0,
     min_pixel_count=4,
     max_pixel_count=1000,
     local_bg_radius=10,
     min_res=10,
-    max_res=200,
+    max_res=300,
 )
 
 BeamSweepingParam = {
