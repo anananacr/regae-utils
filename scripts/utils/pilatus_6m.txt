@@ -1,0 +1,42 @@
+###CBF: VERSION 1.5, CBFlib v0.7.8 - PILATUS detectors
+
+_array_data.header_convention "PILATUS_1.2"
+_array_data.header_contents
+;
+# Detector: PILATUS 6MF-0109
+# 2013-11-24T20:26:04.601
+# Pixel_size 172e-6 m x 172e-6 m
+# Silicon sensor, thickness 0.000320 m
+# Exposure_time 0.9900000 s
+# Exposure_period 1.0000000 s
+# Tau = 199.1e-09 s
+# Count_cutoff 1385515 counts
+# Threshold_setting: 6000 eV
+# Gain_setting: mid gain (vrf = -0.200)
+# N_excluded_pixels = 825
+# Excluded_pixels: badpix_mask.tif
+# Flat_field: (nil)
+# Trim_file: p6m0109_E11999_T6000_vrf_m0p20.bin
+# Image_path: /ramdisk/10010762/test/test_1/
+# Wavelength 1.03320 A
+# Detector_distance 1.00000 m
+# Beam_xy (1277.00, 1246.00) pixels
+# Start_angle 0.0000 deg.
+# Angle_increment 1.0000 deg.
+;
+
+_array_data.data
+;
+--CIF-BINARY-FORMAT-SECTION--
+Content-Type: application/octet-stream;
+     conversions="x-CBF_BYTE_OFFSET"
+Content-Transfer-Encoding: BINARY
+X-Binary-Size: 6224001
+X-Binary-ID: 1
+X-Binary-Element-Type: "signed 32-bit integer"
+X-Binary-Element-Byte-Order: LITTLE_ENDIAN
+Content-MD5: oHwKes1U7PeNPYazIdyw/A==
+X-Binary-Number-of-Elements: 6224001
+X-Binary-Size-Fastest-Dimension: 2463
+X-Binary-Size-Second-Dimension: 2527
+X-Binary-Size-Padding: 4095

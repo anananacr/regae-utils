@@ -8,8 +8,8 @@ import h5py
 import math
 from scipy.optimize import curve_fit
 
-DetectorCenter = [556, 535]
-Width = 8
+DetectorCenter = [567, 530]
+Width = 10
 
 def main():
     parser = argparse.ArgumentParser(description="Plot calculated center distribution.")

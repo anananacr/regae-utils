@@ -10,7 +10,6 @@ import subprocess as sub
 import os
 import matplotlib.colors as color
 
-#fly_frames_to_merge = 10
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser(

@@ -58,7 +58,7 @@ def main(raw_args=None):
     cmd = f"cp {raw_folder}/info.txt {output_folder}"
     sub.call(cmd, shell=True)
 
-    f = h5py.File(f"{args.input}_master_merged.h5", "r")
+    f = h5py.File(f"{args.input}_master.h5", "r")
     size = len(f["data"])
 
     label = (args.input).split("/")[-1]
@@ -77,7 +77,7 @@ def main(raw_args=None):
         corr_frame[np.where(corr_frame <= 0)] = -1
 
         # cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
-        Image.fromarray(corr_frame).save(f"{args.output}/{label}_{i:06}.tif")
+        Image.fromarray(corr_frame).save(f"{args.output}/{label[:-7]}_{i:06}.tif")
 
     f.close()
 
