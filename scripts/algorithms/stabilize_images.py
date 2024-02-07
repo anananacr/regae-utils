@@ -89,7 +89,9 @@ def main():
             h, w = assembled_data.shape
             shift = [int(np.round(w / 2 - center[0])), int(np.round(h / 2 - center[1]))]
             # print(basename, center, w / 2, h / 2, shift)
+            #h5_file = h5py.File(f"{converted_path}/{basename[:-11]}_merged_master.h5", "r")
             h5_file = h5py.File(f"{converted_path}/{basename[:-11]}_master.h5", "r")
+
             data = np.array(h5_file["data"][index])
             masked_data = data * mask
             h5_file.close()

@@ -1,5 +1,3 @@
-#!/usr/bin/env python3.7
-
 from typing import List, Optional, Callable, Tuple, Any, Dict
 import fabio
 import sys
@@ -24,22 +22,24 @@ import matplotlib.pyplot as plt
 import h5py
 import om.utils.crystfel_geometry as crystfel_geometry
 
-DetectorCenter = [590, 528]
+DetectorCenter = [559, 530]
 MinPeaks = 4
 OuterMask = True
 OuterRadius = 200
 
+"""
 ## Auto 
 SearchRadius = 20
 AutoFlag = True
 OutlierDistance = 10
+"""
 
-"""
 ## Fine search
-SearchRadius = 8
+SearchRadius = 6
 AutoFlag = False
-OutlierDistance = 4
-"""
+OutlierDistance = 3
+
+
 """
 ## Ramping machine
 SearchRadius = 6
@@ -50,12 +50,12 @@ OutlierDistance = 3
 PF8Config = PF8Info(
     max_num_peaks=10000,
     adc_threshold=0,
-    minimum_snr=4.0,
+    minimum_snr=5.0,
     min_pixel_count=4,
     max_pixel_count=1000,
     local_bg_radius=10,
     min_res=10,
-    max_res=200,
+    max_res=300,
 )
 
 BeamSweepingParam = {

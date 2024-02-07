@@ -31,8 +31,8 @@ for i in $(seq $START 1 $END); do
     echo "#SBATCH --nice=0" >> $SLURMFILE
     echo "#SBATCH --mincpus=4" >> $SLURMFILE
     echo "#SBATCH --mem=4G" >> $SLURMFILE
-    echo "#SBATCH --mail-type=ALL" >> $SLURMFILE
-    echo "#SBATCH --mail-user=errodriguesana@gmail.com" >> $SLURMFILE
+    #echo "#SBATCH --mail-type=ALL" >> $SLURMFILE
+    #echo "#SBATCH --mail-user=errodriguesana@gmail.com" >> $SLURMFILE
     echo >> $SLURMFILE
     echo "unset LD_PRELOAD" >> $SLURMFILE
     echo "source /etc/profile.d/modules.sh" >> $SLURMFILE
@@ -40,7 +40,7 @@ for i in $(seq $START 1 $END); do
     echo "module load maxwell python/3.7" >> $SLURMFILE
     echo "source /home/rodria/scripts/regae/env-regae/bin/activate" >> $SLURMFILE
     echo >> $SLURMFILE
-    command="./find_center_friedel.py -i ${ROOT}/${INPUT}/lists/${LIST_NAME} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT}/${LABEL} -g ${ROOT}/../geom/JF_regae_v4.geom;"
+    command="python find_center_friedel.py -i ${ROOT}/${INPUT}/lists/${LIST_NAME} -m ${ROOT}/${INPUT}/lists/mask_regae.lst -o ${ROOT}/${INPUT}/${LABEL} -g ${ROOT}/../geom/JF_regae_v4.geom;"
 
     echo $command >> $SLURMFILE
     echo "chmod a+rw $PWD" >> $SLURMFILE
