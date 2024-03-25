@@ -8,7 +8,6 @@ import subprocess as sub
 from PIL import Image
 import math
 import os
-import cv2
 from numpy import exp
 from utils import azimuthal_average, gaussian
 from scipy.signal import find_peaks as find_peaks
@@ -108,17 +107,11 @@ def gaussian_lin(
     return m * x + n + a * exp(-((x - x0) ** 2) / (2 * sigma**2))
 
 
-def fit_gaussian(x: list, y: list, peak_position: int):
-
-    if frame_number < 12:
-        right_leg = 16  # for peak_3
-        #right_leg=24
-    else:
-        right_leg = 8  # for peak_3
-        #right_leg=20
+def fit_gaussian(x: list, y: list, peak_position: int, right_leg:int):
+   
     a = y[peak_position]
-    x = x[peak_position - 10 : peak_position + right_leg]
-    y = y[peak_position - 10 : peak_position + right_leg]
+    x = x[peak_position - right_leg : peak_position + right_leg]
+    y = y[peak_position - right_leg : peak_position + right_leg]
 
     m0 = (y[-1] - y[0]) / (x[-1] - x[0])
     n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2

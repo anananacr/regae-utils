@@ -1,329 +1,117 @@
-#!/usr/bin/env python3.7
-
-from typing import List, Optional, Callable, Tuple, Any, Dict
-import fabio
-import sys
-import random
-from datetime import datetime
-import os
-
-sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
-import geometry_funcs as gf
-import argparse
-import numpy as np
-from utils import (
-    get_format,
-    open_fwhm_map,
-    open_fwhm_map_global_min,
-    gaussian_lin,
-    azimuthal_average,
-)
-from PIL import Image
-import itertools
-import multiprocessing
-import math
-import matplotlib.pyplot as plt
-import subprocess as sub
-from scipy.optimize import curve_fit
 import h5py
-import om.utils.crystfel_geometry as crystfel_geometry
+import hdf5plugin
+import numpy as np
+from bblib.methods import CenterOfMass, FriedelPairs, MinimizePeakFWHM, CircleDetection
+from bblib.models import PF8Info, PF8
+import fabio
+import matplotlib.pyplot as plt
+import om.lib.geometry as geometry
+import sys
+from utils import azimuthal_average, gaussian
+from scipy.signal import find_peaks as find_peaks
+from scipy.optimize import curve_fit
+from optimize_magnet import fit_gaussian
+import matplotlib
+matplotlib.use('Qt5Agg')
 
-Frame = 15
-DetectorCenter = [592, 533]
-PeakIndex = 127
-Width = 10
+increment_current=float(sys.argv[2])
 
+if sys.argv[3]== '-':
+    height = 130
+else: 
+    height = int(sys.argv[3])
 
-def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
-    ## Apply crystfel geomtry file .geom
-    geometry, _, __ = crystfel_geometry.load_crystfel_geometry(geometry_filename)
-    _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
+if sys.argv[4] == '-':
+    width=4.0
+else:
+    width = float(sys.argv[4])
 
-    y_minimum: int = (
-        2 * int(max(abs(_pixelmaps["y"].max()), abs(_pixelmaps["y"].min()))) + 2
+config = {
+    "plots_flag": False,
+	"pf8": {
+		"max_num_peaks": 10000,
+		"adc_threshold": 0,
+		"minimum_snr": 5,
+		"min_pixel_count": 2,
+		"max_pixel_count": 10000,
+		"local_bg_radius": 3,
+		"min_res": 0,
+		"max_res": 1200
+		},
+	"peak_region":{
+		"min": 60,
+		"max": 100
+		},
+	"canny":{
+		"sigma": 3,
+		"low_threshold": 0.97,
+		"high_threshold": 0.99
+		},	
+	"bragg_peaks_positions_for_center_of_mass_calculation": 0,
+	"pixels_for_mask_of_bragg_peaks": 5
+}
+
+PF8Config=PF8Info(
+        max_num_peaks=config["pf8"]["max_num_peaks"],
+        adc_threshold=config["pf8"]["adc_threshold"],
+        minimum_snr=config["pf8"]["minimum_snr"],
+        min_pixel_count=config["pf8"]["min_pixel_count"],
+        max_pixel_count=config["pf8"]["max_pixel_count"],
+        local_bg_radius=config["pf8"]["local_bg_radius"],
+        min_res=config["pf8"]["min_res"],
+        max_res=config["pf8"]["max_res"]
     )
-    x_minimum: int = (
-        2 * int(max(abs(_pixelmaps["x"].max()), abs(_pixelmaps["x"].min()))) + 2
-    )
-    visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
-    _img_center_x: int = int(visual_img_shape[1] / 2)
-    _img_center_y: int = int(visual_img_shape[0] / 2)
 
-    corr_data = crystfel_geometry.apply_geometry_to_data(data, geometry)
-    return corr_data
+geometry_filename="/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/geoms/JF_regae_v4_altered.geom"
 
+PF8Config.set_geometry_from_file(geometry_filename)
+data_visualize = geometry.DataVisualizer(pixel_maps=PF8Config.pixel_maps)
 
-def calculate_fwhm(data_and_coordinates: tuple) -> Dict[str, int]:
-    corrected_data, mask, center_to_radial_average = data_and_coordinates
-    x, y = azimuthal_average(corrected_data, center=center_to_radial_average, mask=mask)
-    x_all = x.copy()
-    y_all = y.copy()
-    # Plot all radial average
-    if plot_flag:
-        fig, ax1 = plt.subplots(1, 1, figsize=(5, 5))
-        plt.plot(x, y)
+with h5py.File(f"{PF8Config.bad_pixel_map_filename}", "r") as f:
+    mask = np.array(f[f"{PF8Config.bad_pixel_map_hdf5_path}"])
 
-    ## Define powder ring peak region
+hdf5_file=sys.argv[1]
+f = h5py.File(hdf5_file, "r")
+shape=f["data"].shape
+fwhm_over_radius=[]
+peaks_pos=[]
+for frame in range(shape[0]):
 
-    a = y[PeakIndex]
-    x = x[PeakIndex - Width : PeakIndex + Width]
-    y = y[PeakIndex - Width : PeakIndex + Width]
-
-    m0 = (y[-1] - y[0]) / (x[-1] - x[0])
-    n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
-    y_linear = m0 * x + n0
-    y_gaussian = y - y_linear
-
-    mean = sum(x * y_gaussian) / sum(y_gaussian)
-    sigma = np.sqrt(sum(y_gaussian * (x - mean) ** 2) / sum(y_gaussian))
-    try:
-        popt, pcov = curve_fit(
-            gaussian_lin, x, y, p0=[max(y_gaussian), mean, sigma, m0, n0]
-        )
-        fwhm = popt[2] * math.sqrt(8 * np.log(2))
-        ## Divide by radius of the peak to get shasrpness ratio
-        fwhm_over_radius = fwhm / popt[1]
-
-        ##Calculate residues
-        residuals = y - gaussian_lin(x, *popt)
-        ss_res = np.sum(residuals**2)
-        ss_tot = np.sum((y - np.mean(y)) ** 2)
-        r_squared = 1 - (ss_res / ss_tot)
-    except:
-        r_squared = 1
-        fwhm = 800
-        fwhm_over_radius = 800
-        popt = []
-
-    ## Display plots
-    if plot_flag and len(popt) > 0:
-        x_fit = x.copy()
-        y_fit = gaussian_lin(x_fit, *popt)
-
-        plt.vlines([x[0], x[-1]], 0, 3 * round(popt[0]), "r")
-
-        plt.plot(
-            x_fit,
-            y_fit,
-            "r--",
-            label=f"gaussian fit \n a:{round(popt[0],2)} \n x0:{round(popt[1],2)} \n sigma:{round(popt[2],2)} \n R² {round(r_squared, 4)}\n FWHM : {round(fwhm,3)}",
-        )
-        plt.title("Azimuthal integration")
-        plt.xlim(0, 350)
-        plt.ylim(0, 2 * round(popt[0]))
-        plt.legend()
-        plt.savefig(
-            f"{args.output}/plots/gaussian_fit/{stamp}_{center_to_radial_average[0]}_{center_to_radial_average[1]}.png"
-        )
-        plt.close()
-
-    return {
-        "xc": center_to_radial_average[0],
-        "yc": center_to_radial_average[1],
-        "fwhm": fwhm,
-        "fwhm_over_radius": fwhm_over_radius,
-        "r_squared": r_squared,
+    plots_info={
+	"file_name": f"test_{frame}",
+	"folder_name": "powder",
+	"root_path": "/home/rodria/bb"
     }
+    data = np.array(f["/data"][frame], dtype=np.int32)
+    
+    PF8Config.set_geometry_from_file(geometry_filename)
+    circle_detection_method = CircleDetection(
+                            config=config, PF8Config=PF8Config, plots_info=plots_info
+                        )
+    center_coordinates_from_circle_detection = circle_detection_method(
+                            data = data
+                        )
+    visual_data = data_visualize.visualize_data(data=data * mask)
+    visual_mask = data_visualize.visualize_data(data=mask)
 
+    bins, counts = azimuthal_average(visual_data, center_coordinates_from_circle_detection, visual_mask)
+    peaks, properties = find_peaks(counts, height=height, width=width)
+    x = bins[peaks[0]]
+    y = counts[peaks[0]]
+    peaks_pos.append(bins[peaks[0]]*75e-3)
+    fit_results = fit_gaussian(bins, counts, x, right_leg=7)
+    fwhm_over_radius.append(fit_results[0])
 
-def main():
-    parser = argparse.ArgumentParser(
-        description="Calculate center of diffraction patterns fro MHz beam sweeping serial crystallography."
-    )
-    parser.add_argument(
-        "-i",
-        "--input",
-        type=str,
-        action="store",
-        help="path to list of data files .lst",
-    )
+f.close()
 
-    parser.add_argument(
-        "-m", "--mask", type=str, action="store", help="path to list of mask files .lst"
-    )
+current = np.arange(0, increment_current * (shape[0]), increment_current)
+fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(10, 5))
+ax1.scatter(current, peaks_pos, c="b")
+ax1.set_xlabel("Current Sol67(A)")
+ax1.set_ylabel("Peak radius (mm)")
 
-    parser.add_argument(
-        "-g",
-        "--geom",
-        type=str,
-        action="store",
-        help="CrystFEL geometry filename",
-    )
-
-    parser.add_argument(
-        "-o", "--output", type=str, action="store", help="path to output data files"
-    )
-    global args
-    args = parser.parse_args()
-
-    files = open(args.input, "r")
-    paths = files.readlines()
-    files.close()
-
-    if args.mask:
-        mask_files = open(args.mask, "r")
-        mask_paths = mask_files.readlines()
-        mask_files.close()
-    else:
-        mask_paths = []
-
-    file_format = get_format(args.input)
-
-    ### Extract geometry file
-    x_map, y_map, det_dict = gf.pixel_maps_from_geometry_file(
-        args.geom, return_dict=True
-    )
-    y_minimum: int = 2 * int(max(abs(y_map.max()), abs(y_map.min()))) + 2
-    x_minimum: int = 2 * int(max(abs(x_map.max()), abs(x_map.min()))) + 2
-    visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
-    _img_center_x: int = int(visual_img_shape[1] / 2)
-    _img_center_y: int = int(visual_img_shape[0] / 2)
-
-    preamb, dim_info = gf.read_geometry_file_preamble(args.geom)
-    dist_m = preamb["coffset"]
-    res = preamb["res"]
-    clen = preamb["clen"]
-    dist = 0.0
-
-    # print('Det',det_dict)
-
-    # global DetectorCenter
-
-    # DetectorCenter=[_img_center_x, _img_center_y]
-
-    print(DetectorCenter)
-    # output_folder = os.path.dirname(args.output)
-
-    label = (
-        (args.output).split("/")[-1]
-        + "_"
-        + ((args.input).split("/")[-1]).split(".")[-1][3:]
-    )
-    global stamp
-    global plot_flag
-    plot_flag = False
-
-    if file_format == "lst":
-        # for i in range(0, len(paths[:])):
-
-        for i in range(Frame, Frame + 1):
-            stamp = f"magnet_scan_{i}"
-
-            file_name = paths[i][:-1]
-            if len(mask_paths) > 0:
-                mask_file_name = mask_paths[0][:-1]
-            else:
-                mask_file_name = False
-
-            if get_format(file_name) == "cbf":
-                data = np.array(fabio.open(f"{file_name}").data)
-            elif get_format(file_name) == "h":
-                f = h5py.File(f"{file_name}", "r")
-                data = np.array(f["data"])
-                f.close()
-            elif get_format(file_name) == "tif":
-                data = np.array(Image.open(file_name))
-
-            if not mask_file_name:
-                mask = np.ones(data.shape)
-            else:
-                if get_format(mask_file_name) == "cbf":
-                    xds_mask = np.array(fabio.open(f"{mask_file_name}").data)
-                    # Mask of defective pixels
-                    xds_mask[np.where(xds_mask <= 0)] = 0
-                    xds_mask[np.where(xds_mask > 0)] = 1
-                    # Mask hot pixels
-                    xds_mask[np.where(data > 1e5)] = 0
-                    mask = xds_mask
-                elif get_format(mask_file_name) == "h":
-                    f = h5py.File(f"{mask_file_name}", "r")
-                    mask = np.array(f["data/data"])
-                    mask = np.array(mask, dtype=np.int32)
-                    mask = apply_geom(mask, args.geom)
-                    f.close()
-
-            corrected_data = data
-
-            # Mask of defective pixels
-            mask[np.where(corrected_data < 0)] = 0
-            # Mask hot pixels
-            # mask[np.where(corrected_data > 1e5)] = 0
-
-            now = datetime.now()
-            print(f"Current begin time = {now}")
-
-            ## Grid search of shifts around the detector center
-
-            pixel_step = 1
-            xx, yy = np.meshgrid(
-                np.arange(
-                    DetectorCenter[0] - 3, DetectorCenter[0] + 4, pixel_step, dtype=int
-                ),
-                np.arange(
-                    DetectorCenter[1] - 3, DetectorCenter[1] + 4, pixel_step, dtype=int
-                ),
-            )
-
-            coordinates = np.column_stack((np.ravel(xx), np.ravel(yy)))
-            coordinates_anchor_data = [
-                (corrected_data, mask, shift) for shift in coordinates
-            ]
-
-            fwhm_summary = []
-            for shift in coordinates_anchor_data:
-                fwhm_summary.append(calculate_fwhm(shift))
-            ## Display plots
-            fit = open_fwhm_map(
-                fwhm_summary, args.output, f"fine_{label}_{i}", pixel_step
-            )
-
-            if not fit:
-                xc, yc = open_fwhm_map_global_min(
-                    fwhm_summary, args.output, f"{label}_{i}", pixel_step
-                )
-            else:
-                xc, yc = fit
-            refined_center = (np.around(xc, 1), np.around(yc, 1))
-
-            plot_flag = True
-            results = calculate_fwhm((corrected_data, mask, (xc, yc)))
-            plot_flag = False
-
-            fig, ax = plt.subplots(1, 1, figsize=(8, 8))
-            pos = ax.imshow(corrected_data * mask, vmax=200, cmap="cividis")
-            ax.scatter(
-                DetectorCenter[0],
-                DetectorCenter[1],
-                color="lime",
-                marker="+",
-                s=150,
-                label=f"Initial center:({DetectorCenter[0]},{DetectorCenter[1]})",
-            )
-            ax.scatter(
-                refined_center[0],
-                refined_center[1],
-                color="r",
-                marker="o",
-                s=25,
-                label=f"Refined center:({refined_center[0]}, {refined_center[1]})",
-            )
-            ax.set_xlim(100, 1000)
-            ax.set_ylim(1000, 100)
-            plt.title("Center refinement: FWHM minimization")
-            fig.colorbar(pos, shrink=0.6)
-            ax.legend()
-            plt.savefig(f"{args.output}/plots/centered/{label}_{i}.png")
-            plt.close()
-
-            if args.output:
-                f = h5py.File(f"{args.output}/h5_files/{label}_{i}.h5", "w")
-                f.create_dataset("hit", data=1)
-                f.create_dataset("id", data=file_name)
-                f.create_dataset("intensity", data=np.sum(corrected_data * mask))
-                f.create_dataset("refined_center", data=refined_center)
-            now = datetime.now()
-            print(f"Current end time = {now}")
-
-
-if __name__ == "__main__":
-    main()
+ax2.scatter(current, fwhm_over_radius, c="b")
+ax2.set_xlabel("Current Sol67(A)")
+ax2.set_ylabel("FWHM/r")
+plt.title(f"Sol67 optimization")
+plt.show()
