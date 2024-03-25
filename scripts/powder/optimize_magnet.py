@@ -1,7 +1,7 @@
 import h5py
 import hdf5plugin
 import numpy as np
-from bblib.methods import CenterOfMass, FriedelPairs, MinimizePeakFWHM, CircleDetection
+from bblib.methods import CircleDetection
 from bblib.models import PF8Info, PF8
 import fabio
 import matplotlib.pyplot as plt
