@@ -1,18 +1,16 @@
 # regae-utils
 
-Python library for data analysis from REGAE - Deutsches Elektronen-Synchrotron (DESY).
+Python scripts for data processing at REGAE - Deutsches Elektronen-Synchrotron (DESY).
 
 ## Authors:
 
-Ana Carolina Rodrigues
+Ana Carolina Rodrigues (2021 - )
 
 Mail: ana.rodrigues@desy.de
 
 ## Dependencies:
 
-* Python 3.7.13 (default, Jun 21 2022, 17:24:56) 
-[GCC 4.8.5 20150623 (Red Hat 4.8.5-44)] on linux
-
+* Python 3.10.5
 * requirements.txt
 
 ## Presentations
@@ -56,14 +54,6 @@ python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/p
 
 ## Data analysis
 
-### Save movie
-On /jungfrau/data_visualization/ folder
-
-python make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*/file_label -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/output_folder -l file_label &
-
-Example:
-python make_movie.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231020_mos_c3_ms_001/ed_rot_step_002/231020_mos_c3_ms_001_002 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231020_mos_c3_ms_001/ed_rot_step_002/plots/img -l 231020_mos_c3_ms_001_002_step &
-
 ### Center refinement
 
 ./turbo_center.sh folder_on_raw/ed_rot_scantype_00* list_file_label start_index end_index
@@ -86,7 +76,11 @@ python plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scr
 ### Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
 Example:
-python optimize_magnet.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/magnet_scan/mos2_magnet_scan -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/magnet_scan/plots
+
+python optimize_magnet.py /path/to/converted/file/ current_increment min_peak_height peak_width
+
+python optimize_magnet.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231221_au_ref_scan/ed_magnet_step_001/231221_au_ref_scan_001_master.h5 0.1 130 4
+
 
 ### Stabilize images
 
