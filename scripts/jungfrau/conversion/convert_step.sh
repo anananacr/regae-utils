@@ -7,8 +7,8 @@
 #SBATCH --mem=8G
 
 #SBATCH --job-name  convert_jf
-#SBATCH --output /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mos_3-%N-%j.out
-#SBATCH --error /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/converted/error/mos_3-%N-%j.err
+#SBATCH --output /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/error/231130_mica-%N-%j.out
+#SBATCH --error /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/error/231130_mica-%N-%j.err
 
 
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
@@ -35,6 +35,12 @@ END=$4
 N=$(basename $INP)
 
 if [ "$MODE" == "step" ];
+then
+  MODE_NUMBER=1
+elif [ "$MODE" == "magnet" ];
+then
+  MODE_NUMBER=1
+elif [ "$MODE" == "screening" ];
 then
   MODE_NUMBER=1
 else

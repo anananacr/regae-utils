@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 import h5py
 import argparse
 import numpy as np
@@ -6,24 +8,6 @@ import cbf
 import os
 import subprocess as sub
 from PIL import Image
-
-def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
-    ## Apply crystfel geomtry file .geom
-    geometry, _, __ = crystfel_geometry.load_crystfel_geometry(geometry_filename)
-    _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
-
-    y_minimum: int = (
-        2 * int(max(abs(_pixelmaps["y"].max()), abs(_pixelmaps["y"].min()))) + 2
-    )
-    x_minimum: int = (
-        2 * int(max(abs(_pixelmaps["x"].max()), abs(_pixelmaps["x"].min()))) + 2
-    )
-    visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
-    _img_center_x: int = int(visual_img_shape[1] / 2)
-    _img_center_y: int = int(visual_img_shape[0] / 2)
-
-    corr_data = crystfel_geometry.apply_geometry_to_data(data, geometry)
-    return corr_data.astype(np.int32)
 
 
 def main(raw_args=None):
@@ -41,17 +25,6 @@ def main(raw_args=None):
         "-o", "--output", type=str, action="store", help="hdf5 output path"
     )
     args = parser.parse_args(raw_args)
-
-    geometry, _, __ = crystfel_geometry.load_crystfel_geometry(args.geom)
-    _pixelmaps: TypePixelMaps = crystfel_geometry.compute_pix_maps(geometry)
-
-    y_minimum: int = (
-        2 * int(max(abs(_pixelmaps["y"].max()), abs(_pixelmaps["y"].min()))) + 2
-    )
-    x_minimum: int = (
-        2 * int(max(abs(_pixelmaps["x"].max()), abs(_pixelmaps["x"].min()))) + 2
-    )
-    visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
 
     raw_folder = os.path.dirname(args.input)
     output_folder = args.output
@@ -71,13 +44,13 @@ def main(raw_args=None):
             print("skipped", i)
             continue
         corr_frame = np.zeros(
-            (visual_img_shape[0], visual_img_shape[1]), dtype=np.int32
+            (1024,1024), dtype=np.int32
         )
-        corr_frame = apply_geom(raw, args.geom)
+        corr_frame = raw
         corr_frame[np.where(corr_frame <= 0)] = -1
 
         # cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
-        Image.fromarray(corr_frame).save(f"{args.output}/{label[:-7]}_{i:06}.tif")
+        Image.fromarray(corr_frame).save(f"{args.output}/{label}_{i:06}.tif")
 
     f.close()
 

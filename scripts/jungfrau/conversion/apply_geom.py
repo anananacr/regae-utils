@@ -68,7 +68,6 @@ def main(raw_args=None):
     visual_img_shape: Tuple[int, int] = (y_minimum, x_minimum)
 
     for idx, i in enumerate(index):
-
         f = h5py.File(f"{args.input}_master_{i}.h5", "r")
 
         size = len(f["data"])

@@ -30,7 +30,6 @@ for j in size:
     acc_int = 0
     acc_ang = 0
     for idx, i in enumerate(pair):
-
         if idx % 6 == 0:
             if idx == 6:
                 print(acc_int, acc_ang, pair[0:6])

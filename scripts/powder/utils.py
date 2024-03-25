@@ -6,10 +6,9 @@ import math
 import json
 import pandas as pd
 import sys
-
+from scipy.optimize import curve_fit
 sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
 import geometry_funcs as gf
-
 
 def gaussian_lin(
     x: np.ndarray, a: float, x0: float, sigma: float, m: float, n: float
@@ -98,250 +97,31 @@ def azimuthal_average(
     return radius, px_bin / r_bin
 
 
-def get_format(file_path: str) -> str:
-    """
-    Return file format with only alphabet letters.
-    Parameters
-    ----------
-    file_path: str
+def fit_gaussian(x: list, y: list, peak_position: int, right_leg:int):
+   
+    a = y[peak_position]
+    x = x[peak_position - right_leg : peak_position + right_leg]
+    y = y[peak_position - right_leg : peak_position + right_leg]
 
-    Returns
-    ----------
-    extension: str
-        File format contanining only alphabetical letters
-    """
-    ext = (file_path.split("/")[-1]).split(".")[-1]
-    filt_ext = ""
-    for i in ext:
-        if i.isalpha():
-            filt_ext += i
-    return str(filt_ext)
+    m0 = (y[-1] - y[0]) / (x[-1] - x[0])
+    n0 = ((y[-1] + y[0]) - m0 * (x[-1] + x[0])) / 2
+    y_linear = m0 * x + n0
+    y_gaussian = y - y_linear
 
+    mean = sum(x * y_gaussian) / sum(y_gaussian)
+    sigma = np.sqrt(sum(y_gaussian * (x - mean) ** 2) / sum(y_gaussian))
 
-def open_fwhm_map_global_min(
-    lines: list, output_folder: str, label: str, pixel_step: int
-):
-    """
-    Open FWHM grid search optmization plot, fit projections in both axis to get the point of maximum sharpness of the radial average.
-    Parameters
-    ----------
-    lines: list
-        Output of grid search for FWHM optmization, each line should contain a dictionary contaning entries for xc, yc and fwhm_over_radius.
-    """
-    n = int(math.sqrt(len(lines)))
+    popt, pcov = curve_fit(
+        gaussian_lin, x, y, p0=[max(y_gaussian), mean, sigma, m0, n0]
+    )
+    fwhm = popt[2] * math.sqrt(8 * np.log(2))
+    ## Divide by radius of the peak to get shasrpness ratio
+    fwhm_over_radius = fwhm / popt[1]
 
-    merged_dict = {}
-    for dictionary in lines[:]:
-
-        for key, value in dictionary.items():
-            if key in merged_dict:
-                merged_dict[key].append(value)
-            else:
-                merged_dict[key] = [value]
-
-    # Create a figure with three subplots
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 10))
-
-    # Extract x, y, and z from merged_dict
-
-    x = np.array(merged_dict["xc"]).reshape((n, n))[0]
-    y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
-    z = np.array(merged_dict["fwhm"], dtype=np.float64).reshape((n, n))
-    r = np.array(merged_dict["r_squared"]).reshape((n, n))
-
-    pos1 = ax1.imshow(z, cmap="rainbow")
-    step = 5
-    n = z.shape[0]
-    ax1.set_xticks(np.arange(0, n, step, dtype=int))
-    ax1.set_yticks(np.arange(0, n, step, dtype=int))
-    step = step * (abs(x[0] - x[1]))
-    ax1.set_xticklabels(np.arange(x[0], x[-1] + step, step, dtype=int))
-    ax1.set_yticklabels(np.arange(y[0], y[-1] + step, step, dtype=int))
-
-    ax1.set_ylabel("yc [px]")
-    ax1.set_xlabel("xc [px]")
-    ax1.set_title("FWHM")
-
-    pos2 = ax2.imshow(r, cmap="rainbow")
-    step = 5
-    n = z.shape[0]
-    ax2.set_xticks(np.arange(0, n, step, dtype=int))
-    ax2.set_yticks(np.arange(0, n, step, dtype=int))
-    step = step * (abs(x[0] - x[1]))
-    ax2.set_xticklabels(np.arange(x[0], x[-1] + step, step, dtype=int))
-    ax2.set_yticklabels(np.arange(y[0], y[-1] + step, step, dtype=int))
-
-    ax2.set_ylabel("yc [px]")
-    ax2.set_xlabel("xc [px]")
-    ax2.set_title("R²")
-
-    proj_x = np.sum(z, axis=0)
-    x = np.arange(x[0], x[-1] + pixel_step, pixel_step)
-    index_x = np.unravel_index(np.argmin(proj_x, axis=None), proj_x.shape)
-    # print(index_x)
-    xc = x[index_x]
-    ax3.scatter(x, proj_x, color="b")
-    ax3.scatter(xc, proj_x[index_x], color="r", label=f"xc: {xc}")
-    ax3.set_ylabel("Average FWHM")
-    ax3.set_xlabel("xc [px]")
-    ax3.set_title("FWHM projection in x")
-    ax3.legend()
-
-    proj_y = np.sum(z, axis=1)
-    x = np.arange(y[0], y[-1] + pixel_step, pixel_step)
-    index_y = np.unravel_index(np.argmin(proj_y, axis=None), proj_y.shape)
-    yc = x[index_y]
-    ax4.scatter(x, proj_y, color="b")
-    ax4.scatter(yc, proj_y[index_y], color="r", label=f"yc: {yc}")
-    ax4.set_ylabel("Average FWHM")
-    ax4.set_xlabel("yc [px]")
-    ax4.set_title("FWHM projection in y")
-    ax4.legend()
-
-    fig.colorbar(pos1, ax=ax1, shrink=0.6)
-    fig.colorbar(pos2, ax=ax2, shrink=0.6)
-
-    # Display the figure
-
-    # plt.show()
-    plt.savefig(f"{output_folder}/plots/fwhm_map/{label}.png")
-    plt.close()
-    return xc, yc
-
-
-def quadratic(x, a, b, c):
-    """
-    Quadratic function.
-
-    Parameters
-    ----------
-    x: np.ndarray
-        x array of the spectrum.
-    a, b, c: float
-        quadratic parameters
-
-    Returns
-    ----------
-    y: np.ndarray
-        value of the function evaluated
-    """
-    return a * x**2 + b * x + c
-
-
-def open_fwhm_map(lines: list, output_folder: str, label: str, pixel_step: int):
-    """
-    Open FWHM grid search optmization plot, fit projections in both axis to get the point of maximum sharpness of the radial average.
-    Parameters
-    ----------
-    lines: list
-        Output of grid search for FWHM optmization, each line should contain a dictionary contaning entries for xc, yc and fwhm_over_radius.
-    """
-    n = int(math.sqrt(len(lines)))
-
-    merged_dict = {}
-    for dictionary in lines[:]:
-
-        for key, value in dictionary.items():
-            if key in merged_dict:
-                merged_dict[key].append(value)
-            else:
-                merged_dict[key] = [value]
-
-    # Create a figure with three subplots
-    fig, ((ax1, ax2), (ax3, ax4)) = plt.subplots(2, 2, figsize=(10, 10))
-
-    # Extract x, y, and z from merged_dict
-
-    x = np.array(merged_dict["xc"]).reshape((n, n))[0]
-    y = np.array(merged_dict["yc"]).reshape((n, n))[:, 0]
-    z = np.array(merged_dict["fwhm"]).reshape((n, n))
-    r = np.array(merged_dict["r_squared"]).reshape((n, n))
-
-    index_y, index_x = np.where(z == np.min(z))
-    pos1 = ax1.imshow(z, cmap="rainbow")
-    step = 2
-    n = z.shape[0]
-    ax1.set_xticks(np.arange(0, n, step, dtype=int))
-    ax1.set_yticks(np.arange(0, n, step, dtype=int))
-    step = step * (abs(x[0] - x[1]))
-    ax1.set_xticklabels(np.arange(x[0], x[-1] + step, step, dtype=int))
-    ax1.set_yticklabels(np.arange(y[0], y[-1] + step, step, dtype=int))
-
-    ax1.set_ylabel("yc [px]")
-    ax1.set_xlabel("xc [px]")
-    ax1.set_title("FWHM")
-
-    pos2 = ax2.imshow(r, cmap="rainbow")
-    step = 2
-    n = z.shape[0]
-    ax2.set_xticks(np.arange(0, n, step, dtype=int))
-    ax2.set_yticks(np.arange(0, n, step, dtype=int))
-    step = step * (abs(x[0] - x[1]))
-    ax2.set_xticklabels(np.arange(x[0], x[-1] + step, step, dtype=int))
-    ax2.set_yticklabels(np.arange(y[0], y[-1] + step, step, dtype=int))
-
-    ax2.set_ylabel("yc [px]")
-    ax2.set_xlabel("xc [px]")
-    ax2.set_title("R²")
-
-    proj_x = np.sum(z, axis=0)
-    x = np.arange(x[0], x[-1] + pixel_step, pixel_step)
-
-    popt = np.polyfit(x, proj_x, 2)
-    residuals = proj_x - quadratic(x, *popt)
+    ##Calculate residues
+    residuals = y - gaussian_lin(x, *popt)
     ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((proj_x - np.mean(proj_x)) ** 2)
+    ss_tot = np.sum((y - np.mean(y)) ** 2)
     r_squared = 1 - (ss_res / ss_tot)
 
-    x_fit = np.arange(x[0], x[-1] + 0.1, 0.1)
-    y_fit = quadratic(x_fit, *popt)
-    ax3.plot(
-        x_fit,
-        y_fit,
-        "r",
-        label=f"quadratic fit:\nR²: {round(r_squared,5)}, Xc: {round((-1*popt[1])/(2*popt[0]))}",
-    )
-    ax3.scatter(x, proj_x, color="b")
-    ax3.set_ylabel("Average FWHM")
-    ax3.set_xlabel("xc [px]")
-    ax3.set_title("FWHM projection in x")
-    ax3.legend()
-    xc = round((-1 * popt[1]) / (2 * popt[0]))
-    # print(f"xc {round((-1*popt[1])/(2*popt[0]))}")
-
-    proj_y = np.sum(z, axis=1)
-    x = np.arange(y[0], y[-1] + pixel_step, pixel_step)
-    popt = np.polyfit(x, proj_y, 2)
-    residuals = proj_y - quadratic(x, *popt)
-    ss_res = np.sum(residuals**2)
-    ss_tot = np.sum((proj_y - np.mean(proj_y)) ** 2)
-    r_squared = 1 - (ss_res / ss_tot)
-
-    x_fit = np.arange(y[0], y[-1] + 0.1, 0.1)
-    y_fit = quadratic(x_fit, *popt)
-    ax4.plot(
-        x_fit,
-        y_fit,
-        "r",
-        label=f"quadratic fit:\nR²: {round(r_squared,5)}, Yc: {round((-1*popt[1])/(2*popt[0]))}",
-    )
-    ax4.scatter(x, proj_y, color="b")
-    ax4.set_ylabel("Average FWHM")
-    ax4.set_xlabel("yc [px]")
-    ax4.set_title("FWHM projection in y")
-    ax4.legend()
-    yc = round((-1 * popt[1]) / (2 * popt[0]))
-    # print(f"yc {round((-1*popt[1])/(2*popt[0]))}")
-
-    fig.colorbar(pos1, ax=ax1, shrink=0.6)
-    fig.colorbar(pos2, ax=ax2, shrink=0.6)
-
-    # Display the figure
-
-    # plt.show()
-    plt.savefig(f"{output_folder}/plots/fwhm_map/{label}.png")
-    plt.close()
-    if r_squared > 0.7:
-        return xc, yc
-    else:
-        return False
+    return fwhm_over_radius, popt, r_squared

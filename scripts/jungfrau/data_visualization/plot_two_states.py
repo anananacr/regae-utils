@@ -131,7 +131,6 @@ def resolution_rings_double(data, data_2, center, rings, Imax=1000, log=True):
 
 
 def main():
-
     # argument parser
     parser = argparse.ArgumentParser(description="Plot resolution rings.")
     parser.add_argument(

@@ -1,3 +1,5 @@
+#!/usr/bin/env python3.6
+
 import h5py
 import argparse
 import numpy as np
@@ -6,6 +8,7 @@ import cbf
 import os
 import subprocess as sub
 from PIL import Image
+
 
 def apply_geom(data: np.ndarray, geometry_filename: str) -> np.ndarray:
     ## Apply crystfel geomtry file .geom
@@ -77,7 +80,7 @@ def main(raw_args=None):
         corr_frame[np.where(corr_frame <= 0)] = -1
 
         # cbf.write(f'{args.output}/{label}_{i:06}.cbf', corr_frame)
-        Image.fromarray(corr_frame).save(f"{args.output}/{label[:-7]}_{i:06}.tif")
+        Image.fromarray(corr_frame).save(f"{args.output}/{label}_{i:06}.tif")
 
     f.close()
 
