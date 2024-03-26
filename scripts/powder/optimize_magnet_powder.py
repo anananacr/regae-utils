@@ -26,6 +26,16 @@ if sys.argv[4] == '-':
 else:
     width = float(sys.argv[4])
 
+if sys.argv[5] == '-':
+    min_peak=60
+else:
+    min_peak= int(sys.argv[5])
+
+if sys.argv[6] == '-':
+    max_peak=100
+else:
+    max_peak= int(sys.argv[6])
+
 config = {
     "plots_flag": True,
 	"pf8": {
@@ -39,8 +49,8 @@ config = {
 		"max_res": 1200
 		},
 	"peak_region":{
-		"min": 100,
-		"max": 160
+		"min": 60,
+		"max": 100
 		},
 	"canny":{
 		"sigma": 3,

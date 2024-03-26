@@ -77,9 +77,9 @@ python plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scr
 
 Example:
 
-python optimize_magnet.py /path/to/converted/file/ current_increment min_peak_height peak_width
+python optimize_magnet_powder.py /path/to/converted/file/ current_increment min_peak_height peak_width
 
-python optimize_magnet.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231221_au_ref_scan/ed_magnet_step_001/231221_au_ref_scan_001_master.h5 0.1 130 4
+python optimize_magnet_powder.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231221_au_ref_scan/ed_magnet_step_001/231221_au_ref_scan_001_master.h5 0.1 130 4
 
 
 ### Stabilize images
