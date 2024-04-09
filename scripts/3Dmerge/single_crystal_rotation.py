@@ -14,8 +14,9 @@ import tifffile as tif
 import math
 from matplotlib import cm
 
-azimuth_of_the_tilt_axis = 84*(np.pi/180)
+azimuth_of_the_tilt_axis = 83.35*(np.pi/180)
 tilt_angle = 0.1*np.pi/180
+starting_angle = -60*np.pi/180
 
 global k
 global res
@@ -45,9 +46,6 @@ PF8Config=PF8Info(
         min_res=config["pf8"]["min_res"],
         max_res=config["pf8"]["max_res"]
     )
-
-geometry_filename="/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/geoms/JF_regae_v4_altered.geom"
-PF8Config.set_geometry_from_file(geometry_filename)
 
 def get_corrected_lab_coordinates_in_reciprocal_units(fs:int, ss:int, pixel_maps:geometry_functions.TypePixelMaps) -> tuple:
     data_shape = pixel_maps["x"].shape
@@ -82,6 +80,9 @@ reading_peaks = False
 max_fs = -100500
 max_ss = -100500
 
+
+geometry_txt=[]
+
 for line in stream:
     if reading_chunks:
         
@@ -89,17 +90,17 @@ for line in stream:
             reading_peaks = False
         elif line.split(" //")[0]=='Event:':
             event_number = int(line.split(" //")[-1])
-        elif line.split(" = ")[0]=='header/float//shift_y_in_frame_mm':
-            detector_shift_in_y = float(line.split(" = ")[-1])* res *1e-3
-        elif line.split(" = ")[0]=='header/float//shift_x_in_frame_mm':
+        elif line.split(" = ")[0]=='header/float//entry/shots/detector_shift_x_in_mm':
             detector_shift_in_x = float(line.split(" = ")[-1])* res *1e-3
+        elif line.split(" = ")[0]=='header/float//entry/shots/detector_shift_y_in_mm':
+            detector_shift_in_y= float(line.split(" = ")[-1])* res *1e-3
 
         elif line.startswith('  fs/px   ss/px (1/d)/nm^-1   Intensity  Panel'):
             reading_peaks = True
-            PF8Config.set_geometry_from_file(geometry_filename)
+            PF8Config.set_geometry_from_file()
             PF8Config.update_pixel_maps(detector_shift_in_x, detector_shift_in_y)
             ## Update phi map for the shift TO FIX in bblib
-            PF8Config.pixel_maps["phi"] = np.arctan2(PF8Config.pixel_maps["y"], PF8Config.pixel_maps["x"])
+            #PF8Config.pixel_maps["phi"] = np.arctan2(PF8Config.pixel_maps["y"], PF8Config.pixel_maps["x"])
 
         elif reading_peaks:
             fs, ss, dump, intensity = [float(i) for i in line.split()[:4]]
@@ -107,7 +108,7 @@ for line in stream:
             if intensity>0:
                 x_lab, y_lab, z_lab = get_corrected_lab_coordinates_in_reciprocal_units(int(fs), int(ss), PF8Config.pixel_maps)
                 x, y, z = rotate_in_z(x_lab, y_lab, z_lab, azimuth_of_the_tilt_axis)
-                x, y, z = rotate_in_x(x, y, z, event_number*tilt_angle)
+                x, y, z = rotate_in_x(x, y, z, starting_angle + (event_number*tilt_angle))
                 x, y, z = rotate_in_z(x, y, z, -1 *azimuth_of_the_tilt_axis)
                 reciprocal_space[int(reciprocal_space_radius+10*z), int(reciprocal_space_radius+10*y),  int(reciprocal_space_radius+10*x)] += 1e-4*intensity
                 reciprocal_space[int(reciprocal_space_radius-10*z), int(reciprocal_space_radius-10*y),  int(reciprocal_space_radius-10*x)] += 1e-4*intensity
@@ -124,12 +125,16 @@ for line in stream:
         if line.split(' = ')[0]=="res":
             res=float(line.split(' = ')[-1])
         if line.split(' = ')[0]=="clen":
-            #clen=float(line.split(' = ')[-1].split(";")[0])
-            clen=4.95
-        elif line.split(' = ')[0]=="photon_energy":
+            clen=float(line.split(' = ')[-1].split(";")[0])
+            #clen=4.95
+        #elif line.split(' = ')[0]=="photon_energy":
             #beam_energy=int(line.split(' = ')[-1].split(";")[0])
-            beam_energy = 3488009*constants.e
-            k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
+        #    beam_energy = 3488009*constants.e
+        #    k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
+        #    print(k)
+        elif line.split(' = ')[0]=="wavelength":
+            wavelength = float(line.split(' = ')[-1].split(" ")[0])
+            k = 1e-9/wavelength
             print(k)
         try:
             par, val = line.split('=')
@@ -148,15 +153,5 @@ for line in stream:
 #f = h5py.File('/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/merge/'+splitext(basename(sys.argv[1]))[0]+'-3d.h5', 'w')
 #f.create_dataset('/data/data', data=reciprocal_space)
 #f.close()
-"""
-x, y, z = np.meshgrid(np.arange(reciprocal_space.shape[0]),
-                      np.arange(reciprocal_space.shape[1]),
-                      np.arange(reciprocal_space.shape[2]),
-                      indexing='ij') 
 
-fig, ax = plt.subplots(subplot_kw={"projection": "3d"})
-surf = ax.scatter(x.ravel(),y.ravel(),z.ravel(), c=reciprocal_space.ravel(), cmap=cm.coolwarm)
-fig.colorbar(surf, shrink=0.5, aspect=5)
-plt.show()
-"""
-tif.imwrite('/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/merge/'+splitext(basename(sys.argv[1]))[0]+'-merge.tif', reciprocal_space)
+tif.imwrite('/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/merge/'+splitext(basename(sys.argv[1]))[0]+'-merge-shift.tif', reciprocal_space)
