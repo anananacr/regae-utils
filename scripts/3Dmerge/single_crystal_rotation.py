@@ -131,9 +131,9 @@ for line in stream:
             res=float(line.split(' = ')[-1])
             print(res)
         if line.split(' = ')[0]=="clen":
-            #clen=float(line.split(' = ')[-1].split(";")[0])
+            clen=float(line.split(' = ')[-1].split(";")[0])
             #clen=4.95
-            clen = 5.1262
+            #clen = 5.1262
             print(clen)
         #elif line.split(' = ')[0]=="photon_energy":
             #beam_energy=int(line.split(' = ')[-1].split(";")[0])
@@ -141,8 +141,8 @@ for line in stream:
         #    k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
         #    print(k)
         elif line.split(' = ')[0]=="wavelength":
-            #wavelength = float(line.split(' = ')[-1].split(" ")[0])
-            wavelength = 3.12222684665224e-13
+            wavelength = float(line.split(' = ')[-1].split(" ")[0])
+            #wavelength = 3.12222684665224e-13
             #beam_energy = 3966225*constants.e
             #k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
             k = 1e-9/wavelength
