@@ -1,10 +1,11 @@
 import h5py
 import hdf5plugin
 import numpy as np
+import sys
+sys.path.append("/home/rodria/scripts/bblib")
 from bblib.models import PF8Info, PF8
 import matplotlib.pyplot as plt
 import om.lib.geometry as geometry_functions
-import sys
 import matplotlib
 matplotlib.use('Qt5Agg')
 from os.path import basename, splitext
@@ -92,48 +93,58 @@ for line in stream:
             event_number = int(line.split(" //")[-1])
         elif line.split(" = ")[0]=='header/float//entry/shots/detector_shift_x_in_mm':
             detector_shift_in_x = float(line.split(" = ")[-1])* res *1e-3
+            #detector_shift_in_x = 2.83* res *1e-3
         elif line.split(" = ")[0]=='header/float//entry/shots/detector_shift_y_in_mm':
             detector_shift_in_y= float(line.split(" = ")[-1])* res *1e-3
+            #detector_shift_in_y= -0.45 * res *1e-3
 
         elif line.startswith('  fs/px   ss/px (1/d)/nm^-1   Intensity  Panel'):
             reading_peaks = True
             PF8Config.set_geometry_from_file()
             PF8Config.update_pixel_maps(detector_shift_in_x, detector_shift_in_y)
-            ## Update phi map for the shift TO FIX in bblib
-            #PF8Config.pixel_maps["phi"] = np.arctan2(PF8Config.pixel_maps["y"], PF8Config.pixel_maps["x"])
+            ## Update x pixel map and phi I think Crytsfel is in the other referential system
+            PF8Config.pixel_maps["x"] *= -1
+            PF8Config.pixel_maps["phi"] = np.arctan2(PF8Config.pixel_maps["y"], PF8Config.pixel_maps["x"])
 
         elif reading_peaks:
             fs, ss, dump, intensity = [float(i) for i in line.split()[:4]]
-            #print(intensity)
             if intensity>0:
                 x_lab, y_lab, z_lab = get_corrected_lab_coordinates_in_reciprocal_units(int(fs), int(ss), PF8Config.pixel_maps)
                 x, y, z = rotate_in_z(x_lab, y_lab, z_lab, azimuth_of_the_tilt_axis)
                 x, y, z = rotate_in_x(x, y, z, starting_angle + (event_number*tilt_angle))
                 x, y, z = rotate_in_z(x, y, z, -1 *azimuth_of_the_tilt_axis)
-                reciprocal_space[int(reciprocal_space_radius+10*z), int(reciprocal_space_radius+10*y),  int(reciprocal_space_radius+10*x)] += 1e-4*intensity
-                reciprocal_space[int(reciprocal_space_radius-10*z), int(reciprocal_space_radius-10*y),  int(reciprocal_space_radius-10*x)] += 1e-4*intensity
+                reciprocal_space[int(reciprocal_space_radius+10*z), int(reciprocal_space_radius+10*y),  int(reciprocal_space_radius+10*x)] += 1e0*intensity
+                reciprocal_space[int(reciprocal_space_radius-10*z), int(reciprocal_space_radius-10*y),  int(reciprocal_space_radius-10*x)] += 1e0*intensity
 
 
     elif line.startswith('----- End geometry file -----'):
         reading_geometry = False
+        PF8Config.geometry_txt=geometry_txt
+        PF8Config.set_geometry_from_file()
         reciprocal_space_radius=int((max(PF8Config.get_detector_center())*k)/(res*clen))*10
         reciprocal_space_dimension=2*reciprocal_space_radius
-        reciprocal_space = np.zeros((reciprocal_space_dimension+1, reciprocal_space_dimension+1, reciprocal_space_dimension+1), dtype=np.int16)
+        reciprocal_space = np.zeros((reciprocal_space_dimension+1, reciprocal_space_dimension+1, reciprocal_space_dimension+1), dtype=np.int32)
 
     elif reading_geometry:
-        
+        geometry_txt.append(line)
         if line.split(' = ')[0]=="res":
             res=float(line.split(' = ')[-1])
+            print(res)
         if line.split(' = ')[0]=="clen":
-            clen=float(line.split(' = ')[-1].split(";")[0])
+            #clen=float(line.split(' = ')[-1].split(";")[0])
             #clen=4.95
+            clen = 5.1262
+            print(clen)
         #elif line.split(' = ')[0]=="photon_energy":
             #beam_energy=int(line.split(' = ')[-1].split(";")[0])
         #    beam_energy = 3488009*constants.e
         #    k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
         #    print(k)
         elif line.split(' = ')[0]=="wavelength":
-            wavelength = float(line.split(' = ')[-1].split(" ")[0])
+            #wavelength = float(line.split(' = ')[-1].split(" ")[0])
+            wavelength = 3.12222684665224e-13
+            #beam_energy = 3966225*constants.e
+            #k = math.sqrt((beam_energy)**2+(2* beam_energy * constants.electron_mass * (constants.c**2))) / (1e9*constants.h * constants.c) 
             k = 1e-9/wavelength
             print(k)
         try:
@@ -154,4 +165,4 @@ for line in stream:
 #f.create_dataset('/data/data', data=reciprocal_space)
 #f.close()
 
-tif.imwrite('/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/merge/'+splitext(basename(sys.argv[1]))[0]+'-merge-shift.tif', reciprocal_space)
+tif.imwrite('/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/rodria/merge/'+splitext(basename(sys.argv[1]))[0]+'-merge-no-shift.tif', reciprocal_space)
