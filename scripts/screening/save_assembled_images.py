@@ -54,11 +54,11 @@ def main(raw_args=None):
         )
         visual_data =  data_visualize.visualize_data(data=data)
         visual_data[np.where(visual_data<= 0)] = -1
-        output_filename=f"{args.output}/{label}_{i:06}.cbf"
+        output_filename=f"{args.output}/{label}_{i:06}.tif"
         #output=fabio.cbfimage.CbfImage(data=visual_data)
         #output.write(output_filename)
         # cbf.write(f'{args.output}/{label}_{i:06}.cbf', visual_data)
-        Image.fromarray(visual_data).save(f"{args.output}/{label[:-7]}_{i:06}.tif")
+        Image.fromarray(visual_data).save(f"{output_filename}")
 
     f.close()
 
