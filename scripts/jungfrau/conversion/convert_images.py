@@ -14,6 +14,7 @@ import glob
 import subprocess as sub
 import os
 import matplotlib.colors as color
+import pathlib
 
 dark = None
 gain = None
@@ -145,6 +146,8 @@ def main(raw_args=None):
     output_folder = os.path.dirname(args.output)
     cmd = f"cp {raw_folder}/info.txt {output_folder}"
     sub.call(cmd, shell=True)
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
 
     num_panels: int = 2
     dark_filenames = [args.pedestal1, args.pedestal2]
