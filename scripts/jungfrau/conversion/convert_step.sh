@@ -14,7 +14,7 @@
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
 # Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
 
-# ./convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
+# sbatch convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
 
 # Written by Ana Carolina Rodrigues.
 #
@@ -23,9 +23,6 @@
 source /etc/profile.d/modules.sh
 module load maxwell python/3.7
 source /home/rodria/scripts/regae/env-regae/bin/activate
-
-#INPUT=231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003
-#PEDAL=231020_mos_c3_ms_003_average
 
 INP=$1
 MODE=$2
