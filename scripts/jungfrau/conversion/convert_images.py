@@ -218,7 +218,7 @@ def main(raw_args=None):
             f.close()
 
     g = h5py.File(args.output + ".h5", "w")
-    g.create_dataset("data", data=averaged_frames, compression="gzip")
+    g.create_dataset("/entry/data/data", data=averaged_frames, compression="gzip")
     g.close()
 
 

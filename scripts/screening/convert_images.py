@@ -14,6 +14,7 @@ import glob
 import subprocess as sub
 import os
 import matplotlib.colors as color
+import pathlib
 
 dark = None
 gain = None
@@ -37,9 +38,6 @@ def filter_data(data):
     """
     gain_3 = np.where(data & 2**15 > 0)
     counts_3 = gain_3[0].shape[0]
-    #gain_0 = np.where((data & 2**14 == 0) & (data & 2**15 == 0))
-    #counts_0 = gain_3[0].shape[0]
-    #total_n_pixels=data.flatten().shape[0]
     if counts_3 > 1e3:
         return 1
     else:
@@ -148,6 +146,8 @@ def main(raw_args=None):
     output_folder = os.path.dirname(args.output)
     cmd = f"cp {raw_folder}/info.txt {output_folder}"
     sub.call(cmd, shell=True)
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
 
     num_panels: int = 2
     dark_filenames = [args.pedestal1, args.pedestal2]
@@ -197,22 +197,28 @@ def main(raw_args=None):
         index = np.arange(args.start_index, args.end_index + 1, 1)
         n_frames = args.end_index - args.start_index
         averaged_frames = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
-        for i in index:
+        for idx,i in enumerate(index):
             acc_frame = np.zeros((1024, 1024), dtype=np.int32)
             f = h5py.File(f"{args.input}_master_{i}.h5", "r")
             size = len(f["entry/data/data"])
             count = 0
             for j in range(size):
-                raw = np.array(f["entry/data/data"][j], dtype=np.int32)
-                skip = filter_data(raw)
+                try:
+                    raw = np.array(f["entry/data/data"][j], dtype=np.int32)
+                    skip = filter_data(raw)
+                except OSError:
+                    skip = 1
+
                 if skip == 0:
                     acc_frame += apply_calibration(raw, dark, gain)
                     count += 1
-            averaged_frames[i] = acc_frame / count
+            if count!=0:
+                averaged_frames[idx] = acc_frame / count
+            
             f.close()
 
     g = h5py.File(args.output + ".h5", "w")
-    g.create_dataset("data", data=averaged_frames, compression="gzip")
+    g.create_dataset("/entry/data/data", data=averaged_frames, compression="gzip")
     g.close()
 
 

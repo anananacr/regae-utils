@@ -37,7 +37,7 @@ def main():
 
     for idx, i in enumerate(index):
         f = h5py.File(f"{args.input}_{i}.h5", "r")
-        data = np.array(f["/data"])
+        data = np.array(f["/entry/data/data"])
         convert_images[count : count + args.packet] = data
         f.close()
         count += args.packet
