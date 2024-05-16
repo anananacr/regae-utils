@@ -1,11 +1,10 @@
 #!/bin/sh
 
-#SBATCH --partition=allcpu,cfel
+#SBATCH --partition=allcpu
 #SBATCH --time=2-00:00:00
 #SBATCH --requeue
 #SBATCH --nodes=1
 #SBATCH --mem=8G
-
 #SBATCH --job-name  convert_jf
 #SBATCH --output /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/error/231130_mica-%N-%j.out
 #SBATCH --error /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/error/231130_mica-%N-%j.err
@@ -21,7 +20,6 @@
 # Mail: ana.rodrigues@desy.de
 
 source /etc/profile.d/modules.sh
-module load maxwell python/3.7
 source /home/rodria/scripts/regae/env-regae/bin/activate
 
 INP=$1
@@ -47,4 +45,4 @@ fi
 echo $MODE_NUMBER
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted
 
-python3 convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${N}_${MODE}_average.h5 -p2 ${ROOT}/../darks/pedal_d1_${N}_${MODE}_average.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INP} -m ${MODE_NUMBER} -s ${START} -e ${END} -o ${ROOT}/${INP}_master;
+python convert_images.py -p1 ${ROOT}/../darks/pedal_d0_${N}_${MODE}_average.h5 -p2 ${ROOT}/../darks/pedal_d1_${N}_${MODE}_average.h5 -g1 ${ROOT}/../darks/gainMaps_M283.bin -g2 ${ROOT}/../darks/gainMaps_M281.bin -i ${ROOT}/../../raw/${INP} -m ${MODE_NUMBER} -s ${START} -e ${END} -o ${ROOT}/${INP}_master;
