@@ -37,13 +37,14 @@ def main():
 
     for idx, i in enumerate(index):
         f = h5py.File(f"{args.input}_{i}.h5", "r")
-        data = np.array(f["/entry/data/data"])
+        #data = np.array(f["/entry/data/data"])
+        data = np.array(f["data"])
         convert_images[count : count + args.packet] = data
         f.close()
         count += args.packet
 
     f = h5py.File(args.output + ".h5", "w")
-    f.create_dataset("data", data=convert_images)
+    f.create_dataset("/entry/data/data", data=convert_images)
     f.close()
 
 
