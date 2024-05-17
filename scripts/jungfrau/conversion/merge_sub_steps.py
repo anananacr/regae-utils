@@ -27,13 +27,14 @@ def main(raw_args=None):
     fly_frames_to_merge = args.n_frames
     """Fly scan accumulate n sequential images"""
     f = h5py.File(f"{args.input}_master.h5", "r")
-    size = len(f["/data"])
+    size = len(f["/entry/data/data"])
+
     n_frames_measured = math.floor(size / fly_frames_to_merge)
     averaged_frames = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
     acc_frame = np.zeros((1024, 1024), dtype=np.int32)
     count = 0
     for i in range(fly_frames_to_merge * n_frames_measured):
-        raw = np.array(f["/data"][i])
+        raw = np.array(f["/entry/data/data"][i], dtype=np.int32)
         acc_frame += raw
         count += 1
         if (i + 1) % fly_frames_to_merge == 0:
@@ -45,7 +46,7 @@ def main(raw_args=None):
     f.close()
 
     g = h5py.File(f"{args.input}_merged_master.h5", "w")
-    g.create_dataset("data", data=averaged_frames, compression="gzip")
+    g.create_dataset("/entry/data/data", data=averaged_frames, compression="gzip")
     g.close()
 
 

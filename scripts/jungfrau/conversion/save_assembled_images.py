@@ -6,6 +6,7 @@ import os
 import subprocess as sub
 from PIL import Image
 import fabio
+import pathlib
 
 
 def main(raw_args=None):
@@ -34,17 +35,19 @@ def main(raw_args=None):
 
     raw_folder = os.path.dirname(args.input)
     output_folder = args.output
+    path = pathlib.Path(output_folder)
+    path.mkdir(parents=True, exist_ok=True)
     cmd = f"cp {raw_folder}/info.txt {output_folder}"
     sub.call(cmd, shell=True)
 
     f = h5py.File(f"{args.input}_master.h5", "r")
-    size = len(f["data"])
+    size = len(f["/entry/data/data"])
 
     label = (args.input).split("/")[-1]
 
     for i in range(size):
         try:
-            data = np.array(f["data"][i])
+            data = np.array(f["/entry/data/data"][i])
             data[np.where(data <= 0)] = -1
         except OSError:
             print("skipped", i)
@@ -57,7 +60,7 @@ def main(raw_args=None):
         output_filename=f"{args.output}/{label}_{i:06}.tif"
         #output=fabio.cbfimage.CbfImage(data=visual_data)
         #output.write(output_filename)
-        # cbf.write(f'{args.output}/{label}_{i:06}.cbf', visual_data)
+        #cbf.write(f'{args.output}/{label}_{i:06}.cbf', visual_data)
         Image.fromarray(visual_data).save(f"{output_filename}")
 
     f.close()

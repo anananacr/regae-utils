@@ -30,6 +30,7 @@ def main():
 
     args = parser.parse_args()
     index = np.arange(args.start, args.end, args.packet)
+
     total = args.end - args.start
 
     convert_images = np.zeros((total, 1024, 1024), dtype=np.float64)
@@ -37,8 +38,7 @@ def main():
 
     for idx, i in enumerate(index):
         f = h5py.File(f"{args.input}_{i}.h5", "r")
-        #data = np.array(f["/entry/data/data"])
-        data = np.array(f["data"])
+        data = np.array(f["/entry/data/data"])
         convert_images[count : count + args.packet] = data
         f.close()
         count += args.packet
