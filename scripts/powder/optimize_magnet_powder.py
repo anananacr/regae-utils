@@ -26,8 +26,18 @@ if sys.argv[4] == '-':
 else:
     width = float(sys.argv[4])
 
+if sys.argv[5] == '-':
+    min_peak=60
+else:
+    min_peak= int(sys.argv[5])
+
+if sys.argv[6] == '-':
+    max_peak=100
+else:
+    max_peak= int(sys.argv[6])
+
 config = {
-    "plots_flag": False,
+    "plots_flag": True,
 	"pf8": {
 		"max_num_peaks": 10000,
 		"adc_threshold": 0,
@@ -96,8 +106,13 @@ for frame in range(shape[0]):
 
     bins, counts = azimuthal_average(visual_data, center_coordinates_from_circle_detection, visual_mask)
     peaks, properties = find_peaks(counts, height=height, width=width)
-    x = bins[peaks[0]]
-    y = counts[peaks[0]]
+    print(peaks)
+    if peaks[0]>50:
+        x = bins[peaks[0]]
+        y = counts[peaks[0]]
+    else:
+        x = bins[peaks[1]]
+        y = counts[peaks[1]]
     peaks_pos.append(bins[peaks[0]]*75e-3)
     fit_results = fit_gaussian(bins, counts, x, right_leg=7)
     fwhm_over_radius.append(fit_results[0])

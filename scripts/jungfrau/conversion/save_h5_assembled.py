@@ -11,7 +11,7 @@ import h5py
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Calculate center of diffraction patterns fro MHz beam sweeping serial crystallography."
+        description="Save HDF5 file images assembled."
     )
     parser.add_argument(
         "-i",
