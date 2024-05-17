@@ -13,9 +13,9 @@
 
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
 # Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
-
-# ./convert_step.sh my-file.h5 label
-
+# Usage
+# sbatch convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
+## You need to set manually on convert_images.py how many frames you want to merge together! Use the parameter fly_frames_to_merge
 # Written by Ana Carolina Rodrigues.
 #
 # Mail: ana.rodrigues@desy.de
@@ -30,4 +30,5 @@ DATE=20221115
 PEDAL=20221115_mica_6
 ROOT=/asap3/fs-bmx/gpfs/regae/2022/data/11016614/scratch_cc/rodria/converted
 
-python3 convert_images.py -p1 ${ROOT}/pedal/pedal_d0_${PEDAL}.h5 -p2 ${ROOT}/pedal/pedal_d1_${PEDAL}.h5 -g1 ${ROOT}/pedal/gainMaps_M283.bin -g2 ${ROOT}/pedal/gainMaps_M281.bin -i ${ROOT}/../../../raw/${INPUT} -s 1 -e 2 -o ${ROOT}/mica_6/mica_6
+
+python3 convert_images.py -p1 ${ROOT}/pedal/pedal_d0_${PEDAL}.h5 -p2 ${ROOT}/pedal/pedal_d1_${PEDAL}.h5 -g1 ${ROOT}/pedal/gainMaps_M283.bin -g2 ${ROOT}/pedal/gainMaps_M281.bin -i ${ROOT}/../../../raw/${INPUT} -s 0 -e 0 -o ${ROOT}/mica_6/mica_6
