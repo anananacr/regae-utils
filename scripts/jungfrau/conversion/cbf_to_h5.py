@@ -9,7 +9,7 @@ import h5py
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Convert cbf files to H5. Deprecated incompatibiliyt of Python 3.10 to CBFlib."
+        description="Convert cbf files to H5. Deprecated incompatibility of Python 3.10 to CBFlib."
     )
     parser.add_argument(
         "-i",
