@@ -42,12 +42,13 @@ def main(raw_args=None):
 
     f = h5py.File(f"{args.input}_master.h5", "r")
     size = len(f["/entry/data/data"])
-
+    #size = len(f["/data"])
     label = (args.input).split("/")[-1]
 
     for i in range(size):
         try:
             data = np.array(f["/entry/data/data"][i])
+            #data = np.array(f["/data"][i])
             data[np.where(data <= 0)] = -1
         except OSError:
             print("skipped", i)
@@ -58,9 +59,6 @@ def main(raw_args=None):
         visual_data =  data_visualize.visualize_data(data=data)
         visual_data[np.where(visual_data<= 0)] = -1
         output_filename=f"{args.output}/{label}_{i:06}.tif"
-        #output=fabio.cbfimage.CbfImage(data=visual_data)
-        #output.write(output_filename)
-        #cbf.write(f'{args.output}/{label}_{i:06}.cbf', visual_data)
         Image.fromarray(visual_data).save(f"{output_filename}")
 
     f.close()

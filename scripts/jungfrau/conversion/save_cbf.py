@@ -1,15 +1,15 @@
 from typing import List, Optional, Callable, Tuple, Any, Dict
-import fabio
+import fabio 
 import sys
 import argparse
 import numpy as np
 import os
 from PIL import Image
 import h5py
-import cbf
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Calculate center of diffraction patterns fro MHz beam sweeping serial crystallography."
+        description="Convert H5 to cbf. Deprecated CBFlib incompatibility with Python 3.10"
     )
     parser.add_argument(
         "-i",
