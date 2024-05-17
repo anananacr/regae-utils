@@ -22,7 +22,7 @@
 
 source /etc/profile.d/modules.sh
 module purge all
-source /home/rodria/scripts/regae/env-regae/bin/activate
+source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted
 INPUT=$1
