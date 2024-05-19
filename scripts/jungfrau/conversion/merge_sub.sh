@@ -9,13 +9,8 @@
 #SBATCH --job-name  merge_frames
 #SBATCH --output    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.out
 #SBATCH --error    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.err
-
-
-# Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
-# Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
-
-# ./convert_step.sh my-file.h5 label
-
+# Usage:
+#sbatch merge_sub.sh 240516_C3b_MICA020_3GHz_002/ed_rot_step_001/240516_C3b_MICA020_3GHz_002_001 20
 # Written by Ana Carolina Rodrigues.
 #
 # Mail: ana.rodrigues@desy.de

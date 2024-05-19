@@ -171,7 +171,12 @@ def main(raw_args=None):
 
     if args.mode == 0:
         """Fly scan accumulate n sequential images"""
-        f = h5py.File(f"{args.input}_master_0.h5", "r")
+        ## Check if start and ending files exist
+        start_path=f"{args.input}_master_{args.start_index}.h5"
+        if not os.path.exists(start_path):
+            raise IndexError(f"File index out of range, please check the index of the files. I understood you want to process this file: {start_path}, which doesn't exists. You may need to change the start_index parameter.")
+        
+        f = h5py.File(f"{args.input}_master_{args.start_index}.h5", "r")
         size = len(f["entry/data/data"])
         n_frames_measured = math.floor(size / fly_frames_to_merge)
         averaged_frames = np.zeros((n_frames_measured, 1024, 1024), dtype=np.int32)
@@ -194,8 +199,24 @@ def main(raw_args=None):
 
     elif args.mode == 1:
         """Step scan accumulate all images inside the container file"""
-        index = np.arange(args.start_index, args.end_index + 1, 1)
-        n_frames = args.end_index - args.start_index
+        ## Check if start and ending files exist
+        start_path=f"{args.input}_master_{args.start_index}.h5"
+        end_path=f"{args.input}_master_{args.end_index + 1}.h5"
+        
+        if not os.path.exists(start_path):
+            raise IndexError("Start file index out of range, please check the index of the files. Start file is included in the interval and will be processed.")
+        
+        if not os.path.exists(end_path):
+            raise IndexError("End file index out of range, please check the index of the files. End file is included in the interval and will be processed.")
+        
+        if args.end_index==-1:
+            ## screening
+            index = np.arange(args.start_index,1, 1)
+            n_frames = 0
+        else:
+            index = np.arange(args.start_index, args.end_index + 1, 1)
+            n_frames = args.end_index - args.start_index
+        
         averaged_frames = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
         for idx,i in enumerate(index):
             acc_frame = np.zeros((1024, 1024), dtype=np.int32)

@@ -6,10 +6,10 @@ import numpy as np
 import os
 from PIL import Image
 import h5py
-import cbf
+
 def main():
     parser = argparse.ArgumentParser(
-        description="Calculate center of diffraction patterns fro MHz beam sweeping serial crystallography."
+        description="Convert cbf files to H5. Deprecated incompatibility of Python 3.10 to CBFlib."
     )
     parser.add_argument(
         "-i",

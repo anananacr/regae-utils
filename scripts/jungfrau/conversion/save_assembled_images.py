@@ -21,11 +21,20 @@ def main(raw_args=None):
         "-g", "--geom", type=str, action="store", help="crystfel geometry file"
     )
     parser.add_argument(
-        "-o", "--output", type=str, action="store", help="hdf5 output path"
+        "-m", "--mask", type=str, action="store", help="mask file 0 bad pixels 1 good pixels"
+    )
+    parser.add_argument(
+        "-o", "--output", type=str, action="store", help="output path"
     )
     args = parser.parse_args(raw_args)
 
     geometry_txt = open(args.geom, "r").readlines()
+
+    # Open mask
+    with h5py.File(f"{args.mask}", "r") as f:
+        mask = np.array(f["/data/data"])
+
+
     geom_info = geometry.GeometryInformation(
             geometry_description=geometry_txt, geometry_format="crystfel"
         )
@@ -42,7 +51,6 @@ def main(raw_args=None):
 
     f = h5py.File(f"{args.input}_master.h5", "r")
     size = len(f["/entry/data/data"])
-
     label = (args.input).split("/")[-1]
 
     for i in range(size):
@@ -55,12 +63,9 @@ def main(raw_args=None):
         visual_data = np.zeros(
             (visual_img_shape[0], visual_img_shape[1]), dtype=np.int32
         )
-        visual_data =  data_visualize.visualize_data(data=data)
+        visual_data =  data_visualize.visualize_data(data=data*mask)
         visual_data[np.where(visual_data<= 0)] = -1
         output_filename=f"{args.output}/{label}_{i:06}.tif"
-        #output=fabio.cbfimage.CbfImage(data=visual_data)
-        #output.write(output_filename)
-        #cbf.write(f'{args.output}/{label}_{i:06}.cbf', visual_data)
         Image.fromarray(visual_data).save(f"{output_filename}")
 
     f.close()

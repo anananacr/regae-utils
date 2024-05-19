@@ -4,7 +4,7 @@ Python scripts for data processing at REGAE - Deutsches Elektronen-Synchrotron (
 
 ## Authors:
 
-Ana Carolina Rodrigues (2021 - )
+Ana Carolina Rodrigues (2021 - 2024)
 
 Mail: ana.rodrigues@desy.de
 
@@ -12,10 +12,6 @@ Mail: ana.rodrigues@desy.de
 
 * Python 3.10.5
 * requirements.txt
-
-## Presentations
-* [2023 DESY Photon Science Users' Meeting](https://docs.google.com/presentation/d/1S-YqJeze92365XabdoEd3j7OTx5JPxzq/edit?usp=share_link&ouid=114932358786595754679&rtpof=true&sd=true)
-* [31st Annual Meeting of the German Crystallographic Society (DGK)](https://drive.google.com/file/d/1E2R4qOpr187P8h0Y6hYb5KgN8hUr4lbU/view?usp=share_link)
 
 ## JF1M conversion:
 
@@ -47,31 +43,14 @@ sbatch merge_sub.sh 231222_c3b_mica_020/ed_rot_step_001/231222_c3b_mica_020_001 
 
 ### Assemble images
 
-python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/folder_on_raw/ed_rot_scantype_00*/file_label -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*
+python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/folder_on_raw/ed_rot_scantype_00*/file_label -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/folder_on_raw/ed_rot_scantype_00*
 
 Example:
-python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
-
-## Data analysis
+python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 
 
 ### Center refinement
 
-./turbo_center.sh folder_on_raw/ed_rot_scantype_00* list_file_label start_index end_index
-
-Example:
-./turbo_center.sh 231020_mos_c3_ms_001/ed_rot_step_002 split_231020_mos_c3_ms_001_002_step 0 2
-
-### Detector center distribution plots
-
-/algorithms/
-
-Example:
-python plot_center.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001 -l 231130_c3b_mica020_001
-
-
-Example:
-python plot_center_in_time.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001/lists/h5_files.lst -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/stability_measurements/processed/231130_c3b_mica020/ed_rot_step_001 -l 231130_c3b_mica020_001
-
+Check on https://github.com/anananacr/beambusters
 
 ### Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
@@ -80,9 +59,3 @@ Example:
 python optimize_magnet_powder.py /path/to/converted/file/ current_increment min_peak_height peak_width
 
 python optimize_magnet_powder.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231221_au_ref_scan/ed_magnet_step_001/231221_au_ref_scan_001_master.h5 0.1 130 4
-
-
-### Stabilize images
-
-Example:
-python stabilize_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/231027_tas_c4_005/ed_rot_step_003/lists/h5_files.lst -g  /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/processed/refined/231027_tas_c4_005/ed_rot_step_003  &

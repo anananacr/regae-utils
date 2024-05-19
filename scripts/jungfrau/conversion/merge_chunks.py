@@ -28,7 +28,7 @@ def main():
     #total = args.end - args.start
     total = sum(index)
 
-    convert_images = np.zeros((total, 1024, 1024), dtype=np.float64)
+    convert_images = np.zeros((total, 1024, 1024), dtype=np.int32)
     count = 0
 
     for idx, i in enumerate(index):
