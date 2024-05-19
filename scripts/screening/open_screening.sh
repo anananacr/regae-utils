@@ -47,5 +47,6 @@ python ${SCRIPTS_FOLDER}/convert_images.py -p1 ${ROOT}/processed/darks/pedal_d0_
 python ${SCRIPTS_FOLDER}/save_assembled_images.py -i ${ROOT}/processed/converted/${INP} -g ${ROOT}/scratch_cc/yefanov/geom/JF_regae_v4.geom -m ${ROOT}/scratch_cc/yefanov/mask/mask_edges.h5  -o ${ROOT}/processed/assembled/${FOLDER_UP}/${FOLDER};
 echo "----------------------- Opening images folder -----------------------"
 module load xray;
+rm pedal_d*.lst
 
 adxv ${ROOT}/processed/assembled/
