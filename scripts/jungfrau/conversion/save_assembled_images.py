@@ -24,7 +24,7 @@ def main(raw_args=None):
         "-m", "--mask", type=str, action="store", help="mask file 0 bad pixels 1 good pixels"
     )
     parser.add_argument(
-        "-o", "--output", type=str, action="store", help="hdf5 output path"
+        "-o", "--output", type=str, action="store", help="output path"
     )
     args = parser.parse_args(raw_args)
 
@@ -50,14 +50,12 @@ def main(raw_args=None):
     sub.call(cmd, shell=True)
 
     f = h5py.File(f"{args.input}_master.h5", "r")
-    #size = len(f["/entry/data/data"])
-    size = len(f["/data"])
+    size = len(f["/entry/data/data"])
     label = (args.input).split("/")[-1]
 
     for i in range(size):
         try:
-            #data = np.array(f["/entry/data/data"][i])
-            data = np.array(f["/data"][i])
+            data = np.array(f["/entry/data/data"][i])
             data[np.where(data <= 0)] = -1
         except OSError:
             print("skipped", i)

@@ -24,7 +24,7 @@ def main(raw_args=None):
         "-m", "--mask", type=str, action="store", help="mask file 0 bad pixels 1 good pixels"
     )
     parser.add_argument(
-        "-o", "--output", type=str, action="store", help="hdf5 output path"
+        "-o", "--output", type=str, action="store", help="output path"
     )
     args = parser.parse_args(raw_args)
 
