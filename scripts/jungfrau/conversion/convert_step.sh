@@ -21,6 +21,7 @@
 # Mail: ana.rodrigues@desy.de
 
 source /etc/profile.d/modules.sh
+module purge
 source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 
 INP=$1
