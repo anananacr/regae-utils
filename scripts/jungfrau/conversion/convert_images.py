@@ -201,7 +201,7 @@ def main(raw_args=None):
         """Step scan accumulate all images inside the container file"""
         ## Check if start and ending files exist
         start_path=f"{args.input}_master_{args.start_index}.h5"
-        end_path=f"{args.input}_master_{args.end_index + 1}.h5"
+        end_path=f"{args.input}_master_{args.end_index}.h5"
         
         if not os.path.exists(start_path):
             raise IndexError("Start file index out of range, please check the index of the files. Start file is included in the interval and will be processed.")
@@ -212,12 +212,12 @@ def main(raw_args=None):
         if args.end_index==-1:
             ## screening
             index = np.arange(args.start_index,1, 1)
-            n_frames = 0
+            n_frames = 1
         else:
             index = np.arange(args.start_index, args.end_index + 1, 1)
-            n_frames = args.end_index - args.start_index
+            n_frames = args.end_index +1 - args.start_index
         
-        averaged_frames = np.zeros((n_frames + 1, 1024, 1024), dtype=np.int32)
+        averaged_frames = np.zeros((n_frames, 1024, 1024), dtype=np.int32)
         for idx,i in enumerate(index):
             acc_frame = np.zeros((1024, 1024), dtype=np.int32)
             f = h5py.File(f"{args.input}_master_{i}.h5", "r")
