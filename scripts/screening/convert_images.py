@@ -208,14 +208,10 @@ def main(raw_args=None):
         
         if not os.path.exists(end_path):
             raise IndexError("End file index out of range, please check the index of the files. End file is included in the interval and will be processed.")
-        
-        if args.end_index==-1:
-            ## screening
-            index = np.arange(args.start_index,1, 1)
-            n_frames = 1
-        else:
-            index = np.arange(args.start_index, args.end_index + 1, 1)
-            n_frames = args.end_index +1 - args.start_index
+
+
+        index = np.arange(args.start_index, args.end_index + 1, 1)
+        n_frames = args.end_index +1 - args.start_index
         
         averaged_frames = np.zeros((n_frames, 1024, 1024), dtype=np.int32)
         for idx,i in enumerate(index):

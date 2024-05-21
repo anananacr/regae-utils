@@ -21,7 +21,7 @@ echo "Convert images for data: $1"
 MODE=screening
 N=$(basename $INP)
 START=0
-END=-1 # -1 to identify screening
+END=0
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/$beamtime
 
 source /etc/profile.d/modules.sh
