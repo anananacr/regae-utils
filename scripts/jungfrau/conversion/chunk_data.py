@@ -5,7 +5,7 @@ import numpy as np
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
-        description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according tro the file index."
+        description="Chop big HDF5 file in smaller HDF5 files."
     )
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"
@@ -23,7 +23,7 @@ def main(raw_args=None):
         default=None,
         type=int,
         action="store",
-        help="If more than one frame was measured per step. Number of frames to be accumulated per step for rotational step manner. None for fly scan.",
+        help="Number of frames to be save in the output file.",
     )
 
     parser.add_argument(

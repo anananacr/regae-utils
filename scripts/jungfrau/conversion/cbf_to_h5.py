@@ -16,7 +16,7 @@ def main():
         "--input",
         type=str,
         action="store",
-        help="path to list of data files .lst",
+        help="input h5 file",
     )
     parser.add_argument(
         "-o", "--output", type=str, action="store", help="path to output data files"

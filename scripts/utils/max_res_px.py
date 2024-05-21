@@ -9,7 +9,7 @@ def main(raw_args=None):
 
     # argument parser
     parser = argparse.ArgumentParser(
-        description="Convert resolution ansgstroms to resolution in pixels for the detector distance and beam energy."
+        description="Convert resolution ansgstroms to resolution in pixels for the detector distance and beam energy. It doesn't take into account relativistic corrections."
     )
     parser.add_argument(
         "-d",

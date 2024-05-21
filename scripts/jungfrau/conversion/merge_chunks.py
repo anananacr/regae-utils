@@ -6,7 +6,7 @@ import glob
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Concatenate converted images in packets form convert_images.py."
+        description="Concatenate converted images in packets form convert_images.py, when unequal packets were created. Set size of packets hard coded manually."
     )
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="path to H5 data files"

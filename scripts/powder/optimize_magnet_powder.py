@@ -1,3 +1,8 @@
+"""
+Function to optmize the Sol67 current based on the sharpness of the Au rings FWHM/R (radius).
+Author: Ana Carolina Rodrigues (2021-2024)
+"""
+
 import h5py
 import hdf5plugin
 import numpy as np

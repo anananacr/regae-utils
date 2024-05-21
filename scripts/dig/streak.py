@@ -15,20 +15,20 @@ region_label=3
 
 def main():
     parser = argparse.ArgumentParser(
-        description="Calculate center of diffraction patterns fro MHz beam sweeping serial crystallography."
+        description="Streak measurement."
     )
     parser.add_argument(
         "-i",
         "--input",
         type=str,
         action="store",
-        help="path to list of data files .lst",
+        help="input h5 file",
     )
     parser.add_argument(
-        "-m", "--mask", type=str, action="store", help="path to output data files"
+        "-m", "--mask", type=str, action="store", help="mask h5 file 0 bad pixels 1 good pixels"
     )
     parser.add_argument(
-        "-g", "--geom", type=str, action="store", help="path to output data files"
+        "-g", "--geom", type=str, action="store", help="geometry file path (.geom)"
     )
     parser.add_argument(
         "-o", "--output", type=str, action="store", help="path to output data files"

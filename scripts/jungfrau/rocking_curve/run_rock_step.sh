@@ -1,19 +1,13 @@
 #!/bin/sh
 
 # Run rocking curve step scan calculation in rocking_curve_step.py
-
+# Usage
 # ./run_rock_step.sh my-files-folder/label
-
-# Copyright � 2021-2023 Deutsches Elektronen-Synchrotron DESY,
-#                       a research centre of the Helmholtz Association.
-#
 # Authors:
-# Ana Carolina Rodrigues
+# Ana Carolina Rodrigues (2021-2024)
+# Mail :ana.rodrigues@desy.de
 
-#MAIL=ana.rodrigues@desy.de
-
-# Set up environment here if necessary
-
+source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 INPUT=$1
 
 DATE=20221115

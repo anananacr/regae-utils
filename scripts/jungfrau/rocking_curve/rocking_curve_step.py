@@ -15,7 +15,7 @@ gain = None
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
-        description="Plot summed intensity over a peak square according to the angle of rotation in step-scan mode."
+        description="Plot summed intensity over a peak squared-region according to the angle of rotation in step-scan mode."
     )
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="H5 input master file"
