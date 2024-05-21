@@ -21,22 +21,29 @@ echo "Convert images for data: $1"
 MODE=screening
 N=$(basename $INP)
 START=0
-END=-1 # Yes, for the screening is -1
+END=-1 # -1 to identify screening
 ROOT=/asap3/fs-bmx/gpfs/regae/2023/data/$beamtime
 
 source /etc/profile.d/modules.sh
 module purge
 source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 
+FOLDER_UP=$(echo $INP | cut -d'/' -f1)
+FOLDER=$(echo $INP | cut -d'/' -f2)
+
+if [[ "${FOLDER::-3}" != "ed_screening_" ]]; then
+    echo "Error: Check the input arguments."
+    echo "Usage: $0 <folder_on_raw/ed_screening_00*/folder_on_raw_screen_00*> "
+    echo "Example: $0 <231207_test_screen/ed_screening_002/231207_test_screen_002> "
+    exit 1
+fi
+
 echo "----------------------- Converting pedestals -----------------------"
 convert_pedestals.sh ${INP} ${MODE};
 
 echo "----------------------- Creating folders on processed -----------------------"
-FOLDER_UP=$(echo $INP | cut -d'/' -f1)
 mkdir $ROOT/processed/converted/$FOLDER_UP 2> /dev/null
 mkdir $ROOT/processed/assembled/$FOLDER_UP 2> /dev/null
-
-FOLDER=$(echo $INP | cut -d'/' -f2)
 
 mkdir $ROOT/processed/converted/$FOLDER_UP/$FOLDER 2> /dev/null;
 mkdir $ROOT/processed/assembled/$FOLDER_UP/$FOLDER 2> /dev/null;
