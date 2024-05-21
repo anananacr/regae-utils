@@ -6,7 +6,7 @@
 # ./convert_pedestal.sh input
 #./convert_pedestal.sh 231020_mica_c4_m1_001/ed_rot_step_001/231020_mica_c4_m1_001_001 step
 
-# Written by Ana Carolina Rodrigues.
+# Written by Ana Carolina Rodrigues (2021-2024).
 #
 # Mail: ana.rodrigues@desy.de
 
