@@ -16,13 +16,12 @@
 # Usage
 # sbatch convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
 ## You need to set manually on convert_images.py how many frames you want to merge together! Use the parameter fly_frames_to_merge
-# Written by Ana Carolina Rodrigues.
+# Written by Ana Carolina Rodrigues (2021-2024).
 #
 # Mail: ana.rodrigues@desy.de
 
 source /etc/profile.d/modules.sh
-module load maxwell python/3.7
-source /home/rodria/scripts/regae/env-regae/bin/activate
+source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 
 INPUT=221115_mica_6/221115_mica_6
 LABEL=20221115_mica_6
