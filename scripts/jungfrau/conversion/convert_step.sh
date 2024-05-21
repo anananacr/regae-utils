@@ -21,7 +21,7 @@
 # Mail: ana.rodrigues@desy.de
 
 source /etc/profile.d/modules.sh
-source /home/rodria/scripts/regae/env-regae/bin/activate
+source /gpfs/cfel/user/rodria/software/env-regae/bin/activate
 
 INP=$1
 MODE=$2
