@@ -13,9 +13,10 @@
 # Convert images using convert_all.py script. Remember to set correctly paths where data and pedestals from JUNGFRAU 1M are stored.
 # Enable H5 data to be converted in step-wise manner, using start and end frame number arguments,  dividing it in smaller jobs.
 
+# sbatch convert_step.sh folder_label/ed_rot_step_00*/folder_label_00* mode start_index end_index
 # sbatch convert_step.sh 231020_mos_c3_ms_001/ed_rot_step_003/231020_mos_c3_ms_001_003 step 0 12999
 
-# Written by Ana Carolina Rodrigues.
+# Written by Ana Carolina Rodrigues (2021-2024).
 #
 # Mail: ana.rodrigues@desy.de
 

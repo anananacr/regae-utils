@@ -11,7 +11,7 @@ import pathlib
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
-        description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according tro the file index."
+        description="Assemble multi-panels H5 images according to the geometry file."
     )
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"

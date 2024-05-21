@@ -4,7 +4,7 @@ import argparse
 
 
 def main():
-    parser = argparse.ArgumentParser(description="Average pedestals.")
+    parser = argparse.ArgumentParser(description="Average pedestals from start and stop, meaning begin and end of run measurement.")
     parser.add_argument(
         "-l",
         "--label",

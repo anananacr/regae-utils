@@ -10,8 +10,8 @@
 #SBATCH --output    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.out
 #SBATCH --error    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.err
 # Usage:
-#sbatch merge_sub.sh 240516_C3b_MICA020_3GHz_002/ed_rot_step_001/240516_C3b_MICA020_3GHz_002_001 20
-# Written by Ana Carolina Rodrigues.
+# sbatch merge_sub.sh 240516_C3b_MICA020_3GHz_002/ed_rot_step_001/240516_C3b_MICA020_3GHz_002_001 20
+# Written by Ana Carolina Rodrigues (2021-2024).
 #
 # Mail: ana.rodrigues@desy.de
 

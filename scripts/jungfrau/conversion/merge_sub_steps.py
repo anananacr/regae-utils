@@ -13,7 +13,7 @@ import matplotlib.colors as color
 
 def main(raw_args=None):
     parser = argparse.ArgumentParser(
-        description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according tro the file index."
+        description="Convert JUNGFRAU 1M H5 images collected at REGAE for rotational data step/fly scan and return images in rotation sequence according to the file index."
     )
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"
