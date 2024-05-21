@@ -7,8 +7,6 @@ import json
 import pandas as pd
 import sys
 from scipy.optimize import curve_fit
-sys.path.append("/home/rodria/software/vdsCsPadMaskMaker/new-versions/")
-import geometry_funcs as gf
 
 def gaussian_lin(
     x: np.ndarray, a: float, x0: float, sigma: float, m: float, n: float
