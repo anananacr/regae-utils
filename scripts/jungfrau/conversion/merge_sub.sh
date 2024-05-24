@@ -1,11 +1,10 @@
 #!/bin/sh
 
-#SBATCH --partition=allcpu,cfel
+#SBATCH --partition=allcpu
 #SBATCH --time=2-00:00:00
 #SBATCH --requeue
 #SBATCH --nodes=1
 #SBATCH --mem=40G
-
 #SBATCH --job-name  merge_frames
 #SBATCH --output    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.out
 #SBATCH --error    /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/rodria/center_refinement/error/merge-%N-%j.err
