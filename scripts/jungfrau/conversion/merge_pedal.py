@@ -10,7 +10,7 @@ def main():
         "--label",
         type=str,
         action="store",
-        help="raw files label 231020_mica_c4_m1_001_001. Comment: bad implementation I need to set the root path manually, but averaging the pedestals from the beginning and the end of the run is a bad (performatically) solution anyway. Problem still open. Good luck.",
+        help="raw files label 231020_mica_c4_m1_001_001. Comment: bad implementation I need to set the root path manually, but averaging the pedestals from the beginning and the end of the run is a bad (performatically) solution anyway. Problem still open.",
     )
 
     args = parser.parse_args()
