@@ -26,7 +26,7 @@ def main(raw_args=None):
         "-o", "--output", type=str, action="store", help="output path"
     )
     parser.add_argument(
-        "-f", "--format", type=str, action="store", help="output format 'tif' or 'cbf'"
+        "-f", "--format", type=str, default="tif", action="store", help="output format 'tif' or 'cbf'"
     )
     args = parser.parse_args(raw_args)
 
@@ -75,7 +75,7 @@ def main(raw_args=None):
             Image.fromarray(visual_data).save(f"{output_filename}")
             output_filename_cbf=f"{args.output}/{label}_{i:06}.cbf"
             cmd=f"source /etc/profile.d/modules.sh; module load xray; tif2cbf {output_filename} {output_filename_cbf}; rm {output_filename};"
-            sub.call(cmd, shell=True)
+            sub.call(cmd, shell=True, stderr=sub.DEVNULL)
         else:
             raise ValueError("Unrecongized output file format.")
 
