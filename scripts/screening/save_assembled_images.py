@@ -16,7 +16,6 @@ def main(raw_args=None):
     parser.add_argument(
         "-i", "--input", type=str, action="store", help="hdf5 input image"
     )
-
     parser.add_argument(
         "-g", "--geom", type=str, action="store", help="crystfel geometry file"
     )
@@ -25,6 +24,9 @@ def main(raw_args=None):
     )
     parser.add_argument(
         "-o", "--output", type=str, action="store", help="output path"
+    )
+    parser.add_argument(
+        "-f", "--format", type=str, default="tif", action="store", help="output format 'tif' or 'cbf'"
     )
     args = parser.parse_args(raw_args)
 
@@ -65,8 +67,17 @@ def main(raw_args=None):
         )
         visual_data =  data_visualize.visualize_data(data=data*mask)
         visual_data[np.where(visual_data<= 0)] = -1
-        output_filename=f"{args.output}/{label}_{i:06}.tif"
-        Image.fromarray(visual_data).save(f"{output_filename}")
+        if args.format =="tif":
+            output_filename=f"{args.output}/{label}_{i:06}.tif"
+            Image.fromarray(visual_data).save(f"{output_filename}")
+        elif args.format =="cbf":
+            output_filename=f"{args.output}/{label}_{i:06}.tif"
+            Image.fromarray(visual_data).save(f"{output_filename}")
+            output_filename_cbf=f"{args.output}/{label}_{i:06}.cbf"
+            cmd=f"source /etc/profile.d/modules.sh; module load xray; tif2cbf {output_filename} {output_filename_cbf}; rm {output_filename};"
+            sub.call(cmd, shell=True, stderr=sub.DEVNULL)
+        else:
+            raise ValueError("Unrecongized output file format.")
 
     f.close()
 

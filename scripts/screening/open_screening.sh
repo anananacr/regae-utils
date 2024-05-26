@@ -51,7 +51,7 @@ mkdir $ROOT/processed/assembled/$FOLDER_UP/$FOLDER 2> /dev/null;
 echo "----------------------- Converting images -----------------------"
 python ${SCRIPTS_FOLDER}/convert_images.py -p1 ${ROOT}/processed/darks/pedal_d0_${N}_${MODE}_average.h5 -p2 ${ROOT}/processed/darks/pedal_d1_${N}_${MODE}_average.h5 -g1 ${ROOT}/processed/darks/gainMaps_M283.bin -g2 ${ROOT}/processed/darks/gainMaps_M281.bin -i ${ROOT}/raw/${INP} -m 1 -s ${START} -e ${END} -o ${ROOT}/processed/converted/${INP}_master;
 
-python ${SCRIPTS_FOLDER}/save_assembled_images.py -i ${ROOT}/processed/converted/${INP} -g ${ROOT}/scratch_cc/yefanov/geom/JF_regae_v4.geom -m ${ROOT}/scratch_cc/yefanov/mask/mask_edges.h5  -o ${ROOT}/processed/assembled/${FOLDER_UP}/${FOLDER};
+python ${SCRIPTS_FOLDER}/save_assembled_images.py -i ${ROOT}/processed/converted/${INP} -g ${ROOT}/scratch_cc/yefanov/geom/JF_regae_v4.geom -m ${ROOT}/scratch_cc/yefanov/mask/mask_edges.h5  -o ${ROOT}/processed/assembled/${FOLDER_UP}/${FOLDER} -f cbf;
 echo "----------------------- Opening images folder -----------------------"
 module load xray;
 rm pedal_d*.lst
