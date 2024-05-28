@@ -90,4 +90,4 @@ python optimize_magnet_powder.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/pro
 
 Ana Carolina Rodrigues (2021 - 2024)
 
-Mail: ana.rodrigues@desy.de
+Mail: ana.rodrigues@desy.de / sc.anarodrigue@gmail.com
