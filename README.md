@@ -26,21 +26,21 @@ Example:
 
 ### Convert images
 
-> Step scan
+- Step scan
 
 sbatch convert_step.sh folder_on_raw/ed_rot_scantype_00*/file_label scantype start_file_index end_file_index
 
 Example:
 sbatch convert_step.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_001 step 0 1000
 
-> Fly scan
+- Fly scan
 
 sbatch convert_fly.sh folder_on_raw/ed_rot_scantype_00*/file_label scantype 
 
 Example:
 sbatch convert_fly.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_001 fly
 
-> Step + Fly scan
+- Step + Fly scan
 
 After accumulating the frames of each position using convert_step.sh, run the following script to merge sub steps in order to have each frame corresponding to 0.1 deg rotation.
 
