@@ -56,14 +56,16 @@ python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/p
 Example:
 python save_assembled_images.py -i /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231019_mos_c3_ms_001/ed_rot_step_001/231019_mos_c3_ms_001_001 -g /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/geom/JF_regae_v4.geom -m /asap3/fs-bmx/gpfs/regae/2023/data/11018148/scratch_cc/yefanov/mask/mask_edges.h5 -o /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/assembled/231019_mos_c3_ms_001/ed_rot_step_001 -f cbf &
 
-### Center refinement
+## Center refinement
 
 Check on https://github.com/anananacr/beambusters
 
-### Optmize Sol67 current for maximum sharpness of the diffraction pattern
+## Optmize Sol67 current for maximum sharpness of the diffraction pattern
 
 Example:
-
+```bash
 python optimize_magnet_powder.py /path/to/converted/file/ current_increment min_peak_height peak_width
-
+```
+```bash
 python optimize_magnet_powder.py /asap3/fs-bmx/gpfs/regae/2023/data/11018148/processed/converted/231221_au_ref_scan/ed_magnet_step_001/231221_au_ref_scan_001_master.h5 0.1 130 4
+```
