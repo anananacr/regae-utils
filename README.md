@@ -27,12 +27,14 @@ Example:
 ### Convert images
 
 > Step scan
+
 sbatch convert_step.sh folder_on_raw/ed_rot_scantype_00*/file_label scantype start_file_index end_file_index
 
 Example:
 sbatch convert_step.sh 231023_membran_back/ed_rot_step_001/231023_membran_back_001 step 0 1000
 
 > Fly scan
+
 sbatch convert_fly.sh folder_on_raw/ed_rot_scantype_00*/file_label scantype 
 
 Example:
