@@ -19,7 +19,7 @@ import pathlib
 dark = None
 gain = None
 
-fly_frames_to_merge = 20
+fly_frames_to_merge = 10
 
 
 def filter_data(data):
